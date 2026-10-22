@@ -1,3 +1,4 @@
+import {updateDrafting} from './drafting.js';
 import {driftLevel,DRIFT_LEVELS} from './drift.js';
 import {SHORTCUTS,shortcutState} from './shortcuts.js';
 import {normalizeSettings,DIFFICULTIES,PILOTS} from './settings.js';
@@ -8,7 +9,7 @@ export const NAMES = ['Você · Lume', 'Bia Faísca', 'Téo Musgo', 'Nina Cometa
 export const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
 export function createRace(options={}){
  const settings=normalizeSettings(options),ids=[settings.pilot,...PILOTS.map((_,i)=>i).filter(i=>i!==settings.pilot)];
- return ids.map((pilot,i)=>({name:(i===0?'Você · ':'')+PILOTS[pilot],pilot,settings,style:['defender','attacker','explorer','attacker','explorer','defender'][pilot],collisions:0,goodDrifts:0,shortcut:false,shortcutLap:-1,shortcutFailed:false,turboLevel:0,lastAttack:null,shield:0,slow:0,item:null,itemPressed:false,index:i,distance:-Math.floor(i/2)*4-9,speed:0,offset:i%2?2.4:-2.4,nitro:100,angle:0,slide:0,finished:false,finishTime:null,drifting:false,driftCharge:0,miniTurbo:0,boosting:false,hit:0,aiLane:i%2?2.4:-2.4}));
+ return ids.map((pilot,i)=>({name:(i===0?'Você · ':'')+PILOTS[pilot],pilot,settings,style:['defender','attacker','explorer','attacker','explorer','defender'][pilot],draft:0,draftActive:false,collisions:0,goodDrifts:0,shortcut:false,shortcutLap:-1,shortcutFailed:false,turboLevel:0,lastAttack:null,shield:0,slow:0,item:null,itemPressed:false,index:i,distance:-Math.floor(i/2)*4-9,speed:0,offset:i%2?2.4:-2.4,nitro:100,angle:0,slide:0,finished:false,finishTime:null,drifting:false,driftCharge:0,miniTurbo:0,boosting:false,hit:0,aiLane:i%2?2.4:-2.4}));
 }
 export function orderRacers(racers){return [...racers].sort((a,b)=>a.finished&&b.finished?a.finishTime-b.finishTime:a.finished?-1:b.finished?1:b.distance-a.distance);}
 export function lapOf(r){return clamp(Math.floor(Math.max(0,r.distance)/TRACK_LENGTH)+1,1,LAPS);}
@@ -54,6 +55,7 @@ function driveAI(r,racers,dt,time){
  r.miniTurbo=Math.max(0,r.miniTurbo-dt);
  const turboWindow=(time+r.index*1.7)%9<difficulty.turbo;
  r.boosting=(turboWindow&&r.nitro>8||r.miniTurbo>0)&&r.speed>18;
+ if(r.draftActive)targetSpeed+=4;
  if(r.boosting)targetSpeed=42.5+difficulty.pace+clamp(gapToPlayer/20,-3,2);
  if(ahead&&Math.abs(ahead.other.offset-r.offset)<2.6){
   const candidates=[-4,0,4].map(lane=>({lane,clear:!racers.some(o=>o!==r&&!o.finished&&Math.abs(wrapGap(o.distance,r.distance))<12&&Math.abs(o.offset-lane)<2.4)}));
@@ -74,8 +76,9 @@ function driveAI(r,racers,dt,time){
 }
 export function stepRace(racers,input,dt,time,surface=null){
  dt=clamp(dt,0,.05);if(!dt)return;
+ updateDrafting(racers,dt);
  for(const r of racers){
-  r.hit=Math.max(0,r.hit-dt);
+  r.hit=Math.max(0,r.hit-dt);r.powerGesture=Math.max(0,(r.powerGesture??0)-dt);
   if(r.finished){r.speed=Math.max(0,r.speed-dt*15);r.boosting=false;r.drifting=false;continue;}
   if(r.index===0){
    const steer=Number.isFinite(input.steer)?clamp(input.steer,-1,1):Number(!!input.left)-Number(!!input.right);
@@ -92,8 +95,8 @@ export function stepRace(racers,input,dt,time,surface=null){
    const boost=input.boost&&input.up&&r.nitro>1&&r.speed>0;
    r.boosting=!!boost||r.miniTurbo>0;
    r.nitro=clamp(r.nitro+dt*(boost?-27:r.drifting?20:7),0,100);
-   r.speed+=dt*(input.up?(boost?24:r.miniTurbo>0?22:14):input.down?-26:r.miniTurbo>0?12:-6);
-   r.speed=clamp(r.speed,input.down?-7:0,boost?49:r.miniTurbo>0?DRIFT_LEVELS[Math.max(0,r.turboLevel-1)].speed:32);
+   r.speed+=dt*(input.up?(boost?24:r.miniTurbo>0?22:r.draftActive?18:14):input.down?-26:r.miniTurbo>0?12:-6);
+   r.speed=clamp(r.speed,input.down?-7:0,boost?49:r.miniTurbo>0?DRIFT_LEVELS[Math.max(0,r.turboLevel-1)].speed:r.draftActive?36:32);
    const targetSlide=Math.sin(r.angle)*r.speed*(r.drifting?.48:.8);
    r.slide+=(targetSlide-r.slide)*(1-Math.exp(-dt*(r.drifting?2.2:9)));
    r.offset+=r.slide*dt;

@@ -22,7 +22,7 @@ export function stepItems(racers,world,input,dt,time){
   for(const box of world.boxes)if(box.cooldown===0&&!r.item&&Math.abs(gap(r.distance,box.distance))<3&&Math.abs(r.offset-box.offset)<1.5){const position=orderRacers(racers).findIndex(p=>p===r)+1;const roll=((box.picks++*37+r.index*17+Math.floor(box.distance)*13)%100)/100;r.item=chooseItem(position,racers.length,roll);box.cooldown=8;}
   const pressed=r.index===0?!!input.item:shouldUseItem(r,racers,time);
   if(pressed&&!r.itemPressed&&r.item){
-   const item=r.item;r.item=null;
+   const item=r.item;r.item=null;r.powerGesture=.45;
    if(item==='shield')r.shield=6;
    if(item==='gum')world.puddles.push({distance:r.distance-5,offset:r.offset,owner:r.index,ownerName:r.name,life:7});
    if(item==='pulse'){r.miniTurbo=Math.max(r.miniTurbo,.8);r.turboLevel=2;world.pulse={distance:r.distance,offset:r.offset,life:.5};for(const other of racers)if(other!==r&&!other.finished&&Math.abs(gap(other.distance,r.distance))<22&&hit(other,1.3,r.name,'pulse',time)){const side=Math.sign(other.offset-r.offset)||(other.index%2?1:-1);other.offset=clamp(other.offset+side*1.3,-ROAD_LIMIT,ROAD_LIMIT);other.slide=side*5;}}
