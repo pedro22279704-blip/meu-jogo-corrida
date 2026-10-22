@@ -1,5 +1,17 @@
 # Karts do Vale Neon
 
+## Novos personagens
+
+Na aba **Pilotos**, escolha um dos sete karts e depois **Personagem no seu kart**:
+
+- **Dona Olinda**: inventora aposentada, cachos prateados assimétricos, laço coral lateral, brincos e olhar determinado.
+- **Tico Rebite**: mecânico de topete de cobre, óculos redondos e sorriso torto.
+- **Juma Vagalume**: locutora de tranças elétricas, fones verdes e microfone.
+
+Os personagens são modelos originais feitos em geometria Three.js. A inspiração visual usa apenas a energia cartunesca, o volume do cabelo e a expressividade do desenho de referência; não reproduz personagens de outras obras. Não há imagens externas nem dependências novas.
+
+O retrato mostra a escolha no carro. O personagem reage ao nitro, às batidas e ao drift, acompanha braços e comemoração no pódio e pode ser usado inclusive no **Carro 10**. A seleção é salva no navegador; **Piloto original** restaura o visual anterior. Os sete carros, pinturas, desafios, recordes, física, drift e nitro mantêm suas regras. O nome da classificação continua sendo o do piloto/kart escolhido. Fantasmas antigos não armazenam a aparência do personagem.
+
 Jogo original de kart 3D para navegador, feito com JavaScript e Three.js. Os modelos são construídos com formas geométricas, sem imagens ou personagens de terceiros.
 
 ## Como jogar no computador

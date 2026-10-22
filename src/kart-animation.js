@@ -1,6 +1,7 @@
 import * as THREE from 'three';
+import {animateCharacter} from './characters.js';
 export function bindKart(model){
- const find=name=>{let found;model.traverse(node=>{if(node.name.replace(/[._]?\d+$/,'')===name)found??=node;});return found;};
+ const find=name=>{let found;model.traverse(node=>{if(!node.userData.originalCharacter&&node.name.replace(/[._]?\d+$/,'')===name)found??=node;});return found;};
  const rig={model,driver:find('Driver'),arms:['L','R'].map(s=>find('Arm_'+s)),steering:find('Steering'),front:['L','R'].map(s=>find('Steer_F'+s)),rolls:['FL','FR','BL','BR'].map(s=>find('Roll_'+s)),wheelAngle:0};
  for(const part of [rig.driver,...rig.arms,rig.steering,...rig.front,...rig.rolls])if(part)part.userData.rest=part.quaternion.clone();
  return rig;
@@ -9,6 +10,7 @@ function rotate(part,axis,angle){if(part)part.quaternion.copy(part.userData.rest
 const x=new THREE.Vector3(1,0,0),y=new THREE.Vector3(0,1,0),z=new THREE.Vector3(0,0,1);
 export function animateKart(rig,racer,dt,time){
  if(!rig)return;
+ animateCharacter(rig.driver,racer,time);
  rig.wheelAngle=(rig.wheelAngle+(racer.finished?0:racer.speed)*dt/.37)%(Math.PI*2);
  for(const wheel of rig.rolls)rotate(wheel,x,rig.wheelAngle);
  for(const wheel of rig.front)rotate(wheel,y,racer.angle*.65);
