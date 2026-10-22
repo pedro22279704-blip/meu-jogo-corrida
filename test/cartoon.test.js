@@ -1,0 +1,7 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';
+import * as THREE from 'three';
+import {toonMaterial,cartoonize,contactShadow} from '../src/cartoon.js';
+import {powerTexture,POWER_ART} from '../src/power-art.js';
+test('conversão cartoon preserva nomes das pinturas e evita contornos duplicados',()=>{const group=new THREE.Group(),body=new THREE.Mesh(new THREE.BoxGeometry(),new THREE.MeshStandardMaterial({color:'#55cc99'}));body.name='Body';body.material.name='Paint_Lume';group.add(body);cartoonize(group,{outlines:true});assert.ok(body.material.isMeshToonMaterial);assert.equal(body.material.name,'Paint_Lume');assert.equal(body.material.color.getHexString(),'55cc99');assert.equal(body.children.length,1);cartoonize(group,{outlines:true});assert.equal(body.children.length,1);assert.ok(toonMaterial('#ffffff').gradientMap);});
+test('quatro recortes usam células diferentes no mesmo atlas',()=>{const atlas=new THREE.Texture(),offsets=new Set();for(const type of Object.keys(POWER_ART)){const texture=powerTexture(atlas,type);assert.deepEqual(texture.repeat.toArray(),[.5,.5]);assert.equal(texture.colorSpace,THREE.SRGBColorSpace);offsets.add(texture.offset.toArray().join(','));}assert.equal(offsets.size,4);});
+test('sombra de contato não bloqueia profundidade e tem borda transparente',()=>{const shadow=contactShadow();assert.equal(shadow.material.depthWrite,false);assert.equal(shadow.material.transparent,true);const image=shadow.material.map.image;assert.equal(image.data[3],0);assert.ok(image.data[(32*64+32)*4+3]>0);});

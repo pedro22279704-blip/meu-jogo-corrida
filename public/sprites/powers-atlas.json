@@ -1,0 +1,11 @@
+{
+  "image": "powers-atlas.png",
+  "size": {"width": 1254, "height": 1254},
+  "transparent": true,
+  "frames": {
+    "shield": {"x": 0, "y": 0, "width": 627, "height": 627},
+    "gum": {"x": 627, "y": 0, "width": 627, "height": 627},
+    "pulse": {"x": 0, "y": 627, "width": 627, "height": 627},
+    "capsule": {"x": 627, "y": 627, "width": 627, "height": 627}
+  }
+}

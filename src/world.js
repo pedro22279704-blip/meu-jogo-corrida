@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {toonMaterial,cartoonize} from './cartoon.js';
 import {SHORTCUTS} from './shortcuts.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {TRACK_LENGTH} from './race.js';
@@ -8,7 +9,7 @@ export function createWorld(scene,id){
  const root=new THREE.Group();scene.add(root);let alive=true;
  const harbor=id==='harbor',theme=TRACKS[id],windmills=[],loader=new GLTFLoader();
  scene.background=new THREE.Color(theme.sky);scene.fog=new THREE.Fog(theme.sky,120,340);
- const mat=color=>new THREE.MeshStandardMaterial({color,roughness:.75});
+ const mat=toonMaterial;
  function mesh(geometry,color,parent=root){const object=new THREE.Mesh(geometry,mat(color));parent.add(object);return object;}
  const ground=mesh(new THREE.PlaneGeometry(2000,2000),theme.ground);ground.rotation.x=-Math.PI/2;ground.position.y=-.15;
  const curve=createCircuitCurve(id),physicalLength=curve.getLength();
@@ -30,7 +31,7 @@ function shortcutFrame(distance,offset=0){
  return {p,tangent,normal,up,quaternion:new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(normal,up,tangent))};
 }
 function ribbon(width,color,y){const positions=[],indices=[];for(let i=0;i<=500;i++){for(const side of [-1,1]){const {p}=track(i/500*TRACK_LENGTH,side*width/2);positions.push(p.x,p.y+y,p.z);}if(i<500&&!(width>=100&&i/500*TRACK_LENGTH>=shortcut.start&&i/500*TRACK_LENGTH<=shortcut.end)){const j=i*2;indices.push(j,j+2,j+1,j+1,j+2,j+3);}}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setIndex(indices);g.computeVertexNormals();return mesh(g,color);}
-ribbon(harbor?23:100,harbor?'#bc9b77':'#78a879',-.25);ribbon(16,'#ebd7ac',.01);ribbon(12,'#354b5a',.03);
+ribbon(harbor?23:100,harbor?'#e0bb86':'#89c57a',-.25);ribbon(16,'#ebd7ac',.01);ribbon(12,'#597886',.03);
 for(let i=0;i<130;i++){for(const side of [-1,1]){if(side===1&&i/130*TRACK_LENGTH>=shortcut.start&&i/130*TRACK_LENGTH<=shortcut.end)continue;const {p,tangent}=track(i/130*TRACK_LENGTH,side*6.5);const curb=mesh(new THREE.BoxGeometry(.65,.16,physicalLength/130*.8),i%2?'#f4edcf':'#ef806b');curb.position.copy(p);curb.position.y+=.1;curb.rotation.y=Math.atan2(tangent.x,tangent.z);}}
 // Barreiras contínuas acompanham o limite de colisão dos karts.
 const rails=new THREE.InstancedMesh(new THREE.BoxGeometry(.3,.65,physicalLength/200+.12),mat('#ffffff'),400);
@@ -48,7 +49,7 @@ const start=track(0);for(const side of [-1,1]){const pillar=mesh(new THREE.Cylin
 const banner=mesh(new THREE.BoxGeometry(16,1.1,.5),'#a9fb59');banner.position.copy(start.p);banner.position.y+=7;banner.rotation.y=Math.atan2(start.tangent.x,start.tangent.z);
 // Árvores e cristais usam posições determinísticas para manter o vale original.
 for(let i=0;i<(harbor?0:110);i++){const d=i/110*TRACK_LENGTH;const side=i%2?1:-1;const {p}=track(d,side*(18+(i*17%31)));const tree=new THREE.Group();root.add(tree);tree.position.copy(p);const trunk=mesh(new THREE.CylinderGeometry(.35,.5,3,6),'#76634b',tree);trunk.position.y=1.5;const crown=mesh(new THREE.ConeGeometry(2.4+(i%3)*.4,7,6),i%3?'#366c62':'#4b8571',tree);crown.position.y=5;}
-function loadProp(name,placements){loader.load(`${import.meta.env.BASE_URL}models/prop-${name}.glb`,gltf=>{if(!alive)return;placements.forEach(({distance,offset=0,scale=1})=>{
+function loadProp(name,placements){loader.load(`${import.meta.env.BASE_URL}models/prop-${name}.glb`,gltf=>{if(!alive)return;cartoonize(gltf.scene);placements.forEach(({distance,offset=0,scale=1})=>{
  const frame=track(distance,offset),object=gltf.scene.clone(true);object.position.copy(frame.p);object.quaternion.copy(frame.quaternion);object.scale.setScalar(scale);root.add(object);
 });},undefined,error=>console.warn('Objeto decorativo indisponível.',error));}
 if(!harbor)loadProp('tree',Array.from({length:32},(_,i)=>({distance:i/32*TRACK_LENGTH,offset:(i%2?1:-1)*(18+i%4*3),scale:.8+i%3*.15})));
@@ -70,6 +71,8 @@ if(!harbor)loadProp('tunnel',[{distance:TRACK_LENGTH*.63}]);
   }
   for(let i=0;i<7;i++){const boat=mesh(new THREE.ConeGeometry(3,10,4),'#e6c4a1');const f=track(i/7*TRACK_LENGTH, i%2?42:-42);boat.position.copy(f.p);boat.position.y=.5;boat.rotation.x=Math.PI/2;boat.rotation.z=i;}
  }
+ const cloudGeometry=new THREE.SphereGeometry(1,10,6),cloudMaterial=new THREE.MeshBasicMaterial({color:harbor?'#ffe1ba':'#f7ffff',fog:true});
+ for(let i=0;i<12;i++){const a=i/12*Math.PI*2,cloud=new THREE.Group();cloud.position.set(Math.cos(a)*240,45+i%3*9,Math.sin(a)*240);root.add(cloud);for(let j=0;j<3;j++){const puff=new THREE.Mesh(cloudGeometry,cloudMaterial);puff.position.x=(j-1)*8;puff.scale.set(12-j%2*2,5+j%2*3,6);cloud.add(puff);}}
  // Faixa estreita de terra: entrada e saída coincidem com a pista principal.
  const routePositions=[],routeIndices=[];
  for(let i=0;i<=40;i++){const d=shortcut.start+(shortcut.end-shortcut.start)*i/40;for(const offset of [1.7,4.3]){const p=shortcutFrame(d,offset).p;routePositions.push(p.x,p.y+.065,p.z);}if(i<40){const j=i*2;routeIndices.push(j,j+2,j+1,j+1,j+2,j+3);}}

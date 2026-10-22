@@ -184,3 +184,20 @@ Desafios ficam salvos neste navegador e liberam pinturas selecionáveis no menu,
 - Vença ao menos uma corrida com cada um dos seis pilotos: **Ouro solar**.
 
 O resultado informa batidas, drifts e pinturas novas. Se o armazenamento estiver bloqueado, o progresso fica apenas nesta sessão. Pinturas precisam ser selecionadas no menu e não são aplicadas automaticamente. Os recordes destas regras usam a versão 6, separados dos anteriores.
+
+## Visual cartoon e sprites dos poderes
+
+Os karts e objetos usam sombreamento toon em quatro faixas, com contornos nas grandes silhuetas dos karts. Luzes, cores do cenário, nuvens, retratos, botões e painéis foram ajustados para um visual cartoon mais coeso. Sombras de contato suaves ajudam a ligar os veículos ao chão, sem mapas de sombras ou pós-processamento pesado. Os contornos usam uma segunda casca apenas em algumas peças; isso ainda tem custo de renderização, então desempenho depende do computador. A física e as regras da corrida não foram alteradas nesta atualização.
+
+Os sprites originais estão em `public/sprites/powers-atlas.png`, um PNG RGBA transparente de 1254 × 1254 pixels, criado especificamente para este projeto. O arquivo `powers-atlas.json` descreve os quatro recortes de 627 × 627:
+
+| Posição no atlas | Sprite |
+| --- | --- |
+| Superior esquerda | Bolha protetora azul com escudo |
+| Superior direita | Goma rosa |
+| Inferior esquerda | Pulso de vento turquesa/roxo |
+| Inferior direita | Cápsula dourada de coleta |
+
+A mesma arte aparece no guia do menu, no indicador de poder e na pista: cápsulas, bolha ativa, goma no asfalto e pulso. Os sprites são imagens estáticas; flutuação, escala e apresentação são animadas pelo jogo. O indicador continua mostrando o nome e a tecla de uso, sem depender só da cor ou da imagem. Se a textura falhar, as cápsulas e os efeitos geométricos continuam funcionando e os textos identificam os poderes.
+
+O atlas tem aproximadamente 1,7 MiB e é reutilizado pela interface e pelos efeitos. Não é necessário um serviço de imagens durante o jogo. O caminho do atlas respeita `/meu-jogo-corrida/` no GitHub Pages.
