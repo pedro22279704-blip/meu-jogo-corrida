@@ -219,3 +219,9 @@ A câmera verifica paredes do túnel, portal e grandes estruturas do porto para 
 Bandeiras ondulam, barcos balançam e espectadores saltam, com animações leves. Ataques de goma e pulso geram partículas no kart atingido; a bolha estoura visualmente ao bloquear ou expirar. O pulso tem ondas de impacto. A pausa congela esses efeitos.
 
 A tela de resultado mostra os modelos reais dos pilotos e karts em um pódio 3D, além de tempo, classificação, batidas, drifts, recordes e pinturas novas. O pódio é preenchido conforme os três primeiros terminam. No treino, aparece apenas o piloto treinado. O renderer do resultado só é criado ao chegar, com resolução limitada para conter o custo.
+
+### Pull requests automáticos
+
+Ao enviar commits para branches `feat/**` ou `fix/**`, o workflow **Abrir PR automaticamente** instala dependências, testa e compila o jogo. Se tudo passar, abre um PR para `main` ou mostra o PR já existente. Não faz merge nem publica a branch diretamente. O link aparece no resumo da execução em Actions.
+
+Em **Settings → Actions → General → Workflow permissions**, habilite **Allow GitHub Actions to create and approve pull requests** e salve. As permissões de escrita necessárias ficam limitadas ao job de abertura do PR; não é necessário cadastrar um token pessoal. PRs abertos pelo `GITHUB_TOKEN` não disparam outro workflow de `pull_request`, por isso a validação ocorre no próprio envio da branch. Cada novo envio repete a validação. Após revisão e merge, o workflow de publicação existente testa e publica `main`.
