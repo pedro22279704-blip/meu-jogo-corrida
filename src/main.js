@@ -1,4 +1,7 @@
 import * as THREE from 'three';
+import {DRIFT_LEVELS,driftLevel} from './drift.js';
+import {SHORTCUTS} from './shortcuts.js';
+import {readChallenges,unlockedPaints,finishChallenges} from './challenges.js';
 import {GamepadInput} from './gamepad.js';
 import {createWorld} from './world.js';
 import {PILOTS,COLORS,normalizeSettings,readSettings,writeSettings,recordScope} from './settings.js';
@@ -11,9 +14,10 @@ import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {createRace,stepRace,orderRacers,lapOf,TRACK_LENGTH,LAPS} from './race.js';
 const $=id=>document.getElementById(id);
 const audio=new RaceAudio();
+let challengeProgress,paintId='original';const originalPaints=new Map();
 const gamepad=new GamepadInput();let padControls=null;
 let storage;try{storage=window.localStorage;}catch{storage=null;}
-let settings=readSettings(storage);
+let settings=readSettings(storage);challengeProgress=readChallenges(storage);
 let best=readBest(storage,recordScope(settings));
 $('bestTime').textContent=`Recorde: ${formatTime(best)}`;
 $('sound').onclick=()=>{const muted=audio.toggle();$('sound').textContent=muted?'Som: desligado':'Som: ligado';$('sound').setAttribute('aria-pressed',String(muted));};
@@ -41,12 +45,12 @@ karts.forEach(personalize);
 const loader=new GLTFLoader();
 karts.forEach((kart,i)=>loader.load(`${import.meta.env.BASE_URL}models/kart-${i}.glb`,gltf=>{
  for(const child of [...kart.children])if(child!==kart.userData.flame&&child!==kart.userData.bubble)kart.remove(child);
- kart.add(gltf.scene);kart.userData.rig=bindKart(gltf.scene);renderPortrait(gltf.scene,i);
+ kart.add(gltf.scene);kart.userData.rig=bindKart(gltf.scene);renderPortrait(gltf.scene,i);applyPaints();
 },undefined,error=>console.warn('Usando kart de reserva.',error)));
 const sparks=Array.from({length:36},()=>{const p=mesh(new THREE.SphereGeometry(.055,5,4),'#ffce64');p.visible=false;return {mesh:p,life:0,velocity:new THREE.Vector3()};});
 let sparkClock=0;
 let items=createItems();
-let racers=createRace(settings),mode='menu',elapsed=0,count=3,last=performance.now(),visualTime=0,pausedMode=null;const keys={};
+let racers=createRace(settings),mode='menu',elapsed=0,count=3,last=performance.now(),visualTime=0,resultsElapsed=0,pausedMode=null;const keys={};
 // Retratos dos seis modelos: um renderer compartilhado produz imagens estáticas.
 const portraitRenderer=new THREE.WebGLRenderer({alpha:true,antialias:true});portraitRenderer.setSize(160,100);portraitRenderer.setPixelRatio(1);
 const portraitScene=new THREE.Scene();portraitScene.add(new THREE.HemisphereLight(0xffffff,0x59634a,3));const portraitLight=new THREE.DirectionalLight(0xffedce,3);portraitLight.position.set(3,5,-3);portraitScene.add(portraitLight);
@@ -57,12 +61,22 @@ for(const [i,name] of PILOTS.entries()){
  const image=document.createElement('img');image.id=`portrait-${i}`;image.alt=`Kart de ${name}`;const text=document.createElement('span');text.textContent=name;button.append(image,text);button.onclick=()=>{settings.pilot=i;applyMenu();};$('pilotChoices').append(button);
 }
 $('trackSelect').value=settings.track;$('difficultySelect').value=settings.difficulty;$('sensitivity').value=settings.sensitivity;
+function updateChallenges(){
+ const unlocked=unlockedPaints(challengeProgress);if(!unlocked.some(p=>p.id===paintId))paintId='original';
+ $('paintSelect').replaceChildren(...unlocked.map(p=>{const option=document.createElement('option');option.value=p.id;option.textContent=p.name;return option;}));$('paintSelect').value=paintId;
+ $('challengeList').textContent=`${challengeProgress.clean?'✓':'○'} Termine sem bater: Pérola · ${challengeProgress.drift?'✓':'○'} Faça 3 drifts carregados: Chama roxa · Vitórias com pilotos: ${challengeProgress.wins.length}/6 para Ouro solar`;
+}
+function applyPaints(){
+ const paint=unlockedPaints(challengeProgress).find(p=>p.id===paintId);
+ karts.forEach((kart,i)=>kart.traverse(part=>{if(part.isMesh&&part.material?.name?.startsWith('Paint_')){if(!originalPaints.has(part.material))originalPaints.set(part.material,part.material.color.clone());part.material.color.copy(originalPaints.get(part.material));if(i===settings.pilot&&paint?.color)part.material.color.set(paint.color);}}));
+}
+$('paintSelect').onchange=()=>{paintId=$('paintSelect').value;applyPaints();};updateChallenges();
 function showSettings(){
  $('sensitivityValue').textContent=`${Math.round(settings.sensitivity*100)}%`;
  document.querySelectorAll('.pilot-choice').forEach(button=>button.setAttribute('aria-pressed',String(Number(button.dataset.pilot)===settings.pilot)));
  document.querySelectorAll('.music-volume').forEach(slider=>slider.value=settings.musicVolume);
  document.querySelectorAll('.effects-volume').forEach(slider=>slider.value=settings.effectsVolume);
- audio.setVolumes(settings.musicVolume,settings.effectsVolume);writeSettings(storage,settings);
+ applyPaints();audio.setVolumes(settings.musicVolume,settings.effectsVolume);writeSettings(storage,settings);
  best=readBest(storage,recordScope(settings));$('bestTime').textContent=`Recorde nesta pista / dificuldade: ${formatTime(best)}`;
  $('trackName').textContent=$('trackSelect').selectedOptions[0].textContent;
 }
@@ -92,7 +106,7 @@ function updateItemVisuals(){
 }
 function unlockAudio(){if(mode!=='menu'&&mode!=='paused'&&!document.hidden&&audio.context?.state==='suspended')audio.context.resume().catch(()=>{});}
 addEventListener('pointerdown',unlockAudio);addEventListener('keydown',unlockAudio);
-function reset(){pausedMode=null;$('pauseMenu').hidden=true;$('pause').hidden=false;audio.start();racers=createRace(settings);items=createItems();elapsed=0;count=3;mode='countdown';for(const k in keys)delete keys[k];$('menu').hidden=true;$('result').hidden=true;$('hud').hidden=false;}
+function reset(){resultsElapsed=0;pausedMode=null;$('pauseMenu').hidden=true;$('pause').hidden=false;audio.start();racers=createRace(settings);items=createItems();elapsed=0;count=3;mode='countdown';for(const k in keys)delete keys[k];$('menu').hidden=true;$('result').hidden=true;$('hud').hidden=false;}
 function pauseRace(){
  if(mode!=='racing'&&mode!=='countdown')return;
  pausedMode=mode;mode='paused';for(const k in keys)delete keys[k];audio.setPaused(true);$('pauseMenu').hidden=false;$('resume').focus();
@@ -136,16 +150,17 @@ function handleGamepad(now){
 function list(id,order){$(id).replaceChildren(...order.map(r=>{const li=document.createElement('li');const gap=Math.round(r.distance-racers[0].distance);li.textContent=r.name+(r.finished?' 🏁':r.index===0?'':` · ${Math.abs(gap)} m ${gap>=0?'à frente':'atrás'}`);if(!r.index)li.className='player';return li;}));}
 function animate(now){requestAnimationFrame(animate);handleGamepad(now);const dt=document.hidden||mode==='paused'?0:Math.min((now-last)/1000,.05);last=now;visualTime+=dt;
  if(mode==='countdown'){count-=dt;$('countdown').textContent=Math.ceil(count);if(count<=0){mode='racing';$('countdown').textContent='';}}
- if(mode==='racing'){elapsed+=dt;stepRace(racers,input(),dt,elapsed,world.profile);stepItems(racers,items,input(),dt,elapsed);if(racers[0].finished){mode='finished';$('pause').hidden=true;audio.finish();const record=saveBest(storage,racers[0].finishTime,recordScope(settings));best=record.best;$('bestTime').textContent=`Recorde: ${formatTime(best)}`;$('raceTime').textContent=`Tempo: ${formatTime(racers[0].finishTime)}`;$('recordResult').textContent=(record.isNew?'Novo recorde! ':'Recorde: ')+formatTime(best)+(record.saved?'':' · Não foi possível salvar neste navegador.');$('resultTitle').textContent=`${orderRacers(racers).findIndex(r=>r.index===0)+1}º lugar!`;$('result').hidden=false;list('finalRanking',orderRacers(racers));}}
- for(const r of racers){const {p,tangent}=track(r.distance,r.offset);karts[r.pilot].position.copy(p);karts[r.pilot].quaternion.copy(track(r.distance,r.offset).quaternion).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),r.angle));animateKart(karts[r.pilot].userData.rig,r,dt,visualTime);karts[r.pilot].userData.flame.visible=mode==='racing'&&r.boosting;}
+ if(mode==='racing'){elapsed+=dt;stepRace(racers,input(),dt,elapsed,world.profile);stepItems(racers,items,input(),dt,elapsed);if(racers[0].finished){mode='finished';$('pause').hidden=true;const place=orderRacers(racers).findIndex(r=>r.index===0)+1;audio.finish(place);const rewards=finishChallenges(storage,racers[0],place,challengeProgress);challengeProgress=rewards.progress;updateChallenges();$('challengeResult').textContent=`Drifts: ${racers[0].goodDrifts} · Batidas: ${racers[0].collisions}`+(rewards.unlocked.length?` · Pinturas novas: ${rewards.unlocked.map(p=>p.name).join(', ')}`:'')+(rewards.saved?'':' · Progresso disponível só nesta sessão');const record=saveBest(storage,racers[0].finishTime,recordScope(settings));best=record.best;$('bestTime').textContent=`Recorde: ${formatTime(best)}`;$('raceTime').textContent=`Tempo: ${formatTime(racers[0].finishTime)}`;$('recordResult').textContent=(record.isNew?'Novo recorde! ':'Recorde: ')+formatTime(best)+(record.saved?'':' · Não foi possível salvar neste navegador.');$('resultTitle').textContent=`${orderRacers(racers).findIndex(r=>r.index===0)+1}º lugar!`;$('result').hidden=false;list('finalRanking',orderRacers(racers));}}
+ if(mode==='finished'){resultsElapsed+=dt;stepRace(racers,{},dt,elapsed+resultsElapsed,world.profile);const finishers=orderRacers(racers).filter(r=>r.finished);for(const r of racers)r.podiumPlace=finishers.findIndex(p=>p===r)+1||99;$('podium').replaceChildren(...[0,1,2].map(i=>{const card=document.createElement('div');card.textContent=`${['🥇','🥈','🥉'][i]} ${finishers[i]?.name??'Aguardando chegada…'}`;return card;}));list('finalRanking',orderRacers(racers));}
+ for(const r of racers){const frame=r.shortcut?world.shortcutFrame(r.distance,r.offset):track(r.distance,r.offset);const {p,tangent}=frame;karts[r.pilot].position.copy(p);karts[r.pilot].quaternion.copy(frame.quaternion).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),r.angle));animateKart(karts[r.pilot].userData.rig,r,dt,visualTime);karts[r.pilot].userData.flame.visible=mode==='racing'&&r.boosting;}
  const drifting=mode==='racing'&&racers[0].drifting;
  sparkClock+=dt;
- if(mode==='racing'&&(drifting||racers[0].speed>15)&&sparkClock>.035){sparkClock=0;for(const side of [-1,1]){const particle=sparks.find(s=>s.life<=0);if(particle){particle.life=.35;particle.mesh.material.color.set(drifting?(racers[0].driftCharge>=.35?'#70edff':'#ffce64'):'#a3b6b9');particle.mesh.position.copy(karts[racers[0].pilot].localToWorld(new THREE.Vector3(side*.95,.15,-.8)));particle.velocity.set((Math.random()-.5)*2,1+Math.random(),(Math.random()-.5)*2);}}}
+ if(mode==='racing'&&(drifting||racers[0].speed>15)&&sparkClock>.035){sparkClock=0;for(const side of [-1,1]){const particle=sparks.find(s=>s.life<=0);if(particle){particle.life=.35;particle.mesh.material.color.set(drifting?(DRIFT_LEVELS[Math.max(0,driftLevel(racers[0].driftCharge)-1)].color):'#a3b6b9');particle.mesh.position.copy(karts[racers[0].pilot].localToWorld(new THREE.Vector3(side*.95,.15,-.8)));particle.velocity.set((Math.random()-.5)*2,1+Math.random(),(Math.random()-.5)*2);}}}
  for(const s of sparks){s.life-=dt;s.mesh.visible=s.life>0;if(s.life>0){s.mesh.position.addScaledVector(s.velocity,dt);s.velocity.y-=5*dt;s.mesh.scale.setScalar(s.life/.35);}}
  for(const rotor of world.windmills)rotor.rotation.z+=dt*.7;
- const player=racers[0],frame=track(player.distance,player.offset);const desired=frame.p.clone().addScaledVector(frame.tangent,player.boosting?-12.4:-11);desired.y+=6.8;camera.fov+=((player.boosting?69:60)-camera.fov)*(1-Math.exp(-dt*4));camera.updateProjectionMatrix();camera.position.lerp(desired,1-Math.exp(-dt*6));const target=frame.p.clone().addScaledVector(frame.tangent,8);target.y+=1;camera.lookAt(target);
- audio.update(player,mode==='racing'&&!document.hidden,mode==='racing'||mode==='countdown');$('timer').textContent=formatTime(elapsed);$('driftCharge').value=player.driftCharge;
- $('lap').textContent=`VOLTA ${lapOf(player)} / ${LAPS}`;$('place').textContent=`${orderRacers(racers).findIndex(r=>!r.index)+1}º / 6`;$('speed').textContent=Math.round(Math.abs(player.speed)*3.6);$('nitro').value=player.nitro;$('drift').textContent=player.miniTurbo>0?'IMPULSO DO DRIFT!':player.drifting?(player.driftCharge>=.35?'Solte Espaço para ganhar impulso!':'DRIFT! Carregando impulso'):'WASD / setas: dirigir · Espaço: drift · Shift: nitro';const rivals=racers.filter(r=>r.index!==0&&!r.finished).sort((a,b)=>Math.abs(a.distance-player.distance)-Math.abs(b.distance-player.distance));const nearest=rivals[0];$('rivalGap').textContent=nearest?`Rival mais próximo: ${nearest.name} · ${Math.round(Math.abs(nearest.distance-player.distance))} m ${nearest.distance>=player.distance?'à frente':'atrás'}`:'Todos os adversários chegaram';drawMinimap($('minimap'),world.curve,racers);$('itemStatus').textContent=player.item?`${ITEM_LABELS[player.item]} · E para usar`:player.shield>0?'Bolha protetora ativa':'Pegue uma cápsula · E para usar';updateItemVisuals();list('ranking',orderRacers(racers));renderer.render(scene,camera);
+ const player=racers[0],frame=player.shortcut?world.shortcutFrame(player.distance,player.offset):track(player.distance,player.offset);const desired=frame.p.clone().addScaledVector(frame.tangent,player.boosting?-12.4:-11);desired.y+=6.8;camera.fov+=((player.boosting?69:60)-camera.fov)*(1-Math.exp(-dt*4));camera.updateProjectionMatrix();camera.position.lerp(desired,1-Math.exp(-dt*6));const target=frame.p.clone().addScaledVector(frame.tangent,8);target.y+=1;camera.lookAt(target);
+ audio.update(player,mode==='racing'&&!document.hidden,mode==='racing'||mode==='countdown',lapOf(player)===LAPS);$('timer').textContent=formatTime(elapsed);$('driftCharge').value=player.driftCharge;
+ $('lap').textContent=`VOLTA ${lapOf(player)} / ${LAPS}`;$('place').textContent=`${orderRacers(racers).findIndex(r=>!r.index)+1}º / 6`;$('speed').textContent=Math.round(Math.abs(player.speed)*3.6);$('nitro').value=player.nitro;$('drift').textContent=player.miniTurbo>0?'IMPULSO DO DRIFT!':player.drifting?(driftLevel(player.driftCharge)>0?`DRIFT ${driftLevel(player.driftCharge)}/3 · ${DRIFT_LEVELS[driftLevel(player.driftCharge)-1].name} · solte para impulsionar`:'DRIFT! Carregando nível 1'):'WASD / setas: dirigir · Espaço: drift · Shift: nitro';const rivals=racers.filter(r=>r.index!==0&&!r.finished).sort((a,b)=>Math.abs(a.distance-player.distance)-Math.abs(b.distance-player.distance));const nearest=rivals[0];$('rivalGap').textContent=nearest?`Rival mais próximo: ${nearest.name} · ${Math.round(Math.abs(nearest.distance-player.distance))} m ${nearest.distance>=player.distance?'à frente':'atrás'}`:'Todos os adversários chegaram';const chargeLevel=driftLevel(player.driftCharge);$('driftCharge').style.accentColor=DRIFT_LEVELS[Math.max(0,chargeLevel-1)].color;$('attackNotice').textContent=player.lastAttack&&elapsed-player.lastAttack.time<3?`${player.lastAttack.blocked?'Bolha bloqueou':'Você foi atingido por'} ${ITEM_LABELS[player.lastAttack.item]} de ${player.lastAttack.by}`:'';$('raceEvent').textContent=player.shortcut?(player.shortcutFailed?'Errou o atalho: velocidade reduzida até a saída':'ATALHO! Mantenha o kart na faixa estreita'):lapOf(player)===LAPS?'ÚLTIMA VOLTA!'+(nearest&&Math.abs(nearest.distance-player.distance)<12?` ${nearest.name} está perto!`:''):Math.abs(((player.distance%TRACK_LENGTH)+TRACK_LENGTH)%TRACK_LENGTH-SHORTCUTS[settings.track].start)<25?'Atalho à esquerda: entre com drift entre os cones roxos':'';drawMinimap($('minimap'),world.curve,racers,{frame:(d,o)=>world.shortcutFrame(d,o),spec:SHORTCUTS[settings.track]});$('itemStatus').textContent=player.item?`${ITEM_LABELS[player.item]} · E para usar`:player.shield>0?'Bolha protetora ativa':'Pegue uma cápsula · E para usar';updateItemVisuals();list('ranking',orderRacers(racers));renderer.render(scene,camera);
 }
 document.addEventListener('visibilitychange',()=>{last=performance.now();if(document.hidden){pauseRace();for(const k in keys)delete keys[k];audio.update(racers[0],false);}});
 camera.position.copy(track(-9).p).add(new THREE.Vector3(0,7,-10));requestAnimationFrame(animate);
