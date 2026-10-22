@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {GamepadInput} from './gamepad.js';
 import {createWorld} from './world.js';
 import {PILOTS,COLORS,normalizeSettings,readSettings,writeSettings,recordScope} from './settings.js';
 import {createItems,stepItems,ITEM_LABELS} from './items.js';
@@ -10,6 +11,7 @@ import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {createRace,stepRace,orderRacers,lapOf,TRACK_LENGTH,LAPS} from './race.js';
 const $=id=>document.getElementById(id);
 const audio=new RaceAudio();
+const gamepad=new GamepadInput();let padControls=null;
 let storage;try{storage=window.localStorage;}catch{storage=null;}
 let settings=readSettings(storage);
 let best=readBest(storage,recordScope(settings));
@@ -88,6 +90,8 @@ function updateItemVisuals(){
  puddleVisuals.forEach((o,i)=>{const puddle=items.puddles[i];o.visible=!!puddle;if(puddle){const f=track(puddle.distance,puddle.offset);o.position.copy(f.p).addScaledVector(f.up,.1);o.quaternion.copy(f.quaternion);}});
  pulseVisual.visible=!!items.pulse;if(items.pulse){const f=track(items.pulse.distance,items.pulse.offset);pulseVisual.position.copy(f.p).addScaledVector(f.up,.3);pulseVisual.scale.setScalar((.5-items.pulse.life)*40+1);}
 }
+function unlockAudio(){if(mode!=='menu'&&mode!=='paused'&&!document.hidden&&audio.context?.state==='suspended')audio.context.resume().catch(()=>{});}
+addEventListener('pointerdown',unlockAudio);addEventListener('keydown',unlockAudio);
 function reset(){pausedMode=null;$('pauseMenu').hidden=true;$('pause').hidden=false;audio.start();racers=createRace(settings);items=createItems();elapsed=0;count=3;mode='countdown';for(const k in keys)delete keys[k];$('menu').hidden=true;$('result').hidden=true;$('hud').hidden=false;}
 function pauseRace(){
  if(mode!=='racing'&&mode!=='countdown')return;
@@ -101,9 +105,36 @@ $('pause').onclick=pauseRace;$('resume').onclick=resumeRace;
 $('pauseMenu').addEventListener('keydown',e=>{if(e.key==='Tab'){const controls=[...$('pauseMenu').querySelectorAll('button,input')],first=controls[0],last=controls.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
 $('play').onclick=reset;$('again').onclick=reset;
 addEventListener('keydown',e=>{if(['KeyP','Escape'].includes(e.code)){e.preventDefault();if(!e.repeat){if(mode==='paused')resumeRace();else pauseRace();}return;}if(mode==='paused'||mode==='menu')return;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','KeyW','KeyA','KeyS','KeyD','Space'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.code==='KeyR'&&mode!=='menu')reset();});addEventListener('keyup',e=>keys[e.code]=false);addEventListener('blur',()=>{for(const k in keys)delete keys[k];});
-function input(){return {up:keys.ArrowUp||keys.KeyW,down:keys.ArrowDown||keys.KeyS,left:keys.ArrowLeft||keys.KeyA,right:keys.ArrowRight||keys.KeyD,drift:keys.Space,item:keys.KeyE,boost:keys.ShiftLeft||keys.ShiftRight};}
+function input(){
+ const left=keys.ArrowLeft||keys.KeyA,right=keys.ArrowRight||keys.KeyD;
+ return {up:keys.ArrowUp||keys.KeyW||padControls?.up,down:keys.ArrowDown||keys.KeyS||padControls?.down,steer:left||right?Number(!!left)-Number(!!right):padControls?.steer??0,drift:keys.Space||padControls?.drift,item:keys.KeyE||padControls?.item,boost:keys.ShiftLeft||keys.ShiftRight||padControls?.boost};
+}
+function handleGamepad(now){
+ const state=gamepad.poll(now/1000);padControls=state.controls;
+ const status=state.connected?'Controle conectado · RT: acelerar · LT: frear · A/LB: drift · X/RB: nitro · B: item · Start: pausa':state.unsupported?'Controle detectado sem mapeamento padrão. Ative o modo XInput/Xbox no controle.':'Controle: conecte por USB ou Bluetooth e aperte um botão (modo XInput/Xbox).';
+ if($('gamepadStatus').textContent!==status)$('gamepadStatus').textContent=status;
+ $('gamepadHud').textContent=state.connected?(audio.context?.state==='suspended'&&mode!=='paused'?'🎮 Clique no jogo para ativar o som':'🎮 Controle conectado'):state.disconnected?'Controle desconectado · use o teclado':'';
+ if(state.disconnected){padControls=null;pauseRace();return;}
+ if(state.changed&&state.connected){const target=mode==='menu'?$('play'):mode==='paused'?$('resume'):mode==='finished'?$('again'):null;target?.focus();}
+ if(document.hidden)return;
+ if(state.pressed.pause){if(mode==='paused')resumeRace();else if(mode==='menu'||mode==='finished')reset();else pauseRace();return;}
+ if(mode!=='menu'&&mode!=='paused'&&mode!=='finished')return;
+ const panel=mode==='menu'?$('menu'):mode==='paused'?$('pauseMenu'):$('result');
+ const controls=[...panel.querySelectorAll('button,select,input')].filter(e=>!e.disabled&&e.getClientRects().length);
+ let focused=controls.includes(document.activeElement)?document.activeElement:controls[0];
+ const nav=state.navigation;
+ if(nav){
+  if(nav.axis==='x'&&(focused.tagName==='SELECT'||focused.type==='range')){
+   if(focused.tagName==='SELECT'){focused.selectedIndex=Math.max(0,Math.min(focused.options.length-1,focused.selectedIndex+nav.value));focused.dispatchEvent(new Event('change',{bubbles:true}));}
+   else{focused.value=String(Math.max(Number(focused.min),Math.min(Number(focused.max),Number(focused.value)+Number(focused.step||1)*nav.value)));focused.dispatchEvent(new Event('input',{bubbles:true}));}
+  }else{const index=Math.max(0,controls.indexOf(focused));focused=controls[(index+nav.value+controls.length)%controls.length];focused.focus();focused.scrollIntoView({block:'nearest'});}
+ }
+ if(state.pressed.confirm){focused.focus();if(focused.tagName==='BUTTON')focused.click();}
+ if(state.pressed.back){if(mode==='paused')resumeRace();else if(mode==='finished')backToMenu();}
+}
+
 function list(id,order){$(id).replaceChildren(...order.map(r=>{const li=document.createElement('li');const gap=Math.round(r.distance-racers[0].distance);li.textContent=r.name+(r.finished?' 🏁':r.index===0?'':` · ${Math.abs(gap)} m ${gap>=0?'à frente':'atrás'}`);if(!r.index)li.className='player';return li;}));}
-function animate(now){requestAnimationFrame(animate);const dt=document.hidden||mode==='paused'?0:Math.min((now-last)/1000,.05);last=now;visualTime+=dt;
+function animate(now){requestAnimationFrame(animate);handleGamepad(now);const dt=document.hidden||mode==='paused'?0:Math.min((now-last)/1000,.05);last=now;visualTime+=dt;
  if(mode==='countdown'){count-=dt;$('countdown').textContent=Math.ceil(count);if(count<=0){mode='racing';$('countdown').textContent='';}}
  if(mode==='racing'){elapsed+=dt;stepRace(racers,input(),dt,elapsed,world.profile);stepItems(racers,items,input(),dt,elapsed);if(racers[0].finished){mode='finished';$('pause').hidden=true;audio.finish();const record=saveBest(storage,racers[0].finishTime,recordScope(settings));best=record.best;$('bestTime').textContent=`Recorde: ${formatTime(best)}`;$('raceTime').textContent=`Tempo: ${formatTime(racers[0].finishTime)}`;$('recordResult').textContent=(record.isNew?'Novo recorde! ':'Recorde: ')+formatTime(best)+(record.saved?'':' · Não foi possível salvar neste navegador.');$('resultTitle').textContent=`${orderRacers(racers).findIndex(r=>r.index===0)+1}º lugar!`;$('result').hidden=false;list('finalRanking',orderRacers(racers));}}
  for(const r of racers){const {p,tangent}=track(r.distance,r.offset);karts[r.pilot].position.copy(p);karts[r.pilot].quaternion.copy(track(r.distance,r.offset).quaternion).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),r.angle));animateKart(karts[r.pilot].userData.rig,r,dt,visualTime);karts[r.pilot].userData.flame.visible=mode==='racing'&&r.boosting;}

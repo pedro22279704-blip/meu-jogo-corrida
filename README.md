@@ -139,3 +139,28 @@ Você carrega um item por vez. Cápsulas recarregam após oito segundos, e os ad
 Os controles **Música** e **Efeitos** são independentes e estão no menu e na pausa. **Som** continua sendo o botão geral de silenciar. Na pausa ou no resultado, **Menu e opções** permite trocar piloto, pista ou dificuldade para uma nova corrida.
 
 Recordes usam a versão 5 e ficam separados por pista e dificuldade. Tempos de versões anteriores permanecem armazenados, mas não são comparados com as novas regras de itens e direção.
+
+## Controle de PC (GameSir e outros)
+
+O jogo suporta a **Gamepad API com mapeamento padrão**, incluindo controles GameSir que o Windows/navegador reconheça como Xbox/XInput. Não depende da marca; o suporte depende do modo do controle e do navegador. Não há garantia para todos os modelos ou modos proprietários.
+
+1. Conecte o controle ao Windows por USB, Bluetooth ou receptor próprio, conforme o manual do seu modelo.
+2. Se houver escolha de modo, use **PC/XInput/Xbox**. A combinação de botões varia por modelo; consulte o manual do seu GameSir.
+3. Abra o jogo no Chrome ou Edge, clique na página e pressione um botão no controle. O menu deve indicar **Controle conectado**.
+4. Se a música não começar ao iniciar só pelo controle, clique uma vez no jogo: navegadores podem exigir um clique/tecla para liberar áudio.
+
+| Controle (posição padrão Xbox) | Ação |
+| --- | --- |
+| Analógico esquerdo ou direcional | Dirigir |
+| RT | Acelerar |
+| LT | Frear / ré |
+| A (botão inferior) ou LB | Drift + direção |
+| X (botão esquerdo) ou RB | Nitro |
+| B (botão direito) | Usar item |
+| Start / Menu | Pausar / continuar; iniciar corrida no menu/resultado |
+
+A direção analógica é gradual, com zona morta de 18%, e respeita a sensibilidade do menu. Os gatilhos acionam acelerar/frear a partir de um pequeno limiar. Teclado e mouse continuam funcionando; a direção do teclado prevalece quando uma tecla lateral está pressionada.
+
+Nos menus, use direcional/analógico para mover o foco, esquerda/direita para ajustar seletores e barras e **A** para ativar o botão focado. **B** continua uma corrida pausada ou volta ao menu após o resultado. A primeira pressão ao conectar serve apenas para reconhecimento, sem iniciar ações acidentalmente. Se desconectar durante a corrida, o jogo pausa e limpa a entrada do controle. Reconectar não retoma automaticamente.
+
+O suporte foi validado com entradas simuladas no Chromium e testes automatizados; um GameSir físico ainda precisa ser conferido no seu PC. Se aparecer a mensagem de mapeamento não padrão, confira o modo XInput e reinicie a conexão. A Gamepad API pode estar indisponível em navegadores sem suporte ou com permissões restritas.
