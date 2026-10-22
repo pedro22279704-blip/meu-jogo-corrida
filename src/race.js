@@ -9,7 +9,8 @@ export function stepRace(racers,input,dt,time){
  for(const r of racers){
   if(r.finished){r.speed=Math.max(0,r.speed-dt*15);continue;}
   if(r.index===0){
-   const steer=Number(!!input.right)-Number(!!input.left);
+   // O eixo lateral da pista aponta para a esquerda da câmera.
+   const steer=Number(!!input.left)-Number(!!input.right);
    r.drifting=!!input.drift&&!!steer&&r.speed>12;
    r.angle+=steer*dt*(r.drifting?1.65:1.18)-r.angle*dt*(r.drifting?1.6:3.2);
    r.angle=clamp(r.angle,-.85,.85);

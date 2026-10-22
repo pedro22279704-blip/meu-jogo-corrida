@@ -24,15 +24,15 @@ const karts=colors.map(color=>{const g=new THREE.Group();scene.add(g);const body
 let racers=createRace(),mode='menu',elapsed=0,count=3,last=performance.now();const keys={};
 function reset(){racers=createRace();elapsed=0;count=3;mode='countdown';for(const k in keys)delete keys[k];$('menu').hidden=true;$('result').hidden=true;$('hud').hidden=false;}
 $('play').onclick=reset;$('again').onclick=reset;
-addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.code==='KeyR'&&mode!=='menu')reset();});addEventListener('keyup',e=>keys[e.code]=false);addEventListener('blur',()=>{for(const k in keys)delete keys[k];});
-function input(){return {up:keys.ArrowUp,down:keys.ArrowDown,left:keys.ArrowLeft,right:keys.ArrowRight,drift:keys.Space,boost:keys.ShiftLeft||keys.ShiftRight};}
+addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','KeyW','KeyA','KeyS','KeyD','Space'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.code==='KeyR'&&mode!=='menu')reset();});addEventListener('keyup',e=>keys[e.code]=false);addEventListener('blur',()=>{for(const k in keys)delete keys[k];});
+function input(){return {up:keys.ArrowUp||keys.KeyW,down:keys.ArrowDown||keys.KeyS,left:keys.ArrowLeft||keys.KeyA,right:keys.ArrowRight||keys.KeyD,drift:keys.Space,boost:keys.ShiftLeft||keys.ShiftRight};}
 function list(id,order){$(id).replaceChildren(...order.map(r=>{const li=document.createElement('li');li.textContent=r.name+(r.finished?' 🏁':'');if(!r.index)li.className='player';return li;}));}
 function animate(now){requestAnimationFrame(animate);const dt=Math.min((now-last)/1000,.05);last=now;
  if(mode==='countdown'){count-=dt;$('countdown').textContent=Math.ceil(count);if(count<=0){mode='racing';$('countdown').textContent='';}}
  if(mode==='racing'){elapsed+=dt;stepRace(racers,input(),dt,elapsed);if(racers[0].finished){mode='finished';$('resultTitle').textContent=`${orderRacers(racers).findIndex(r=>r.index===0)+1}º lugar!`;$('result').hidden=false;list('finalRanking',orderRacers(racers));}}
  for(const r of racers){const {p,tangent}=track(r.distance,r.offset);karts[r.index].position.copy(p);karts[r.index].rotation.y=Math.atan2(tangent.x,tangent.z)+r.angle;karts[r.index].userData.flame.visible=mode==='racing'&&r.index===0&&input().boost&&input().up&&r.nitro>1;}
  const player=racers[0],frame=track(player.distance,player.offset);const desired=frame.p.clone().addScaledVector(frame.tangent,-11);desired.y=6.8;camera.position.lerp(desired,1-Math.exp(-dt*6));const target=frame.p.clone().addScaledVector(frame.tangent,8);target.y=1;camera.lookAt(target);
- $('lap').textContent=`VOLTA ${lapOf(player)} / ${LAPS}`;$('place').textContent=`${orderRacers(racers).findIndex(r=>!r.index)+1}º / 6`;$('speed').textContent=Math.round(Math.abs(player.speed)*3.6);$('nitro').value=player.nitro;$('drift').textContent=player.drifting?'DRIFT! Recarregando nitro':'Setas: dirigir · Espaço: drift · Shift: nitro';list('ranking',orderRacers(racers));renderer.render(scene,camera);
+ $('lap').textContent=`VOLTA ${lapOf(player)} / ${LAPS}`;$('place').textContent=`${orderRacers(racers).findIndex(r=>!r.index)+1}º / 6`;$('speed').textContent=Math.round(Math.abs(player.speed)*3.6);$('nitro').value=player.nitro;$('drift').textContent=player.drifting?'DRIFT! Recarregando nitro':'WASD / setas: dirigir · Espaço: drift · Shift: nitro';list('ranking',orderRacers(racers));renderer.render(scene,camera);
 }
 camera.position.copy(track(-9).p).add(new THREE.Vector3(0,7,-10));requestAnimationFrame(animate);
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
