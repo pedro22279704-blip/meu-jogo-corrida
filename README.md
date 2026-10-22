@@ -14,16 +14,16 @@ Jogo original de kart 3D para navegador, feito com JavaScript e Three.js. Os mod
 
 | Tecla | Ação |
 | --- | --- |
-| ↑ | Acelerar |
-| ↓ | Frear; manter pressionado para dar ré |
-| ← / → | Virar para os lados |
+| W ou ↑ | Acelerar |
+| S ou ↓ | Frear; manter pressionado para dar ré |
+| A / D ou ← / → | Virar para os lados |
 | Espaço + ← / → | Drift em movimento |
 | Shift + ↑ | Usar nitro |
 | R | Reiniciar a corrida |
 
 São seis pilotos e três voltas no Circuito do Vale. O nitro recarrega com o tempo e mais rapidamente durante o drift. Sair do asfalto reduz a velocidade. A posição considera o progresso na pista e a ordem de chegada. Ao terminar, a tela mostra sua colocação e a classificação naquele instante.
 
-Esta primeira versão usa direção arcade assistida: o kart acompanha a orientação da pista, enquanto as setas controlam o deslocamento lateral. Drift aumenta o ângulo de deslize. Os cinco adversários seguem trajetórias automáticas com velocidades diferentes. Ainda não há colisões entre karts, áudio, itens ou controles de toque.
+Esta primeira versão usa direção arcade assistida: o kart acompanha a orientação da pista, enquanto WASD ou as setas controlam o deslocamento lateral. Drift aumenta o ângulo de deslize. Os cinco adversários seguem trajetórias automáticas com velocidades diferentes. Ainda não há colisões entre karts, áudio, itens ou controles de toque.
 
 ## Verificar e gerar versão de produção
 
