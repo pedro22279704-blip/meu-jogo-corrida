@@ -78,25 +78,35 @@ loadProp('bridge',[{distance:TRACK_LENGTH*.25}]);
 loadProp('tunnel',[{distance:TRACK_LENGTH*.63}]);
 const sparks=Array.from({length:36},()=>{const p=mesh(new THREE.SphereGeometry(.055,5,4),'#ffce64');p.visible=false;return {mesh:p,life:0,velocity:new THREE.Vector3()};});
 let sparkClock=0;
-let racers=createRace(),mode='menu',elapsed=0,count=3,last=performance.now();const keys={};
-function reset(){audio.start();racers=createRace();elapsed=0;count=3;mode='countdown';for(const k in keys)delete keys[k];$('menu').hidden=true;$('result').hidden=true;$('hud').hidden=false;}
+let racers=createRace(),mode='menu',elapsed=0,count=3,last=performance.now(),visualTime=0,pausedMode=null;const keys={};
+function reset(){pausedMode=null;$('pauseMenu').hidden=true;$('pause').hidden=false;audio.start();racers=createRace();elapsed=0;count=3;mode='countdown';for(const k in keys)delete keys[k];$('menu').hidden=true;$('result').hidden=true;$('hud').hidden=false;}
+function pauseRace(){
+ if(mode!=='racing'&&mode!=='countdown')return;
+ pausedMode=mode;mode='paused';for(const k in keys)delete keys[k];audio.setPaused(true);$('pauseMenu').hidden=false;$('resume').focus();
+}
+function resumeRace(){
+ if(mode!=='paused')return;
+ mode=pausedMode;pausedMode=null;last=performance.now();audio.setPaused(false);$('pauseMenu').hidden=true;$('pause').focus();
+}
+$('pause').onclick=pauseRace;$('resume').onclick=resumeRace;
+$('pauseMenu').addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();$('resume').focus();}});
 $('play').onclick=reset;$('again').onclick=reset;
-addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','KeyW','KeyA','KeyS','KeyD','Space'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.code==='KeyR'&&mode!=='menu')reset();});addEventListener('keyup',e=>keys[e.code]=false);addEventListener('blur',()=>{for(const k in keys)delete keys[k];});
+addEventListener('keydown',e=>{if(['KeyP','Escape'].includes(e.code)){e.preventDefault();if(!e.repeat){if(mode==='paused')resumeRace();else pauseRace();}return;}if(mode==='paused')return;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','KeyW','KeyA','KeyS','KeyD','Space'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.code==='KeyR'&&mode!=='menu')reset();});addEventListener('keyup',e=>keys[e.code]=false);addEventListener('blur',()=>{for(const k in keys)delete keys[k];});
 function input(){return {up:keys.ArrowUp||keys.KeyW,down:keys.ArrowDown||keys.KeyS,left:keys.ArrowLeft||keys.KeyA,right:keys.ArrowRight||keys.KeyD,drift:keys.Space,boost:keys.ShiftLeft||keys.ShiftRight};}
 function list(id,order){$(id).replaceChildren(...order.map(r=>{const li=document.createElement('li');li.textContent=r.name+(r.finished?' 🏁':'');if(!r.index)li.className='player';return li;}));}
-function animate(now){requestAnimationFrame(animate);const dt=document.hidden?0:Math.min((now-last)/1000,.05);last=now;
+function animate(now){requestAnimationFrame(animate);const dt=document.hidden||mode==='paused'?0:Math.min((now-last)/1000,.05);last=now;visualTime+=dt;
  if(mode==='countdown'){count-=dt;$('countdown').textContent=Math.ceil(count);if(count<=0){mode='racing';$('countdown').textContent='';}}
- if(mode==='racing'){elapsed+=dt;stepRace(racers,input(),dt,elapsed,surfaceProfile);if(racers[0].finished){mode='finished';audio.finish();const record=saveBest(storage,racers[0].finishTime);best=record.best;$('bestTime').textContent=`Recorde: ${formatTime(best)}`;$('raceTime').textContent=`Tempo: ${formatTime(racers[0].finishTime)}`;$('recordResult').textContent=(record.isNew?'Novo recorde! ':'Recorde: ')+formatTime(best)+(record.saved?'':' · Não foi possível salvar neste navegador.');$('resultTitle').textContent=`${orderRacers(racers).findIndex(r=>r.index===0)+1}º lugar!`;$('result').hidden=false;list('finalRanking',orderRacers(racers));}}
- for(const r of racers){const {p,tangent}=track(r.distance,r.offset);karts[r.index].position.copy(p);karts[r.index].quaternion.copy(track(r.distance,r.offset).quaternion).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),r.angle));animateKart(karts[r.index].userData.rig,r,dt,now/1000);karts[r.index].userData.flame.visible=mode==='racing'&&r.boosting;}
+ if(mode==='racing'){elapsed+=dt;stepRace(racers,input(),dt,elapsed,surfaceProfile);if(racers[0].finished){mode='finished';$('pause').hidden=true;audio.finish();const record=saveBest(storage,racers[0].finishTime);best=record.best;$('bestTime').textContent=`Recorde: ${formatTime(best)}`;$('raceTime').textContent=`Tempo: ${formatTime(racers[0].finishTime)}`;$('recordResult').textContent=(record.isNew?'Novo recorde! ':'Recorde: ')+formatTime(best)+(record.saved?'':' · Não foi possível salvar neste navegador.');$('resultTitle').textContent=`${orderRacers(racers).findIndex(r=>r.index===0)+1}º lugar!`;$('result').hidden=false;list('finalRanking',orderRacers(racers));}}
+ for(const r of racers){const {p,tangent}=track(r.distance,r.offset);karts[r.index].position.copy(p);karts[r.index].quaternion.copy(track(r.distance,r.offset).quaternion).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),r.angle));animateKart(karts[r.index].userData.rig,r,dt,visualTime);karts[r.index].userData.flame.visible=mode==='racing'&&r.boosting;}
  const drifting=mode==='racing'&&racers[0].drifting;
  sparkClock+=dt;
  if(mode==='racing'&&(drifting||racers[0].speed>15)&&sparkClock>.035){sparkClock=0;for(const side of [-1,1]){const particle=sparks.find(s=>s.life<=0);if(particle){particle.life=.35;particle.mesh.material.color.set(drifting?(racers[0].driftCharge>=.35?'#70edff':'#ffce64'):'#a3b6b9');particle.mesh.position.copy(karts[0].localToWorld(new THREE.Vector3(side*.95,.15,-.8)));particle.velocity.set((Math.random()-.5)*2,1+Math.random(),(Math.random()-.5)*2);}}}
  for(const s of sparks){s.life-=dt;s.mesh.visible=s.life>0;if(s.life>0){s.mesh.position.addScaledVector(s.velocity,dt);s.velocity.y-=5*dt;s.mesh.scale.setScalar(s.life/.35);}}
  for(const rotor of windmills)rotor.rotation.z+=dt*.7;
  const player=racers[0],frame=track(player.distance,player.offset);const desired=frame.p.clone().addScaledVector(frame.tangent,player.boosting?-12.4:-11);desired.y+=6.8;camera.fov+=((player.boosting?69:60)-camera.fov)*(1-Math.exp(-dt*4));camera.updateProjectionMatrix();camera.position.lerp(desired,1-Math.exp(-dt*6));const target=frame.p.clone().addScaledVector(frame.tangent,8);target.y+=1;camera.lookAt(target);
- audio.update(player,mode==='racing'&&!document.hidden);$('timer').textContent=formatTime(elapsed);$('driftCharge').value=player.driftCharge;
+ audio.update(player,mode==='racing'&&!document.hidden,mode==='racing'||mode==='countdown');$('timer').textContent=formatTime(elapsed);$('driftCharge').value=player.driftCharge;
  $('lap').textContent=`VOLTA ${lapOf(player)} / ${LAPS}`;$('place').textContent=`${orderRacers(racers).findIndex(r=>!r.index)+1}º / 6`;$('speed').textContent=Math.round(Math.abs(player.speed)*3.6);$('nitro').value=player.nitro;$('drift').textContent=player.miniTurbo>0?'IMPULSO DO DRIFT!':player.drifting?(player.driftCharge>=.35?'Solte Espaço para ganhar impulso!':'DRIFT! Carregando impulso'):'WASD / setas: dirigir · Espaço: drift · Shift: nitro';list('ranking',orderRacers(racers));renderer.render(scene,camera);
 }
-document.addEventListener('visibilitychange',()=>{last=performance.now();if(document.hidden){for(const k in keys)delete keys[k];audio.update(racers[0],false);}});
+document.addEventListener('visibilitychange',()=>{last=performance.now();if(document.hidden){pauseRace();for(const k in keys)delete keys[k];audio.update(racers[0],false);}});
 camera.position.copy(track(-9).p).add(new THREE.Vector3(0,7,-10));requestAnimationFrame(animate);
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
