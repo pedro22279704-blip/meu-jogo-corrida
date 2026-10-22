@@ -113,3 +113,29 @@ Uma composição original chiptune animada (132 BPM, melodia, baixo e bateria) a
 A largada tem um grid mais compacto. Os adversários aceleram mais rápido, usam nitro em janelas diferentes e ajustam moderadamente a velocidade para disputar posições perto do jogador. A recuperação é limitada a quatro unidades de velocidade para mais ou para menos; os rivais não são reposicionados nem teleportados. Se você parar, eles continuam a corrida. A condução, drift e limites de velocidade do jogador não mudaram.
 
 A classificação mostra quantos metros de progresso cada rival está à frente ou atrás, e destaca o adversário mais próximo. A informação continua útil quando o rival sai da câmera. Os recordes desta dificuldade usam a versão 4, separada das regras anteriores.
+
+## Menu de corrida, Porto Âmbar e itens
+
+Antes de clicar em **Jogar**, escolha um dos seis pilotos pelos retratos dos modelos reais, a pista e a dificuldade. Todos os pilotos têm as mesmas capacidades: a escolha muda personagem e kart, não o equilíbrio. A sensibilidade de 50% a 150% ajusta o quanto a direção responde; a recuperação da direção e do drift foi suavizada. As preferências ficam salvas neste navegador quando o armazenamento está disponível.
+
+- **Fácil:** adversários mais lentos, menos turbo e mais erros.
+- **Média:** disputa próxima baseada no equilíbrio anterior.
+- **Difícil:** adversários mais rápidos, com mais turbo e menos erros.
+- **Vale Neon:** circuito original com relevo, moinhos e túnel.
+- **Porto Âmbar:** novo traçado ao pôr do sol, com cais, água, barcos, guindastes e contêineres. São três voltas, com o mesmo comprimento lógico do Vale, mas curvas e relevo próprios.
+
+O minimapa mostra o traçado e os seis pilotos nas cores dos karts. Seu marcador tem uma borda branca. O quadro de classificação continua mostrando a distância de cada rival.
+
+Passe por uma cápsula luminosa para carregar um item e pressione **E** para usar:
+
+| Item | Efeito |
+| --- | --- |
+| Bolha protetora | Dura até seis segundos e absorve um ataque de goma ou pulso; não impede colisões de karts ou barreiras. |
+| Goma de cais | Deixa uma poça atrás do kart por até sete segundos, que desacelera um rival. |
+| Pulso de vento | Empurra lateralmente e desacelera rivais próximos, a até 22 unidades de progresso na pista. |
+
+Você carrega um item por vez. Cápsulas recarregam após oito segundos, e os adversários também pegam e usam itens. A distribuição é determinística, sem compras ou vantagens pagas. A pausa congela também os timers dos itens. A reserva visual de poças mostra até 12 ao mesmo tempo.
+
+Os controles **Música** e **Efeitos** são independentes e estão no menu e na pausa. **Som** continua sendo o botão geral de silenciar. Na pausa ou no resultado, **Menu e opções** permite trocar piloto, pista ou dificuldade para uma nova corrida.
+
+Recordes usam a versão 5 e ficam separados por pista e dificuldade. Tempos de versões anteriores permanecem armazenados, mas não são comparados com as novas regras de itens e direção.
