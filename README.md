@@ -106,3 +106,10 @@ A nova pista usa a versão 3 de recordes para não comparar tempos do circuito p
 Clique em **Pausar ⏸** durante a contagem regressiva ou corrida, ou pressione **P** / **Esc**. Use **Continuar ▶**, P ou Esc para retomar. A pausa congela pilotos, contagem regressiva, cronômetro, efeitos e áudio. Ao trocar para outra aba, a corrida pausa automaticamente e só continua quando você pedir. As teclas de direção são liberadas na pausa para evitar aceleração presa ao retornar.
 
 Uma composição original chiptune animada (132 BPM, melodia, baixo e bateria) acompanha a corrida. Ela é sintetizada no navegador, começa após clicar em Jogar e repete sem baixar arquivos. O botão **Som** silencia tanto a música quanto os efeitos. Reiniciar reutiliza a mesma faixa, sem sobrepor músicas. O navegador precisa permitir Web Audio para reproduzir som; o jogo continua funcionando sem áudio se essa capacidade estiver indisponível.
+
+
+## Adversários mais competitivos
+
+A largada tem um grid mais compacto. Os adversários aceleram mais rápido, usam nitro em janelas diferentes e ajustam moderadamente a velocidade para disputar posições perto do jogador. A recuperação é limitada a quatro unidades de velocidade para mais ou para menos; os rivais não são reposicionados nem teleportados. Se você parar, eles continuam a corrida. A condução, drift e limites de velocidade do jogador não mudaram.
+
+A classificação mostra quantos metros de progresso cada rival está à frente ou atrás, e destaca o adversário mais próximo. A informação continua útil quando o rival sai da câmera. Os recordes desta dificuldade usam a versão 4, separada das regras anteriores.
