@@ -164,3 +164,23 @@ A direção analógica é gradual, com zona morta de 18%, e respeita a sensibili
 Nos menus, use direcional/analógico para mover o foco, esquerda/direita para ajustar seletores e barras e **A** para ativar o botão focado. **B** continua uma corrida pausada ou volta ao menu após o resultado. A primeira pressão ao conectar serve apenas para reconhecimento, sem iniciar ações acidentalmente. Se desconectar durante a corrida, o jogo pausa e limpa a entrada do controle. Reconectar não retoma automaticamente.
 
 O suporte foi validado com entradas simuladas no Chromium e testes automatizados; um GameSir físico ainda precisa ser conferido no seu PC. Se aparecer a mensagem de mapeamento não padrão, confira o modo XInput e reinicie a conexão. A Gamepad API pode estar indisponível em navegadores sem suporte ou com permissões restritas.
+
+## Drifts em três níveis e atalhos
+
+A barra de drift passa por três faixas de carga: **amarelo** a partir de 35%, **azul** a partir de 65% e **roxo** a partir de 95%. Solte o drift para liberar o impulso: respectivamente 0,65, 1,05 e 1,55 segundo, com limites de velocidade de 38, 43 e 49 unidades. A interface mostra o nível e as faíscas mudam de cor. Drift sem carga mínima não concede impulso.
+
+Cada pista tem uma rota estreita indicada em roxo no minimapa e por cones na entrada/saída: **Corte dos Cristais** no Vale e **Passarela dos Guindastes** no Porto. Aproxime-se pelo lado esquerdo e entre em drift acima de 18 unidades de velocidade. Ao entrar, mantenha o kart na faixa e endireite a direção. A rota corta o caminho entre dois pontos da pista, com perfil de passarela. A simulação concede 18% de avanço extra na rota; sair da faixa ou perder muita velocidade reduz a velocidade e o avanço até a saída. Não é possível entrar repetidamente no mesmo atalho na mesma volta. A condução continua arcade, sem queda física da passarela.
+
+## Disputa, desafios e pinturas
+
+Os itens passam a depender da classificação. Os dois primeiros têm mais probabilidade de receber bolha; os dois últimos têm mais chance de receber pulso. O pulso também dá um pequeno impulso ao usuário para ajudar na recuperação. A distribuição usa uma sequência determinística ponderada. Os adversários têm estilos por piloto: Lume/Sol priorizam defesa, Bia/Nina ataque e Téo/Zeca exploram laterais e atalhos. Eles guardam ou usam itens conforme a proximidade dos rivais.
+
+Quando você é atingido, um aviso informa **o item e o piloto responsável**, inclusive quando a bolha bloqueia o ataque. Na última volta, a música fica 15% mais rápida e a interface destaca um rival próximo. Ao chegar, uma apresentação mostra os três primeiros conforme terminam; esses pilotos comemoram, com melodias diferentes para a colocação do jogador.
+
+Desafios ficam salvos neste navegador e liberam pinturas selecionáveis no menu, sem mudar o desempenho:
+
+- Termine uma corrida sem colisões com karts/barreiras: **Pérola**.
+- Libere três drifts carregados em uma corrida: **Chama roxa**.
+- Vença ao menos uma corrida com cada um dos seis pilotos: **Ouro solar**.
+
+O resultado informa batidas, drifts e pinturas novas. Se o armazenamento estiver bloqueado, o progresso fica apenas nesta sessão. Pinturas precisam ser selecionadas no menu e não são aplicadas automaticamente. Os recordes destas regras usam a versão 6, separados dos anteriores.
