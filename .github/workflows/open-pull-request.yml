@@ -1,0 +1,73 @@
+name: Abrir PR automaticamente
+
+on:
+  push:
+    branches:
+      - 'feat/**'
+      - 'fix/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: open-pr-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validar atualização
+    if: startsWith(github.ref, 'refs/heads/feat/') || startsWith(github.ref, 'refs/heads/fix/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+
+  open-pr:
+    name: Abrir solicitação de revisão
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/github-script@v8
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const branch = context.ref.replace('refs/heads/', '');
+            const base = 'main';
+            const existing = await github.rest.pulls.list({
+              owner, repo, state: 'open', base, head: `${owner}:${branch}`
+            });
+            let url = existing.data[0]?.html_url;
+            if (!url) {
+              const comparison = await github.rest.repos.compareCommits({
+                owner, repo, base, head: branch
+              });
+              if (!comparison.data.files?.length) {
+                core.info('A branch não tem alterações para revisar.');
+                return;
+              }
+              const latest = comparison.data.commits.at(-1);
+              const title = latest?.commit.message.split('\n')[0] || `Atualização: ${branch}`;
+              const body = [
+                'Atualização pronta para revisão.',
+                '',
+                'Validação automática: `npm ci`, `npm test` e `npm run build` concluídos antes da abertura deste PR.',
+                '',
+                `Execução: ${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`,
+                '',
+                'Revise as alterações e faça o merge para publicar no GitHub Pages.'
+              ].join('\n');
+              const created = await github.rest.pulls.create({ owner, repo, base, head: branch, title, body });
+              url = created.data.html_url;
+            }
+            core.info(`PR: ${url}`);
+            await core.summary.addLink('Abrir pull request', url).write();
