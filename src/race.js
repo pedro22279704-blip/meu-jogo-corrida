@@ -71,7 +71,7 @@ export function stepRace(racers,input,dt,time,surface=null){
   r.hit=Math.max(0,r.hit-dt);
   if(r.finished){r.speed=Math.max(0,r.speed-dt*15);r.boosting=false;r.drifting=false;continue;}
   if(r.index===0){
-   const steer=Number(!!input.left)-Number(!!input.right);
+   const steer=Number.isFinite(input.steer)?clamp(input.steer,-1,1):Number(!!input.left)-Number(!!input.right);
    const wasDrifting=r.drifting;
    r.drifting=!!input.drift&&!!steer&&r.speed>12;
    r.miniTurbo=Math.max(0,r.miniTurbo-dt);
