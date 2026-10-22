@@ -21,9 +21,9 @@ Jogo original de kart 3D para navegador, feito com JavaScript e Three.js. Os mod
 | Shift + ↑ | Usar nitro |
 | R | Reiniciar a corrida |
 
-São seis pilotos e três voltas no Circuito do Vale. O nitro recarrega com o tempo e mais rapidamente durante o drift. Sair do asfalto reduz a velocidade. A posição considera o progresso na pista e a ordem de chegada. Ao terminar, a tela mostra sua colocação e a classificação naquele instante.
+São seis pilotos e três voltas no Circuito do Vale. O nitro recarrega com o tempo e mais rapidamente durante o drift. As barreiras mantêm os karts na pista; bater reduz a velocidade. A posição considera o progresso na pista e a ordem de chegada. Ao terminar, a tela mostra sua colocação e a classificação naquele instante.
 
-Esta primeira versão usa direção arcade assistida: o kart acompanha a orientação da pista, enquanto WASD ou as setas controlam o deslocamento lateral. Drift aumenta o ângulo de deslize. Os cinco adversários seguem trajetórias automáticas com velocidades diferentes. Ainda não há colisões entre karts, áudio, itens ou controles de toque.
+Esta primeira versão usa direção arcade assistida: o kart acompanha a orientação da pista, enquanto WASD ou as setas controlam o deslocamento lateral. Drift aumenta o ângulo de deslize. Os cinco adversários buscam faixas livres, tentam ultrapassar e fazem pequenos erros ocasionais. Há colisões arcade entre karts e barreiras. Ainda não há itens ou controles de toque.
 
 ## Verificar e gerar versão de produção
 
@@ -39,6 +39,8 @@ O build fica em `dist/` e pode ser hospedado em um serviço de sites estáticos.
 
 - `src/main.js`: cenário, pista, karts, câmera, teclado e telas.
 - `src/race.js`: velocidade, drift, nitro, voltas e classificação.
+- `src/audio.js`: sons sintetizados de motor, derrapagem, turbo e chegada.
+- `src/records.js`: cronômetro e recordes locais.
 - `src/style.css`: menu e painel da corrida.
 - `test/race.test.js`: testes da simulação, executados com o Node.js.
 
@@ -69,3 +71,13 @@ Se aparecer uma solicitação de aprovação do ambiente `github-pages`, aprove 
 Os seis karts usam o modelo original `public/models/vale-kart.glb`, criado no Blender, com cores próprias. O arquivo editável está em `art/vale-kart.blend`; o script `art/create_kart.py` permite reproduzi-lo com `blender --background --python art/create_kart.py`. O Blender é necessário apenas para editar/recriar o modelo, não para jogar ou publicar. O GLB já está incluído no repositório e o Vite o copia para o site.
 
 Segure Espaço + A/D (ou setas) em velocidade para iniciar o drift: a carroceria gira antes da trajetória, o kart conserva movimento lateral e recupera aderência gradualmente ao soltar. Faíscas indicam o drift. Velocidade máxima, aceleração e consumo de nitro mantêm os valores anteriores. Se o modelo não carregar, o kart geométrico continua disponível como reserva.
+
+
+## Drift com impulso, sons e recordes
+
+- Segure Espaço + A/D em velocidade. A barra **DRIFT** carrega; depois de aproximadamente 0,54 segundo, as faíscas ficam azuis e a mensagem pede para soltar Espaço. Ao soltar, o kart ganha um impulso curto, proporcional à carga, sem gastar nitro. Um toque muito curto não gera impulso.
+- O botão **Som: ligado/desligado** controla motor, derrapagem, turbo e melodia de chegada. O áudio começa após clicar em Jogar, conforme as regras dos navegadores. Ao ocultar a aba, o som é silenciado e o tempo não avança.
+- O cronômetro aparece durante a corrida. Ao chegar, a tela mostra o tempo e o melhor resultado. O recorde fica apenas neste navegador, usando armazenamento local; limpar os dados do site apaga o recorde. Se o armazenamento estiver bloqueado, a corrida continua e a tela informa que não foi possível salvar.
+- As regras novas têm sua própria versão de recordes. Recordes feitos antes de mudanças futuras de física podem ser separados para manter a comparação justa.
+- Os pilotos têm acessórios de capacete e carroceria diferentes sobre o modelo original do Blender. Cristais e moinhos completam o cenário. A câmera amplia suavemente a visão durante o turbo; partículas indicam derrapagem e movimento das rodas.
+- As colisões são uma aproximação arcade em coordenadas da pista, sem simulação de capotamento ou danos.
