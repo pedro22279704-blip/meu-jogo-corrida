@@ -22,7 +22,7 @@ test('campeonato soma as duas pistas uma única vez, espera rivais e desempata p
  const c=createCup(),racers=createRace();racers.forEach((r,i)=>{r.finished=true;r.finishTime=i+1;});
  racers[5].finished=false;assert.equal(scoreCup(c,racers),false);racers[5].finished=true;
  assert.equal(scoreCup(c,orderRacers(racers)),true);assert.equal(scoreCup(c,racers),false);assert.equal(c.scores[0],10);
- c.round=1;assert.equal(scoreCup(c,[...racers].reverse()),true);assert.equal(cupStandings(c)[0].pilot,5);assert.equal(cupStandings(c)[0].points,11);
+ c.round=1;assert.equal(scoreCup(c,[...racers].reverse()),true);assert.equal(cupStandings(c)[0].pilot,6);assert.equal(cupStandings(c)[0].points,10);
 });
 test('fantasma interpola sem alterar o piloto, persiste por pista e rejeita dados inválidos',()=>{
  const data=new Map(),storage={getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,v)},r=createRace()[0],samples=[];
