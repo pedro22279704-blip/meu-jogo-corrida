@@ -1,4 +1,5 @@
 import {createCar10} from './car-10.js';
+import {CHARACTERS,createCharacter,setCharacter} from './characters.js';
 import {DrivingEffects} from './driving-effects.js';
 import {createCup,scoreCup,cupStandings,CUP_TRACKS} from './championship.js';
 import {readGhost,captureGhost,saveGhost,ghostAt} from './ghost.js';
@@ -55,11 +56,12 @@ karts.slice(0,6).forEach(personalize);
 const loader=new GLTFLoader();
 karts.slice(0,6).forEach((kart,i)=>loader.load(`${import.meta.env.BASE_URL}models/kart-${i}.glb`,gltf=>{
  for(const child of [...kart.children])if(child!==kart.userData.flame&&child!==kart.userData.bubble)kart.remove(child);
- cartoonize(gltf.scene,{outlines:true});kart.add(gltf.scene);kart.userData.rig=bindKart(gltf.scene);renderPortrait(gltf.scene,i);applyPaints();applyQuality();
+ cartoonize(gltf.scene,{outlines:true});kart.add(gltf.scene);kart.userData.model=gltf.scene;refreshCharacters();applyPaints();applyQuality();
 },undefined,error=>console.warn('Usando kart de reserva.',error)));
 const car10=createCar10();
 for(const child of [...karts[6].children])if(child!==karts[6].userData.flame)karts[6].remove(child);
 karts[6].add(car10);karts[6].userData.rig=bindKart(car10);
+karts[6].userData.model=car10;
 const contactShadows=karts.map(()=>{const shadow=contactShadow();shadow.rotation.x=-Math.PI/2;scene.add(shadow);return shadow;});
 const powerTextures={},powerMaterials={};
 new THREE.TextureLoader().load(ATLAS_URL,atlas=>{for(const type of ['shield','gum','pulse','capsule']){powerTextures[type]=powerTexture(atlas,type);powerMaterials[type]=new THREE.SpriteMaterial({map:powerTextures[type],transparent:true,depthWrite:false});}for(const capsule of capsules){capsule.userData.icon.material=powerMaterials.capsule;capsule.userData.icon.visible=true;}},undefined,()=>{document.body.classList.add('power-art-fallback');});
@@ -96,13 +98,28 @@ let racers=createRace(settings),mode='menu',elapsed=0,count=3,last=performance.n
 // Retratos dos modelos: um renderer compartilhado produz imagens estáticas.
 const portraitRenderer=new THREE.WebGLRenderer({alpha:true,antialias:true});portraitRenderer.setSize(160,100);portraitRenderer.setPixelRatio(1);portraitRenderer.toneMapping=THREE.NeutralToneMapping;portraitRenderer.outputColorSpace=THREE.SRGBColorSpace;
 const portraitScene=new THREE.Scene();portraitScene.add(new THREE.HemisphereLight(0xf1fcff,0x6d8b83,1.7));const portraitLight=new THREE.DirectionalLight(0xffe9ca,2.2);portraitLight.position.set(3,5,-3);portraitScene.add(portraitLight);
-const portraitCamera=new THREE.PerspectiveCamera(38,1.6,.1,30);portraitCamera.position.set(3,2.7,-4.6);portraitCamera.lookAt(0,1,0);
+const portraitCamera=new THREE.PerspectiveCamera(38,1.6,.1,30);portraitCamera.position.set(3,2.7,4.6);portraitCamera.lookAt(0,1,0);
 function renderPortrait(model,i){const clone=model.clone(true);portraitScene.add(clone);portraitRenderer.render(portraitScene,portraitCamera);const image=$(`portrait-${i}`);if(image)image.src=portraitRenderer.domElement.toDataURL('image/png');portraitScene.remove(clone);}
 for(const [i,name] of PILOTS.entries()){
  const button=document.createElement('button');button.type='button';button.className='pilot-choice';button.dataset.pilot=String(i);button.setAttribute('aria-pressed',String(settings.pilot===i));
  const image=document.createElement('img');image.id=`portrait-${i}`;image.alt=`Kart de ${name}`;const text=document.createElement('span');text.textContent=name;button.append(image,text);button.onclick=()=>{settings.pilot=i;applyMenu();};$('pilotChoices').append(button);
 }
 renderPortrait(car10,6);
+const characterSelect=$('characterSelect');
+for(const character of CHARACTERS){const option=document.createElement('option');option.value=character.id;option.textContent=character.name;characterSelect.append(option);}
+characterSelect.value=settings.character;
+characterSelect.onchange=()=>{settings.character=characterSelect.value;clearGhostModel();refreshCharacters();showSettings();};
+function refreshCharacters(){
+ karts.forEach((kart,i)=>{const model=kart.userData.model;if(!model)return;const changed=setCharacter(model,i===settings.pilot?settings.character:'original');if(changed||!kart.userData.rig||kart.userData.rig.model!==model)kart.userData.rig=bindKart(model);renderPortrait(model,i);});
+ $('characterBio').textContent=CHARACTERS.find(c=>c.id===settings.character).bio;
+ const preview=$('characterPreview'),character=createCharacter(settings.character);preview.hidden=!character;
+ if(character){
+  const closeCamera=new THREE.PerspectiveCamera(38,4/3,.1,30);closeCamera.position.set(1,1.2,2.7);closeCamera.lookAt(0,.85,0);
+  portraitRenderer.setSize(320,240);portraitScene.add(character);portraitRenderer.render(portraitScene,closeCamera);preview.src=portraitRenderer.domElement.toDataURL('image/png');preview.alt=CHARACTERS.find(c=>c.id===settings.character).name;
+  portraitScene.remove(character);character.traverse(p=>{p.geometry?.dispose();p.material?.dispose();});portraitRenderer.setSize(160,100);
+ }
+}
+refreshCharacters();
 $('trackSelect').value=settings.track;$('difficultySelect').value=settings.difficulty;$('sensitivity').value=settings.sensitivity;
 function updateChallenges(){
  const unlocked=unlockedPaints(challengeProgress);if(!unlocked.some(p=>p.id===paintId))paintId='original';
@@ -142,6 +159,7 @@ function applyMenu(){
  const next=normalizeSettings({...settings,track:$('trackSelect').value,difficulty:$('difficultySelect').value,sensitivity:Number($('sensitivity').value),quality:$('qualitySelect').value,reducedMotion:$('reducedMotion').checked});
  if(next.track!==settings.track||next.quality!==settings.quality){world.dispose();world=createWorld(scene,next.track,{quality:next.quality});camera.position.copy(world.track(-9).p).add(new THREE.Vector3(0,7,-10));}
  settings=next;racers=createRace(settings);items=createItems();showSettings();
+ refreshCharacters();
 }
 $('trackSelect').onchange=applyMenu;$('difficultySelect').onchange=applyMenu;$('sensitivity').oninput=applyMenu;$('qualitySelect').onchange=applyMenu;$('reducedMotion').onchange=applyMenu;
 for(const slider of document.querySelectorAll('.music-volume'))slider.oninput=()=>{settings.musicVolume=Number(slider.value);showSettings();};
