@@ -1,5 +1,5 @@
 // Nova versão de regras: recordes antigos não são comparados com esta física.
-const KEY='vale-neon-best-v2';
+const KEY='vale-neon-best-v3';
 export function formatTime(seconds){
  if(!Number.isFinite(seconds)||seconds<0)return '—';
  const ms=Math.floor(seconds*1000);return `${Math.floor(ms/60000)}:${String(Math.floor(ms/1000)%60).padStart(2,'0')}.${String(ms%1000).padStart(3,'0')}`;
