@@ -201,3 +201,21 @@ Os sprites originais estão em `public/sprites/powers-atlas.png`, um PNG RGBA tr
 A mesma arte aparece no guia do menu, no indicador de poder e na pista: cápsulas, bolha ativa, goma no asfalto e pulso. Os sprites são imagens estáticas; flutuação, escala e apresentação são animadas pelo jogo. O indicador continua mostrando o nome e a tecla de uso, sem depender só da cor ou da imagem. Se a textura falhar, as cápsulas e os efeitos geométricos continuam funcionando e os textos identificam os poderes.
 
 O atlas tem aproximadamente 1,7 MiB e é reutilizado pela interface e pelos efeitos. Não é necessário um serviço de imagens durante o jogo. O caminho do atlas respeita `/meu-jogo-corrida/` no GitHub Pages.
+
+## Menu organizado, treino e acabamento
+
+O menu tem quatro páginas: **Correr** (pista, dificuldade e início), **Pilotos** (personagem e pinturas), **Opções** (direção, gráficos, câmera e volumes) e **Desafios** (progresso e recompensas). Use clique, teclado (Tab e setas nas abas) ou controle com confirmação por A.
+
+Em **Correr → Aprender · 1 volta**, o treino acontece sozinho na pista escolhida. Mensagens curtas acompanham aceleração, direção, drift carregado, nitro e uso de item. A volta pode ser concluída mesmo sem realizar todas as ações: o resultado mostra quantas foram experimentadas e permite repetir. **Sair do treino** ou o menu de pausa permite voltar. O treino não grava recordes nem conquistas e não tem adversários; uma corrida normal continua tendo seis pilotos e três voltas.
+
+Em **Opções**, os ajustes gráficos são salvos no navegador:
+
+- **Bonito:** resolução até duas vezes a resolução CSS, contornos dos karts e cenário mais completo.
+- **Leve:** resolução CSS, menos árvores, nuvens e espectadores animados; desativa contornos e sombras de contato, e reduz partículas. A física é igual.
+- **Movimento reduzido:** remove o zoom do nitro, usa acompanhamento de câmera mais direto e deixa animações decorativas estáticas. Rodas, direção e animações essenciais do jogo permanecem.
+
+A câmera verifica paredes do túnel, portal e grandes estruturas do porto para reduzir obstruções, aproximando-se quando necessário. É uma proteção simples, não uma garantia para toda combinação de objetos/ângulos.
+
+Bandeiras ondulam, barcos balançam e espectadores saltam, com animações leves. Ataques de goma e pulso geram partículas no kart atingido; a bolha estoura visualmente ao bloquear ou expirar. O pulso tem ondas de impacto. A pausa congela esses efeitos.
+
+A tela de resultado mostra os modelos reais dos pilotos e karts em um pódio 3D, além de tempo, classificação, batidas, drifts, recordes e pinturas novas. O pódio é preenchido conforme os três primeiros terminam. No treino, aparece apenas o piloto treinado. O renderer do resultado só é criado ao chegar, com resolução limitada para conter o custo.
