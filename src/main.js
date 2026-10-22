@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {createRace,stepRace,orderRacers,lapOf,TRACK_LENGTH,LAPS} from './race.js';
 const $=id=>document.getElementById(id);
 const scene=new THREE.Scene();scene.background=new THREE.Color('#8ccbd3');scene.fog=new THREE.Fog('#8ccbd3',120,340);
@@ -21,6 +22,17 @@ const banner=mesh(new THREE.BoxGeometry(16,1.1,.5),'#a9fb59');banner.position.co
 for(let i=0;i<110;i++){const d=i/110*TRACK_LENGTH;const side=i%2?1:-1;const {p}=track(d,side*(18+(i*17%31)));const tree=new THREE.Group();scene.add(tree);tree.position.copy(p);const trunk=mesh(new THREE.CylinderGeometry(.35,.5,3,6),'#76634b',tree);trunk.position.y=1.5;const crown=mesh(new THREE.ConeGeometry(2.4+(i%3)*.4,7,6),i%3?'#366c62':'#4b8571',tree);crown.position.y=5;}
 const colors=['#b4ff5c','#f8829d','#ffc15a','#9b8dff','#5bdddf','#ff9166'];
 const karts=colors.map(color=>{const g=new THREE.Group();scene.add(g);const body=mesh(new THREE.BoxGeometry(1.65,.5,2.4),color,g);body.position.y=.65;const nose=mesh(new THREE.BoxGeometry(1.8,.3,.5),color,g);nose.position.set(0,.45,1.2);const seat=mesh(new THREE.BoxGeometry(.8,.8,.5),'#253947',g);seat.position.set(0,1,-.5);const head=mesh(new THREE.SphereGeometry(.44,16,12),color,g);head.position.set(0,1.55,-.15);const visor=mesh(new THREE.BoxGeometry(.65,.17,.15),'#142735',g);visor.position.set(0,1.58,.23);for(const x of [-.94,.94])for(const z of [-.8,.8]){const wheel=mesh(new THREE.CylinderGeometry(.38,.38,.3,12),'#172a35',g);wheel.rotation.z=Math.PI/2;wheel.position.set(x,.38,z);}const flame=mesh(new THREE.ConeGeometry(.35,1.5,8),'#78edff',g);flame.rotation.x=-Math.PI/2;flame.position.set(0,.55,-1.8);flame.visible=false;g.userData.flame=flame;return g;});
+// O modelo Blender substitui a geometria de reserva após carregar.
+new GLTFLoader().load(`${import.meta.env.BASE_URL}models/vale-kart.glb`,gltf=>{
+ karts.forEach((kart,i)=>{
+  const model=gltf.scene.clone(true);
+  model.traverse(part=>{if(part.isMesh){part.material=part.material.clone();if(part.material.name==='Paint')part.material.color.set(colors[i]);}});
+  for(const child of [...kart.children])if(child!==kart.userData.flame)kart.remove(child);
+  kart.add(model);
+ });
+},undefined,error=>console.warn('Modelo indisponível; usando kart de reserva.',error));
+const sparks=Array.from({length:36},()=>{const p=mesh(new THREE.SphereGeometry(.055,5,4),'#ffce64');p.visible=false;return {mesh:p,life:0,velocity:new THREE.Vector3()};});
+let sparkClock=0;
 let racers=createRace(),mode='menu',elapsed=0,count=3,last=performance.now();const keys={};
 function reset(){racers=createRace();elapsed=0;count=3;mode='countdown';for(const k in keys)delete keys[k];$('menu').hidden=true;$('result').hidden=true;$('hud').hidden=false;}
 $('play').onclick=reset;$('again').onclick=reset;
@@ -31,6 +43,10 @@ function animate(now){requestAnimationFrame(animate);const dt=Math.min((now-last
  if(mode==='countdown'){count-=dt;$('countdown').textContent=Math.ceil(count);if(count<=0){mode='racing';$('countdown').textContent='';}}
  if(mode==='racing'){elapsed+=dt;stepRace(racers,input(),dt,elapsed);if(racers[0].finished){mode='finished';$('resultTitle').textContent=`${orderRacers(racers).findIndex(r=>r.index===0)+1}º lugar!`;$('result').hidden=false;list('finalRanking',orderRacers(racers));}}
  for(const r of racers){const {p,tangent}=track(r.distance,r.offset);karts[r.index].position.copy(p);karts[r.index].rotation.y=Math.atan2(tangent.x,tangent.z)+r.angle;karts[r.index].userData.flame.visible=mode==='racing'&&r.index===0&&input().boost&&input().up&&r.nitro>1;}
+ const drifting=mode==='racing'&&racers[0].drifting;
+ sparkClock+=dt;
+ if(drifting&&sparkClock>.035){sparkClock=0;for(const side of [-1,1]){const particle=sparks.find(s=>s.life<=0);if(particle){particle.life=.35;particle.mesh.position.copy(karts[0].localToWorld(new THREE.Vector3(side*.95,.15,-.8)));particle.velocity.set((Math.random()-.5)*2,1+Math.random(),(Math.random()-.5)*2);}}}
+ for(const s of sparks){s.life-=dt;s.mesh.visible=s.life>0;if(s.life>0){s.mesh.position.addScaledVector(s.velocity,dt);s.velocity.y-=5*dt;s.mesh.scale.setScalar(s.life/.35);}}
  const player=racers[0],frame=track(player.distance,player.offset);const desired=frame.p.clone().addScaledVector(frame.tangent,-11);desired.y=6.8;camera.position.lerp(desired,1-Math.exp(-dt*6));const target=frame.p.clone().addScaledVector(frame.tangent,8);target.y=1;camera.lookAt(target);
  $('lap').textContent=`VOLTA ${lapOf(player)} / ${LAPS}`;$('place').textContent=`${orderRacers(racers).findIndex(r=>!r.index)+1}º / 6`;$('speed').textContent=Math.round(Math.abs(player.speed)*3.6);$('nitro').value=player.nitro;$('drift').textContent=player.drifting?'DRIFT! Recarregando nitro':'WASD / setas: dirigir · Espaço: drift · Shift: nitro';list('ranking',orderRacers(racers));renderer.render(scene,camera);
 }
