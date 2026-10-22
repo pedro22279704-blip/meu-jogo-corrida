@@ -2,7 +2,7 @@ export const LAPS = 3;
 export const TRACK_LENGTH = 760;
 export const NAMES = ['Você · Lume', 'Bia Faísca', 'Téo Musgo', 'Nina Cometa', 'Zeca Brisa', 'Sol Cobre'];
 export const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
-export function createRace(){return NAMES.map((name,i)=>({name,index:i,distance:-Math.floor(i/2)*6-9,speed:0,offset:i%2?2.4:-2.4,nitro:100,angle:0,finished:false,finishTime:null,drifting:false}));}
+export function createRace(){return NAMES.map((name,i)=>({name,index:i,distance:-Math.floor(i/2)*6-9,speed:0,offset:i%2?2.4:-2.4,nitro:100,angle:0,slide:0,finished:false,finishTime:null,drifting:false}));}
 export function orderRacers(racers){return [...racers].sort((a,b)=>a.finished&&b.finished?a.finishTime-b.finishTime:a.finished?-1:b.finished?1:b.distance-a.distance);}
 export function lapOf(r){return clamp(Math.floor(Math.max(0,r.distance)/TRACK_LENGTH)+1,1,LAPS);}
 export function stepRace(racers,input,dt,time){
@@ -18,7 +18,10 @@ export function stepRace(racers,input,dt,time){
    r.nitro=clamp(r.nitro+dt*(boost?-27:r.drifting?20:7),0,100);
    r.speed+=dt*(input.up? (boost?24:14):input.down?-26:-6);
    r.speed=clamp(r.speed,input.down?-7:0,boost?49:32);
-   r.offset+=Math.sin(r.angle)*r.speed*dt;
+   // A carroceria aponta para a curva antes de os pneus recuperarem aderência.
+   const targetSlide=Math.sin(r.angle)*r.speed*(r.drifting?.48:1);
+   r.slide+=(targetSlide-r.slide)*(1-Math.exp(-dt*(r.drifting?2.2:7)));
+   r.offset+=r.slide*dt;
    if(Math.abs(r.offset)>6.3)r.speed*=Math.exp(-dt*2.2);
    r.offset=clamp(r.offset,-10,10);
   }else{
