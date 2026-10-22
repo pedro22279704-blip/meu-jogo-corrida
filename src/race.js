@@ -4,7 +4,7 @@ export const ROAD_LIMIT = 6.4;
 export const NAMES = ['Você · Lume', 'Bia Faísca', 'Téo Musgo', 'Nina Cometa', 'Zeca Brisa', 'Sol Cobre'];
 export const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
 export function createRace(){
- return NAMES.map((name,i)=>({name,index:i,distance:-Math.floor(i/2)*6-9,speed:0,offset:i%2?2.4:-2.4,nitro:100,angle:0,slide:0,finished:false,finishTime:null,drifting:false,driftCharge:0,miniTurbo:0,boosting:false,hit:0,aiLane:i%2?2.4:-2.4}));
+ return NAMES.map((name,i)=>({name,index:i,distance:-Math.floor(i/2)*4-9,speed:0,offset:i%2?2.4:-2.4,nitro:100,angle:0,slide:0,finished:false,finishTime:null,drifting:false,driftCharge:0,miniTurbo:0,boosting:false,hit:0,aiLane:i%2?2.4:-2.4}));
 }
 export function orderRacers(racers){return [...racers].sort((a,b)=>a.finished&&b.finished?a.finishTime-b.finishTime:a.finished?-1:b.finished?1:b.distance-a.distance);}
 export function lapOf(r){return clamp(Math.floor(Math.max(0,r.distance)/TRACK_LENGTH)+1,1,LAPS);}
@@ -38,21 +38,29 @@ export function resolveCollisions(racers){
 function driveAI(r,racers,dt,time){
  const ahead=racers.filter(other=>other!==r&&!other.finished).map(other=>({other,gap:wrapGap(other.distance,r.distance)})).filter(x=>x.gap>0&&x.gap<22).sort((a,b)=>a.gap-b.gap)[0];
  let targetLane=Math.sin(time*.35+r.index)*1.4;
- let targetSpeed=28+r.index*.5+Math.sin(time*.8+r.index)*1.2;
+ const player=racers.find(other=>other.index===0);
+ // Recuperação moderada por velocidade, sem alterar posições artificialmente.
+ const gapToPlayer=player&&!player.finished?player.distance-r.distance:0;
+ const packAdjustment=clamp(gapToPlayer/12,-4,4);
+ let targetSpeed=31.8+r.index*.12+Math.sin(time*.8+r.index)*.6+packAdjustment;
+ const turboWindow=(time+r.index*1.7)%9<1.4;
+ r.boosting=turboWindow&&r.nitro>8&&r.speed>18;
+ if(r.boosting)targetSpeed=42.5+clamp(gapToPlayer/20,-3,2);
  if(ahead&&Math.abs(ahead.other.offset-r.offset)<2.6){
   const candidates=[-4,0,4].map(lane=>({lane,clear:!racers.some(o=>o!==r&&!o.finished&&Math.abs(wrapGap(o.distance,r.distance))<12&&Math.abs(o.offset-lane)<2.4)}));
   const choice=candidates.filter(c=>c.clear).sort((a,b)=>Math.abs(a.lane-r.offset)-Math.abs(b.lane-r.offset))[0];
   if(choice)targetLane=choice.lane;
-  else if(ahead.gap<9)targetSpeed=Math.min(targetSpeed,Math.max(8,ahead.other.speed-2));
+  else if(ahead.gap<9){targetSpeed=Math.min(targetSpeed,Math.max(8,ahead.other.speed-2));r.boosting=false;}
  }else if(Math.abs(r.aiLane)>2)targetLane=r.aiLane*.96;
+ r.nitro=clamp(r.nitro+dt*(r.boosting?-27:9),0,100);
  // Pequenos erros determinísticos, sem sorteios a cada quadro.
  const mistake=Math.sin(time*.22+r.index*1.8)>.985;
- if(mistake){targetSpeed-=5;targetLane+=Math.sin(r.index)*.8;}
+ if(mistake){targetSpeed-=2.5;targetLane+=Math.sin(r.index)*.8;}
  r.aiLane+=(targetLane-r.aiLane)*(1-Math.exp(-dt*2));
  const oldOffset=r.offset;
  r.offset+=clamp(r.aiLane-r.offset,-3.5*dt,3.5*dt);
  r.slide=(r.offset-oldOffset)/dt;r.angle=Math.atan2(r.slide,Math.max(1,r.speed))*.6;
- r.speed+=clamp(targetSpeed-r.speed,-10*dt,12*dt);
+ r.speed+=clamp(targetSpeed-r.speed,-14*dt,(r.boosting?24:16)*dt);
 }
 export function stepRace(racers,input,dt,time,surface=null){
  dt=clamp(dt,0,.05);if(!dt)return;

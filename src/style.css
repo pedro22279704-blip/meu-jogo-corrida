@@ -3,3 +3,5 @@
 #sound{position:fixed;right:24px;top:94px;font-size:12px;padding:10px 16px;z-index:3;background:#172f3ee8;color:#d6edee;border:1px solid #668b91}#driftCharge{accent-color:#ffbf62}#bestTime,#recordResult{color:#b4ff62;font-weight:700}.bottom progress{height:9px;margin:5px 0 10px}.overlay{overflow-y:auto}#raceTime{font-size:23px}@media(max-width:650px){.top{flex-wrap:wrap}.top strong{width:100%}#sound{top:125px}.bottom{gap:8px}.bottom>div{padding:10px}aside{top:140px}}
 
 #pause{position:fixed;right:165px;top:94px;padding:10px 16px;font-size:12px;z-index:3}#pauseMenu{z-index:5;background:#102532ed}#pauseMenu h1{font-size:clamp(36px,6vw,68px);letter-spacing:-2px}@media(max-width:650px){#pause{top:125px;right:155px}}
+
+aside{width:285px}#ranking{font-size:13px}#rivalGap{font-size:11px;color:#b4ff62;line-height:1.5;border-top:1px solid #668b91;padding-top:10px}@media(max-width:650px){aside{width:205px}#ranking{font-size:11px}}
