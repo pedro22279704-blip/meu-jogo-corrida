@@ -13,7 +13,7 @@ export function animateKart(rig,racer,dt,time){
  for(const wheel of rig.rolls)rotate(wheel,x,rig.wheelAngle);
  for(const wheel of rig.front)rotate(wheel,y,racer.angle*.65);
  rotate(rig.steering,y,racer.angle*1.3);
- rotate(rig.driver,z,-racer.angle*.24);
+ rotate(rig.driver,z,-racer.angle*.24+(racer.hit>0?Math.sin(time*45)*.16:0));
  const celebrate=racer.finished&&(racer.podiumPlace??1)<=3;
- rig.arms.forEach((arm,i)=>{rotate(arm,z,celebrate?(i?1:-1)*.45:racer.angle*.25);if(celebrate&&arm)arm.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(x,-2+Math.sin(time*7)*.15));});
+ rig.arms.forEach((arm,i)=>{rotate(arm,z,celebrate?(i?1:-1)*.45:racer.angle*.25+(racer.powerGesture>0?(i?-.35:.35):0));if(celebrate&&arm)arm.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(x,-2+Math.sin(time*7)*.15));});
 }

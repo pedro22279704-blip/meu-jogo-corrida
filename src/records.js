@@ -1,5 +1,5 @@
 // Nova versão de regras: recordes antigos não são comparados com esta física.
-const KEY='vale-neon-best-v6';
+const KEY='vale-neon-best-v7';
 const recordKey=scope=>scope?`${KEY}-${scope}`:KEY;
 export function formatTime(seconds){
  if(!Number.isFinite(seconds)||seconds<0)return '—';
