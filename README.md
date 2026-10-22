@@ -20,6 +20,7 @@ Jogo original de kart 3D para navegador, feito com JavaScript e Three.js. Os mod
 | Espaço + ← / → | Drift em movimento |
 | Shift + ↑ | Usar nitro |
 | R | Reiniciar a corrida |
+| P ou Esc | Pausar / continuar |
 
 São seis pilotos e três voltas no Circuito do Vale. O nitro recarrega com o tempo e mais rapidamente durante o drift. As barreiras mantêm os karts na pista; bater reduz a velocidade. A posição considera o progresso na pista e a ordem de chegada. Ao terminar, a tela mostra sua colocação e a classificação naquele instante.
 
@@ -99,3 +100,9 @@ Todos compartilham o mesmo envelope de colisão e regras de velocidade; as difer
 Árvores, portal de chegada, placas, arquibancadas, ponte e túnel são modelos Blender reutilizados. A pista tem relevo suave (2 a 10 metros) e curvas inclinadas em até aproximadamente cinco graus. Karts e câmera acompanham a superfície; a gravidade reduz um pouco a velocidade nas subidas e aumenta nas descidas. A condução continua assistida, sem saltos ou capotamento. O perfil da pista é calculado no código para coincidir com a simulação, em vez de ser uma malha de pista importada do Blender.
 
 A nova pista usa a versão 3 de recordes para não comparar tempos do circuito plano anterior. Os dados antigos não são apagados, mas o recorde exibido começa separado para estas regras.
+
+## Pausa e música retrô
+
+Clique em **Pausar ⏸** durante a contagem regressiva ou corrida, ou pressione **P** / **Esc**. Use **Continuar ▶**, P ou Esc para retomar. A pausa congela pilotos, contagem regressiva, cronômetro, efeitos e áudio. Ao trocar para outra aba, a corrida pausa automaticamente e só continua quando você pedir. As teclas de direção são liberadas na pausa para evitar aceleração presa ao retornar.
+
+Uma composição original chiptune animada (132 BPM, melodia, baixo e bateria) acompanha a corrida. Ela é sintetizada no navegador, começa após clicar em Jogar e repete sem baixar arquivos. O botão **Som** silencia tanto a música quanto os efeitos. Reiniciar reutiliza a mesma faixa, sem sobrepor músicas. O navegador precisa permitir Web Audio para reproduzir som; o jogo continua funcionando sem áudio se essa capacidade estiver indisponível.

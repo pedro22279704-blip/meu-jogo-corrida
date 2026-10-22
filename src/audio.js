@@ -1,3 +1,4 @@
+import {createRetroMusic} from './music.js';
 // Áudio sintetizado localmente: não há arquivos ou serviços de terceiros.
 export class RaceAudio{
  constructor(){this.muted=false;this.context=null;}
@@ -14,11 +15,17 @@ export class RaceAudio{
     const high=ctx.createBiquadFilter();high.type='bandpass';high.frequency.value=1800;
     this.skid=ctx.createGain();this.skid.gain.value=0;noise.connect(high).connect(this.skid).connect(this.master);noise.start();
     this.turbo=ctx.createOscillator();this.turbo.type='sine';this.turbo.frequency.value=420;this.turboGain=ctx.createGain();this.turboGain.gain.value=0;this.turbo.connect(this.turboGain).connect(this.master);this.turbo.start();
+    this.musicGain=ctx.createGain();this.musicGain.gain.value=0;this.musicGain.connect(this.master);
+    this.music=ctx.createBufferSource();this.music.buffer=createRetroMusic(ctx);this.music.loop=true;this.music.connect(this.musicGain);this.music.start();
    }
-   await this.context.resume();
+   await this.setPaused(false);
   }catch{ /* Corrida continua se o navegador bloquear áudio. */ }
  }
+ setPaused(paused){
+  this.playback=(this.playback??Promise.resolve()).then(async()=>{if(this.context&&this.context.state!=='closed'){if(paused)await this.context.suspend();else await this.context.resume();}}).catch(()=>{});
+  return this.playback;
+ }
  toggle(){this.muted=!this.muted;if(this.master)this.master.gain.setTargetAtTime(this.muted?0:.22,this.context.currentTime,.04);return this.muted;}
- update(r,active){if(!this.engine)return;const t=this.context.currentTime;this.engine.frequency.setTargetAtTime(48+Math.abs(r.speed)*5,t,.08);this.engineGain.gain.setTargetAtTime(active?.13:0,t,.08);this.skid.gain.setTargetAtTime(active&&r.drifting?.16:0,t,.05);this.turboGain.gain.setTargetAtTime(active&&r.boosting?.12:0,t,.05);this.turbo.frequency.setTargetAtTime(420+Math.abs(r.speed)*8,t,.08);}
+ update(r,active,musicActive=active){if(!this.engine)return;const t=this.context.currentTime;this.musicGain?.gain.setTargetAtTime(musicActive?.65:0,t,.15);this.engine.frequency.setTargetAtTime(48+Math.abs(r.speed)*5,t,.08);this.engineGain.gain.setTargetAtTime(active?.13:0,t,.08);this.skid.gain.setTargetAtTime(active&&r.drifting?.16:0,t,.05);this.turboGain.gain.setTargetAtTime(active&&r.boosting?.12:0,t,.05);this.turbo.frequency.setTargetAtTime(420+Math.abs(r.speed)*8,t,.08);}
  finish(){if(!this.context)return;const ctx=this.context;[523,659,784,1047].forEach((freq,i)=>{const osc=ctx.createOscillator(),gain=ctx.createGain();const t=ctx.currentTime+i*.14;osc.frequency.value=freq;gain.gain.setValueAtTime(.25,t);gain.gain.exponentialRampToValueAtTime(.001,t+.35);osc.connect(gain).connect(this.master);osc.start(t);osc.stop(t+.36);});}
 }
