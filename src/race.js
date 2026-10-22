@@ -54,7 +54,7 @@ function driveAI(r,racers,dt,time){
  r.slide=(r.offset-oldOffset)/dt;r.angle=Math.atan2(r.slide,Math.max(1,r.speed))*.6;
  r.speed+=clamp(targetSpeed-r.speed,-10*dt,12*dt);
 }
-export function stepRace(racers,input,dt,time){
+export function stepRace(racers,input,dt,time,surface=null){
  dt=clamp(dt,0,.05);if(!dt)return;
  for(const r of racers){
   r.hit=Math.max(0,r.hit-dt);
@@ -80,6 +80,7 @@ export function stepRace(racers,input,dt,time){
    r.slide+=(targetSlide-r.slide)*(1-Math.exp(-dt*(r.drifting?2.2:7)));
    r.offset+=r.slide*dt;
   }else driveAI(r,racers,dt,time);
+  if(surface){const {grade}=surface(r.distance);r.speed-=grade*28*dt;r.speed=clamp(r.speed,-7,r.boosting?49:43);}
   barrier(r);
   r.distance+=r.speed*Math.cos(r.angle)*dt;
  }

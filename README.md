@@ -68,7 +68,7 @@ Se aparecer uma solicitação de aprovação do ambiente `github-pages`, aprove 
 
 ## Modelo Blender e drift
 
-Os seis karts usam o modelo original `public/models/vale-kart.glb`, criado no Blender, com cores próprias. O arquivo editável está em `art/vale-kart.blend`; o script `art/create_kart.py` permite reproduzi-lo com `blender --background --python art/create_kart.py`. O Blender é necessário apenas para editar/recriar o modelo, não para jogar ou publicar. O GLB já está incluído no repositório e o Vite o copia para o site.
+Os seis karts usam modelos originais próprios `public/models/kart-0.glb` até `kart-5.glb`, criados no Blender, com carrocerias, capacetes e roupas diferentes. O arquivo editável está em `art/vale-kart.blend`; o script `art/create_kart.py` permite reproduzi-lo com `blender --background --python art/create_kart.py`. O Blender é necessário apenas para editar/recriar o modelo, não para jogar ou publicar. O GLB já está incluído no repositório e o Vite o copia para o site.
 
 Segure Espaço + A/D (ou setas) em velocidade para iniciar o drift: a carroceria gira antes da trajetória, o kart conserva movimento lateral e recupera aderência gradualmente ao soltar. Faíscas indicam o drift. Velocidade máxima, aceleração e consumo de nitro mantêm os valores anteriores. Se o modelo não carregar, o kart geométrico continua disponível como reserva.
 
@@ -79,5 +79,23 @@ Segure Espaço + A/D (ou setas) em velocidade para iniciar o drift: a carroceria
 - O botão **Som: ligado/desligado** controla motor, derrapagem, turbo e melodia de chegada. O áudio começa após clicar em Jogar, conforme as regras dos navegadores. Ao ocultar a aba, o som é silenciado e o tempo não avança.
 - O cronômetro aparece durante a corrida. Ao chegar, a tela mostra o tempo e o melhor resultado. O recorde fica apenas neste navegador, usando armazenamento local; limpar os dados do site apaga o recorde. Se o armazenamento estiver bloqueado, a corrida continua e a tela informa que não foi possível salvar.
 - As regras novas têm sua própria versão de recordes. Recordes feitos antes de mudanças futuras de física podem ser separados para manter a comparação justa.
-- Os pilotos têm acessórios de capacete e carroceria diferentes sobre o modelo original do Blender. Cristais e moinhos completam o cenário. A câmera amplia suavemente a visão durante o turbo; partículas indicam derrapagem e movimento das rodas.
+- Os pilotos têm modelos Blender distintos com peças articuladas. Cristais e moinhos completam o cenário. A câmera amplia suavemente a visão durante o turbo; partículas indicam derrapagem e movimento das rodas.
 - As colisões são uma aproximação arcade em coordenadas da pista, sem simulação de capotamento ou danos.
+
+
+## Pilotos articulados e Vale em 3D
+
+O arquivo `art/vale-kart.blend` reúne seis pilotos/karts e os objetos do cenário. Para reconstruir os GLBs, execute `blender -b -P art/create_kart.py` na raiz. Não é necessário executar Blender no GitHub Actions: os modelos exportados já estão salvos em `public/models/`.
+
+- Lume: carroceria arredondada e crista no capacete.
+- Bia: kart esportivo, aerofólio e protetores laterais no capacete.
+- Téo: painéis reaproveitados de madeira e óculos metálicos.
+- Nina: capô arredondado e antenas no capacete.
+- Zeca: turbinas decorativas e capacete com aba.
+- Sol: para-choque largo e capacete com três aletas.
+
+Todos compartilham o mesmo envelope de colisão e regras de velocidade; as diferenças dos veículos são visuais. As rodas giram conforme a velocidade e viram nas curvas. O volante e os braços acompanham a direção, o corpo inclina e os pilotos levantam os braços na chegada. As animações são controladas pelo código sobre peças articuladas, sem animações de esqueleto.
+
+Árvores, portal de chegada, placas, arquibancadas, ponte e túnel são modelos Blender reutilizados. A pista tem relevo suave (2 a 10 metros) e curvas inclinadas em até aproximadamente cinco graus. Karts e câmera acompanham a superfície; a gravidade reduz um pouco a velocidade nas subidas e aumenta nas descidas. A condução continua assistida, sem saltos ou capotamento. O perfil da pista é calculado no código para coincidir com a simulação, em vez de ser uma malha de pista importada do Blender.
+
+A nova pista usa a versão 3 de recordes para não comparar tempos do circuito plano anterior. Os dados antigos não são apagados, mas o recorde exibido começa separado para estas regras.
