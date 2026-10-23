@@ -35,7 +35,8 @@ let storage;try{storage=window.localStorage;}catch{storage=null;}
 let settings=readSettings(storage);challengeProgress=readChallenges(storage);
 let best=readBest(storage,recordScope(settings));
 $('bestTime').textContent=`Recorde: ${formatTime(best)}`;
-$('sound').onclick=()=>{const muted=audio.toggle();$('sound').textContent=muted?'Som: desligado':'Som: ligado';$('sound').setAttribute('aria-pressed',String(muted));};
+$('sound').onclick=()=>{const muted=audio.toggle();for(const id of ['sound','menuSound']){$(id).textContent=muted?'Som: desligado':'Som: ligado';$(id).setAttribute('aria-pressed',String(muted));}};
+$('menuSound').onclick=()=>$('sound').click();
 const scene=new THREE.Scene();scene.background=new THREE.Color('#8ccbd3');scene.fog=new THREE.Fog('#8ccbd3',120,340);
 const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,600);
 const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.toneMapping=THREE.NeutralToneMapping;renderer.toneMappingExposure=1;renderer.outputColorSpace=THREE.SRGBColorSpace;$('game').appendChild(renderer.domElement);
@@ -146,7 +147,7 @@ function applyPaints(){
 }
 $('paintSelect').onchange=()=>{paintId=$('paintSelect').value;applyPaints();};updateChallenges();
 function menuPage(page){
- $('menu').classList.toggle('pilots-mode',page==='pilots');$('pilotsBack').hidden=page!=='pilots';
+ $('pilotsBack').hidden=page==='race';
  for(const tab of document.querySelectorAll('[data-page]')){const selected=tab.dataset.page===page;tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;$(tab.getAttribute('aria-controls')).hidden=!selected;}
  $('menu').scrollTop=0;
 }
@@ -232,7 +233,7 @@ $('cup').onclick=()=>{cup=createCup();selectCupTrack();reset({tutorial:false});}
 $('nextRound').onclick=()=>{if(cup&&cup.results.length===1){cup.round=1;selectCupTrack();reset({tutorial:false});}};
 $('again').onclick=()=>{if(cup){cup=createCup();selectCupTrack();}reset();};$('leaveTutorial').onclick=backToMenu;
 addEventListener('keydown',e=>{if(['KeyP','Escape'].includes(e.code)){e.preventDefault();if(!e.repeat){if(mode==='paused')resumeRace();else pauseRace();}return;}if(mode==='paused'||mode==='menu')return;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','KeyW','KeyA','KeyS','KeyD','Space'].includes(e.code))e.preventDefault();keys[e.code]=true;if(e.code==='KeyR'&&mode!=='menu'&&!cup)reset();});addEventListener('keyup',e=>keys[e.code]=false);addEventListener('blur',()=>{for(const k in keys)delete keys[k];});
-addEventListener('keydown',e=>{if(e.code==='Escape'&&!e.repeat&&mode==='menu'&&!$('page-pilots').hidden){e.preventDefault();$('pilotsBack').click();}});
+addEventListener('keydown',e=>{if(e.code==='Escape'&&!e.repeat&&mode==='menu'&&$('page-race').hidden){e.preventDefault();$('pilotsBack').click();}});
 function input(){
  const left=keys.ArrowLeft||keys.KeyA,right=keys.ArrowRight||keys.KeyD;
  return {up:keys.ArrowUp||keys.KeyW||padControls?.up,down:keys.ArrowDown||keys.KeyS||padControls?.down,steer:left||right?Number(!!left)-Number(!!right):padControls?.steer??0,drift:keys.Space||padControls?.drift,item:keys.KeyE||padControls?.item,boost:keys.ShiftLeft||keys.ShiftRight||padControls?.boost};
@@ -258,7 +259,7 @@ function handleGamepad(now){
   }else{const index=Math.max(0,controls.indexOf(focused));focused=controls[(index+nav.value+controls.length)%controls.length];focused.focus();focused.scrollIntoView({block:'nearest'});}
  }
  if(state.pressed.confirm){focused.focus();if(focused.tagName==='BUTTON'||focused.type==='checkbox')focused.click();}
- if(state.pressed.back){if(mode==='paused')resumeRace();else if(mode==='finished')backToMenu();else if(mode==='menu'&&!$('page-pilots').hidden)$('pilotsBack').click();}
+ if(state.pressed.back){if(mode==='paused')resumeRace();else if(mode==='finished')backToMenu();else if(mode==='menu'&&$('page-race').hidden)$('pilotsBack').click();}
 }
 
 function list(id,order){$(id).replaceChildren(...order.map(r=>{const li=document.createElement('li');const gap=Math.round(r.distance-racers[0].distance);li.textContent=r.name+(r.finished?' 🏁':r.index===0?'':` · ${Math.abs(gap)} m ${gap>=0?'à frente':'atrás'}`);if(!r.index)li.className='player';return li;}));}
