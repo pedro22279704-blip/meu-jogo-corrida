@@ -9,4 +9,4 @@ export function normalizeSettings(value={}){
 }
 export function readSettings(storage){try{return normalizeSettings(JSON.parse(storage.getItem('vale-neon-settings'))??{});}catch{return normalizeSettings();}}
 export function writeSettings(storage,value){try{storage.setItem('vale-neon-settings',JSON.stringify(normalizeSettings(value)));}catch{/* Configurações continuam válidas nesta sessão. */}}
-export function recordScope(settings){return `${settings.track}-${settings.difficulty}`;}
+export function recordScope(settings){return `${settings.track}${TRACKS[settings.track]?.revision?`-r${TRACKS[settings.track].revision}`:''}-${settings.difficulty}`;}

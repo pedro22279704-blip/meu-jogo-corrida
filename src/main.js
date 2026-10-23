@@ -1,3 +1,4 @@
+import {TRACKS,trackLength} from './tracks.js';
 import {createCar10} from './car-10.js';
 import {KartPreview} from './kart-preview.js';
 import {personalityFor} from './pilot-personality.js';
@@ -26,7 +27,7 @@ import {bindKart,animateKart} from './kart-animation.js';
 import {RaceAudio} from './audio.js';
 import {readBest,saveBest,formatTime} from './records.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
-import {createRace,stepRace,orderRacers,lapOf,TRACK_LENGTH,LAPS} from './race.js';
+import {createRace,stepRace,orderRacers,lapOf,LAPS} from './race.js';
 const $=id=>document.getElementById(id);
 const audio=new RaceAudio();
 let challengeProgress,paintId='original';const originalPaints=new Map();
@@ -75,7 +76,7 @@ const powerTextures={},powerMaterials={};
 new THREE.TextureLoader().load(ATLAS_URL,atlas=>{for(const type of ['shield','gum','pulse','capsule']){powerTextures[type]=powerTexture(atlas,type);powerMaterials[type]=new THREE.SpriteMaterial({map:powerTextures[type],transparent:true,depthWrite:false});}for(const capsule of capsules){capsule.userData.icon.material=powerMaterials.capsule;capsule.userData.icon.visible=true;}},undefined,()=>{document.body.classList.add('power-art-fallback');});
 const sparks=Array.from({length:36},()=>{const p=mesh(new THREE.SphereGeometry(.055,5,4),'#ffce64');p.visible=false;return {mesh:p,life:0,velocity:new THREE.Vector3()};});
 let sparkClock=0;
-let items=createItems();
+let items=createItems(settings);
 let training=false,tutorial=createTutorial(),resultStage=null;
 const effects=new PowerEffects(scene);
 const drivingEffects=new DrivingEffects(scene);
@@ -164,6 +165,7 @@ function applyQuality(){
  document.body.classList.toggle('reduce-motion',settings.reducedMotion);
 }
 function showSettings(){
+ $('trackDescription').textContent=TRACKS[settings.track].description??'';
  $('raceSelection').textContent=`Piloto: ${PILOTS[settings.pilot]} · ${settings.quality==='light'?'Gráficos leves':'Visual bonito'}`;applyQuality();
  $('sensitivityValue').textContent=`${Math.round(settings.sensitivity*100)}%`;
  document.querySelectorAll('.pilot-choice').forEach(button=>button.setAttribute('aria-pressed',String(Number(button.dataset.pilot)===settings.pilot)));
@@ -176,7 +178,7 @@ function showSettings(){
 function applyMenu(){
  const next=normalizeSettings({...settings,track:$('trackSelect').value,difficulty:$('difficultySelect').value,sensitivity:Number($('sensitivity').value),quality:$('qualitySelect').value,reducedMotion:$('reducedMotion').checked});
  if(next.track!==settings.track||next.quality!==settings.quality){world.dispose();world=createWorld(scene,next.track,{quality:next.quality});camera.position.copy(world.track(-9).p).add(new THREE.Vector3(0,7,-10));}
- settings=next;racers=createRace(settings);items=createItems();showSettings();
+ settings=next;racers=createRace(settings);items=createItems(settings);showSettings();
  refreshCharacters();
 }
 $('trackSelect').onchange=applyMenu;$('difficultySelect').onchange=applyMenu;$('sensitivity').oninput=applyMenu;$('qualitySelect').onchange=applyMenu;$('reducedMotion').onchange=applyMenu;
@@ -199,7 +201,7 @@ $('backupFile').onchange=async()=>{
 showSettings();
 const itemVisualRoot=new THREE.Group();scene.add(itemVisualRoot);
 const capsuleGeometry=new THREE.OctahedronGeometry(.65),capsuleMaterial=mat('#b4fffd');
-const capsules=items.boxes.map(()=>{const o=new THREE.Mesh(capsuleGeometry,capsuleMaterial);itemVisualRoot.add(o);const icon=new THREE.Sprite(new THREE.SpriteMaterial({transparent:true,opacity:0}));icon.position.y=1;icon.scale.set(1.3,1.3,1);o.add(icon);o.userData.icon=icon;return o;});
+const capsules=Array.from({length:30},()=>{const o=new THREE.Mesh(capsuleGeometry,capsuleMaterial);itemVisualRoot.add(o);const icon=new THREE.Sprite(new THREE.SpriteMaterial({transparent:true,opacity:0}));icon.position.y=1;icon.scale.set(1.3,1.3,1);o.add(icon);o.userData.icon=icon;return o;});
 const bubbles=karts.map(kart=>{const bubble=new THREE.Mesh(new THREE.SphereGeometry(1.6,16,12),new THREE.MeshStandardMaterial({color:'#76dcff',transparent:true,opacity:.24,depthWrite:false}));bubble.position.y=.9;kart.add(bubble);kart.userData.bubble=bubble;return bubble;});
 const puddleGeometry=new THREE.CylinderGeometry(1.6,1.6,.06,16),puddleMaterial=mat('#e685cd');
 const puddleVisuals=Array.from({length:12},()=>{const o=new THREE.Mesh(puddleGeometry,puddleMaterial);scene.add(o);return o;});
@@ -208,7 +210,7 @@ const effectBadges=karts.map(()=>{const sprite=new THREE.Sprite(new THREE.Sprite
 const pulseBadge=new THREE.Sprite(new THREE.SpriteMaterial({transparent:true,opacity:0}));scene.add(pulseBadge);
 const pulseVisual=new THREE.Mesh(new THREE.TorusGeometry(1,.05,6,40),new THREE.MeshBasicMaterial({color:'#88ffff',transparent:true,opacity:.7}));pulseVisual.rotation.x=Math.PI/2;scene.add(pulseVisual);const pulseEcho=new THREE.Mesh(pulseVisual.geometry,new THREE.MeshBasicMaterial({color:'#d6b4ff',transparent:true,opacity:.35}));pulseEcho.rotation.x=Math.PI/2;scene.add(pulseEcho);
 function updateItemVisuals(){
- items.boxes.forEach((box,i)=>{const o=capsules[i];o.visible=box.cooldown<=0;const f=track(box.distance,box.offset);o.position.copy(f.p).addScaledVector(f.up,1.2+Math.sin(visualTime*3+i)*.2);o.rotation.y=visualTime;});
+ capsules.forEach((o,i)=>{const box=items.boxes[i];o.visible=!!box&&box.cooldown<=0;if(!box)return;const f=track(box.distance,box.offset);o.position.copy(f.p).addScaledVector(f.up,1.2+Math.sin(visualTime*3+i)*.2);o.rotation.y=visualTime;});
  for(const r of racers){bubbles[r.pilot].visible=r.shield>0;bubbles[r.pilot].scale.setScalar(1+Math.sin(visualTime*5)*.025);const badge=effectBadges[r.pilot];badge.visible=r.shield>0&&!!powerMaterials.shield;if(powerMaterials.shield)badge.material=powerMaterials.shield;const f=r.shortcut?world.shortcutFrame(r.distance,r.offset):track(r.distance,r.offset);badge.position.copy(f.p).addScaledVector(f.up,3.2);}
  puddleVisuals.forEach((o,i)=>{const puddle=items.puddles[i];o.visible=!!puddle;if(puddle){const f=track(puddle.distance,puddle.offset);o.position.copy(f.p).addScaledVector(f.up,.1);o.quaternion.copy(f.quaternion);}});
  gumDecals.forEach((decal,i)=>{const puddle=items.puddles[i];decal.visible=!!puddle&&!!powerTextures.gum;if(decal.visible){if(decal.material.map!==powerTextures.gum){decal.material.map=powerTextures.gum;decal.material.needsUpdate=true;}const f=track(puddle.distance,puddle.offset);decal.position.copy(f.p).addScaledVector(f.up,.15);decal.quaternion.copy(f.quaternion).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),-Math.PI/2));}});
@@ -217,7 +219,7 @@ function updateItemVisuals(){
 }
 function unlockAudio(){if(mode!=='menu'&&mode!=='paused'&&!document.hidden&&audio.context?.state==='suspended')audio.context.resume().catch(()=>{});}
 addEventListener('pointerdown',unlockAudio);addEventListener('keydown',unlockAudio);
-function reset(options={}){training=options.tutorial??training;tutorial=createTutorial();effects.clear();drivingEffects.clear();clearGhostModel();ghost=readGhost(storage,recordScope(settings));if(ghost&&ghost.time!==readBest(storage,recordScope(settings)))ghost=null;recording=[];$('cupResult').hidden=true;$('nextRound').hidden=true;$('again').hidden=!!cup;$('again').textContent='Correr novamente →';$('tutorialCoach').hidden=!training;$('leaveTutorial').hidden=!training;resultsElapsed=0;pausedMode=null;$('pauseMenu').hidden=true;$('pause').hidden=false;audio.start();racers=createRace(settings);items=createItems();elapsed=0;count=3;mode='countdown';captureGhost(recording,0,racers[0]);for(const k in keys)delete keys[k];$('menu').hidden=true;$('result').hidden=true;$('hud').hidden=false;}
+function reset(options={}){training=options.tutorial??training;tutorial=createTutorial();effects.clear();drivingEffects.clear();clearGhostModel();ghost=readGhost(storage,recordScope(settings));if(ghost&&ghost.time!==readBest(storage,recordScope(settings)))ghost=null;recording=[];$('cupResult').hidden=true;$('nextRound').hidden=true;$('again').hidden=!!cup;$('again').textContent='Correr novamente →';$('tutorialCoach').hidden=!training;$('leaveTutorial').hidden=!training;resultsElapsed=0;pausedMode=null;$('pauseMenu').hidden=true;$('pause').hidden=false;audio.start();racers=createRace(settings);items=createItems(settings);elapsed=0;count=3;mode='countdown';captureGhost(recording,0,racers[0]);for(const k in keys)delete keys[k];$('menu').hidden=true;$('result').hidden=true;$('hud').hidden=false;}
 function pauseRace(){
  if(mode!=='racing'&&mode!=='countdown')return;
  pausedMode=mode;mode='paused';for(const k in keys)delete keys[k];audio.setPaused(true);$('pauseMenu').hidden=false;$('resume').focus();
@@ -274,7 +276,7 @@ function finishRace(){
  }
  $('podium').hidden=training;$('result').hidden=false;$('resultTitle').focus();
 }
-function animate(now){requestAnimationFrame(animate);handleGamepad(now);const dt=document.hidden||mode==='paused'?0:Math.min((now-last)/1000,.05);last=now;visualTime+=dt;if(mode==='menu'&&!$('page-pilots').hidden)kartPreview.update(dt,settings.reducedMotion||window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+function animate(now){const TRACK_LENGTH=trackLength(settings.track);requestAnimationFrame(animate);handleGamepad(now);const dt=document.hidden||mode==='paused'?0:Math.min((now-last)/1000,.05);last=now;visualTime+=dt;if(mode==='menu'&&!$('page-pilots').hidden)kartPreview.update(dt,settings.reducedMotion||window.matchMedia('(prefers-reduced-motion: reduce)').matches);
  if(mode==='countdown'){count-=dt;$('countdown').textContent=Math.ceil(count);if(count<=0){mode='racing';$('countdown').textContent='';}}
  if(mode==='racing'){
   elapsed+=dt;const active=training?[racers[0]]:racers;stepRace(active,input(),dt,elapsed,world.profile);stepItems(active,items,input(),dt,elapsed);if(!training)captureGhost(recording,elapsed,racers[0]);

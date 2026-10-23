@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {trackLength} from './tracks.js';
 import {toonMaterial} from './cartoon.js';
 
 // Decoração fora do asfalto; as animações usam o relógio da corrida.
@@ -6,7 +7,7 @@ export function addTrackDetails(root,track,id,light){
  const animate=[],count=light?6:12;
  function part(parent,geometry,color,pos=[0,0,0],glow=false){const m=new THREE.Mesh(geometry,glow?new THREE.MeshBasicMaterial({color}):toonMaterial(color));m.position.set(...pos);parent.add(m);return m;}
  const box=(p,size,color,pos)=>part(p,new THREE.BoxGeometry(...size),color,pos);
- function place(d,side){const f=track(d,side),g=new THREE.Group();g.position.copy(f.p);g.quaternion.copy(f.quaternion);root.add(g);return g;}
+ function place(d,side){const f=track(d*trackLength(id)/760,side),g=new THREE.Group();g.position.copy(f.p);g.quaternion.copy(f.quaternion);root.add(g);return g;}
  function sign(parent,text,color,pos){
   let map;if(typeof document!=='undefined'){const c=document.createElement('canvas');c.width=512;c.height=160;const ctx=c.getContext('2d');ctx.fillStyle='#162841';ctx.fillRect(0,0,512,160);ctx.strokeStyle=color;ctx.lineWidth=10;ctx.strokeRect(5,5,502,150);ctx.fillStyle=color;ctx.font='bold 48px sans-serif';ctx.textAlign='center';ctx.fillText(text,256,98,480);map=new THREE.CanvasTexture(c);map.colorSpace=THREE.SRGBColorSpace;}
   const m=new THREE.Mesh(new THREE.PlaneGeometry(5.8,1.8),new THREE.MeshBasicMaterial({map:map??null,color:map?'#ffffff':color}));m.position.set(...pos);parent.add(m);const back=m.clone();back.rotation.y=Math.PI;back.position.z-=.02;parent.add(back);return m;
