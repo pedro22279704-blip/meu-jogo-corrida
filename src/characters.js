@@ -71,11 +71,14 @@ export function setCharacter(model,id){
  return true;
 }
 
-export function animateCharacter(driver,racer,time){
+export function animateCharacter(driver,racer,time,reduced=false){
  if(!driver?.userData.character)return;
  const excited=racer.boosting||racer.finished;
  const smile=driver.getObjectByName('Smile');smile.scale.y=racer.hit>0?2.5:excited?1.8:1;
  driver.children.filter(c=>c.name==='Brow').forEach((b,i)=>b.rotation.z=(i?1:-1)*(racer.hit>0?.55:excited?-.12:.22));
- const hair=driver.getObjectByName('CharacterHair');hair.rotation.z=racer.drifting?-racer.angle*.12:0;
- hair.rotation.x=racer.boosting?-.14:Math.sin(time*2)*.015;
+ const hair=driver.getObjectByName('CharacterHair'),id=driver.userData.character;
+ hair.rotation.z=racer.drifting?-racer.angle*.12:reduced?0:racer.hit>0?Math.sin(time*20)*.16:racer.finished?Math.sin(time*(id==='juma'?5:3))*.08:0;
+ hair.rotation.x=racer.boosting?(id==='tico'?-.25:-.14):reduced?0:Math.sin(time*2)*.015;
+ const blink=!reduced&&Math.sin(time*.9+(id==='olinda'?1:id==='tico'?2:3))>.997;
+ driver.children.filter(c=>c.name==='Eye').forEach(eye=>eye.scale.y=.075*(blink?.15:racer.hit>0?1.35:1));
 }
