@@ -1,3 +1,4 @@
+import {createTitleMusic} from './title-music.js';
 import {createRetroMusic} from './music.js';
 // Áudio sintetizado localmente: não há arquivos ou serviços de terceiros.
 export class RaceAudio{
@@ -21,7 +22,15 @@ export class RaceAudio{
    await this.setPaused(false);
   }catch{ /* Corrida continua se o navegador bloquear áudio. */ }
  }
- setVolumes(music,effects){this.musicVolume=Math.max(0,Math.min(1,music));this.effectsVolume=Math.max(0,Math.min(1,effects));if(this.effects)this.effects.gain.setTargetAtTime(this.effectsVolume,this.context.currentTime,.05);}
+ async startTitle(){
+  this.stopTitle();const generation=this.titleGeneration;await this.start();if(generation!==this.titleGeneration||!this.context)return false;
+  const ctx=this.context;this.titleBuffer??=createTitleMusic(ctx);this.titleSource=ctx.createBufferSource();this.titleSource.buffer=this.titleBuffer;this.titleSource.loop=true;this.titleGain=ctx.createGain();this.titleGain.gain.value=.9*this.musicVolume;this.titleGain.connect(this.master);this.titleSource.connect(this.titleGain);this.titleSource.start();return ctx.state==='running';
+ }
+ stopTitle(){
+  this.titleGeneration=(this.titleGeneration??0)+1;const source=this.titleSource,gain=this.titleGain;this.titleSource=null;this.titleGain=null;if(!source)return;
+  const t=this.context.currentTime;gain.gain.setTargetAtTime(0,t,.04);source.onended=()=>{source.disconnect();gain.disconnect();};source.stop(t+.2);
+ }
+ setVolumes(music,effects){this.musicVolume=Math.max(0,Math.min(1,music));this.effectsVolume=Math.max(0,Math.min(1,effects));if(this.titleGain)this.titleGain.gain.setTargetAtTime(.9*this.musicVolume,this.context.currentTime,.05);if(this.effects)this.effects.gain.setTargetAtTime(this.effectsVolume,this.context.currentTime,.05);}
  setPaused(paused){
   this.playback=(this.playback??Promise.resolve()).then(async()=>{if(this.context&&this.context.state!=='closed'){if(paused)await this.context.suspend();else await this.context.resume();}}).catch(()=>{});
   return this.playback;
