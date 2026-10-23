@@ -1,6 +1,6 @@
 import {PILOTS} from './settings.js';
 export const CUP_TRACKS=['valley','harbor'];
-export const CUP_POINTS=[10,7,5,3,2,1,0];
+export const CUP_POINTS=[10,7,5,3,2,1,0,0];
 export function createCup(){return {round:0,scores:Array(PILOTS.length).fill(0),places:Array(PILOTS.length).fill(0),results:[]};}
 export function scoreCup(cup,finishers){
  if(cup.results.length>cup.round||finishers.length!==PILOTS.length||finishers.some(r=>!r.finished||!Number.isInteger(r.pilot)||r.pilot<0||r.pilot>=PILOTS.length)||new Set(finishers.map(r=>r.pilot)).size!==PILOTS.length)return false;

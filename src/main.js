@@ -1,4 +1,5 @@
 import {createCar10} from './car-10.js';
+import {createBarrelCar} from './barrel-car.js';
 import {CHARACTERS,createCharacter,setCharacter} from './characters.js';
 import {DrivingEffects} from './driving-effects.js';
 import {createCup,scoreCup,cupStandings,CUP_TRACKS} from './championship.js';
@@ -62,6 +63,9 @@ const car10=createCar10();
 for(const child of [...karts[6].children])if(child!==karts[6].userData.flame)karts[6].remove(child);
 karts[6].add(car10);karts[6].userData.rig=bindKart(car10);
 karts[6].userData.model=car10;
+const barrelCar=createBarrelCar();
+for(const child of [...karts[7].children])if(child!==karts[7].userData.flame)karts[7].remove(child);
+karts[7].add(barrelCar);karts[7].userData.rig=bindKart(barrelCar);karts[7].userData.model=barrelCar;
 const contactShadows=karts.map(()=>{const shadow=contactShadow();shadow.rotation.x=-Math.PI/2;scene.add(shadow);return shadow;});
 const powerTextures={},powerMaterials={};
 new THREE.TextureLoader().load(ATLAS_URL,atlas=>{for(const type of ['shield','gum','pulse','capsule']){powerTextures[type]=powerTexture(atlas,type);powerMaterials[type]=new THREE.SpriteMaterial({map:powerTextures[type],transparent:true,depthWrite:false});}for(const capsule of capsules){capsule.userData.icon.material=powerMaterials.capsule;capsule.userData.icon.visible=true;}},undefined,()=>{document.body.classList.add('power-art-fallback');});

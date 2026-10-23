@@ -1,5 +1,11 @@
 # Karts do Vale Neon
 
+## Carro Barril
+
+O **Carro Barril** é a oitava escolha da aba **Pilotos**, adicionada depois do Carro 10 sem substituir nenhum veículo. O modelo original segue o desenho de referência: aduelas de madeira formando um barril curvo, duas cintas metálicas com rebites e quatro rodas abertas de raios. É construído em `src/barrel-car.js`, sem arquivos ou dependências externos.
+
+As rodas giram e esterçam, os braços acompanham o volante e a chegada tem comemoração. Dona Olinda, Tico Rebite e Juma Vagalume também podem dirigir o barril. Aceleração, drift, nitro e colisões usam as mesmas regras dos outros carros. Os índices anteriores e as chaves de recordes/conquistas são preservados. Ouro solar continua exigindo os seis pilotos originais, mantendo conquistas existentes. O campeonato aceita oito participantes, com pontos 10 / 7 / 5 / 3 / 2 / 1 / 0 / 0.
+
 ## Novos personagens
 
 Na aba **Pilotos**, escolha um dos sete karts e depois **Personagem no seu kart**:

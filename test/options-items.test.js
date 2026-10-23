@@ -1,13 +1,13 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {createRace,stepRace,TRACK_LENGTH} from '../src/race.js';
-import {normalizeSettings,readSettings,recordScope} from '../src/settings.js';
+import {PILOTS,normalizeSettings,readSettings,recordScope} from '../src/settings.js';
 import {createItems,stepItems} from '../src/items.js';
 import {surfaceProfile} from '../src/surface.js';
 import {createCircuitCurve} from '../src/tracks.js';
 import {saveBest,readBest} from '../src/records.js';
-test('sete escolhas preservam todos os pilotos e o controle no slot zero',()=>{for(let pilot=0;pilot<7;pilot++){const r=createRace({pilot});assert.equal(r[0].pilot,pilot);assert.ok(r[0].name.startsWith('Você'));assert.equal(new Set(r.map(p=>p.pilot)).size,7);}});
-test('configurações inválidas são limitadas e armazenamento bloqueado usa padrão',()=>{const s=normalizeSettings({pilot:90,sensitivity:9,musicVolume:-3,difficulty:'x',track:'x'});assert.equal(s.pilot,6);assert.equal(s.sensitivity,1.5);assert.equal(s.musicVolume,0);assert.equal(s.difficulty,'medium');assert.equal(s.track,'valley');assert.equal(readSettings(null).pilot,0);});
+test('oito escolhas preservam todos os pilotos e o controle no slot zero',()=>{for(let pilot=0;pilot<PILOTS.length;pilot++){const r=createRace({pilot});assert.equal(r[0].pilot,pilot);assert.ok(r[0].name.startsWith('Você'));assert.equal(new Set(r.map(p=>p.pilot)).size,PILOTS.length);}});
+test('configurações inválidas são limitadas e armazenamento bloqueado usa padrão',()=>{const s=normalizeSettings({pilot:90,sensitivity:9,musicVolume:-3,difficulty:'x',track:'x'});assert.equal(s.pilot,PILOTS.length-1);assert.equal(s.sensitivity,1.5);assert.equal(s.musicVolume,0);assert.equal(s.difficulty,'medium');assert.equal(s.track,'valley');assert.equal(readSettings(null).pilot,0);});
 test('sensibilidade altera resposta, sem inverter direção',()=>{const low=[createRace({sensitivity:.5})[0]],high=[createRace({sensitivity:1.5})[0]];for(const r of [low,high]){r[0].speed=25;r[0].offset=0;stepRace(r,{up:true,left:true},.05,0);}assert.ok(high[0].angle>low[0].angle&&low[0].angle>0);});
 test('dificuldade altera ritmo da IA de forma ordenada',()=>{const speeds=['easy','medium','hard'].map(difficulty=>{const r=[createRace({difficulty})[1]];for(let i=0;i<600;i++)stepRace(r,{},1/60,i/60);return r[0].distance;});assert.ok(speeds[0]<speeds[1]&&speeds[1]<speeds[2],speeds.join(','));});
 test('duas curvas diferentes são fechadas e superfícies são contínuas',()=>{const valley=createCircuitCurve('valley'),harbor=createCircuitCurve('harbor');assert.ok(valley.getPointAt(.5).distanceTo(harbor.getPointAt(.5))>10);for(const id of ['valley','harbor']){const c=createCircuitCurve(id);assert.ok(c.getPointAt(0).distanceTo(c.getPointAt(1))<1e-6);const a=surfaceProfile(0,id),b=surfaceProfile(TRACK_LENGTH,id);assert.ok(Math.abs(a.height-b.height)<1e-9);assert.ok(Math.abs(a.grade-b.grade)<1e-9);}});
