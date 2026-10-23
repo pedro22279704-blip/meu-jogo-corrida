@@ -187,7 +187,7 @@ for(const slider of document.querySelectorAll('.effects-volume'))slider.oninput=
 function backToMenu(){cup=null;drivingEffects.clear();clearGhostModel();training=false;$('tutorialCoach').hidden=true;$('leaveTutorial').hidden=true;mode='menu';menuPage('race');pausedMode=null;for(const key in keys)delete keys[key];$('pauseMenu').hidden=true;$('result').hidden=true;$('hud').hidden=true;$('pause').hidden=true;$('menu').hidden=false;audio.setPaused(false);applyMenu();}
 $('backMenu').onclick=backToMenu;$('resultMenu').onclick=backToMenu;
 $('exportProgress').onclick=()=>{
- try{const text=exportProgress(storage),url=URL.createObjectURL(new Blob([text],{type:'application/json'})),link=document.createElement('a');link.href=url;link.download='vale-neon-progresso.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);$('backupStatus').textContent='Backup preparado. Guarde o arquivo vale-neon-progresso.json em um lugar seguro.';}
+ try{const text=exportProgress(storage),url=URL.createObjectURL(new Blob([text],{type:'application/json'})),link=document.createElement('a');link.href=url;link.download='kart-speed-racers-progresso.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);$('backupStatus').textContent='Backup preparado. Guarde o arquivo kart-speed-racers-progresso.json em um lugar seguro.';}
  catch(error){$('backupStatus').textContent=error.message;}
 };
 $('importProgress').onclick=()=>$('backupFile').click();
