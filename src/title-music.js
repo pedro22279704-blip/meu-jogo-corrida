@@ -1,3 +1,16 @@
+// Original engine ignition with two rising revs and a soft release.
+export function createEngineRev(context){
+ const rate=22050,duration=1.5,buffer=context.createBuffer(1,Math.ceil(rate*duration),rate),data=buffer.getChannelData(0);let phase=0,seed=87;
+ for(let i=0;i<data.length;i++){
+  const t=i/rate,rev=t<.18?45+t*180:t<.67?77+(t-.18)*270:t<.87?209-(t-.67)*570:t<1.15?95+(t-.87)*340:190-(t-1.15)*340;
+  phase+=2*Math.PI*Math.max(40,rev)/rate;seed=(seed*1664525+1013904223)>>>0;
+  const envelope=Math.min(1,t/.025,Math.max(0,(duration-t)/.25)),ignition=t<.16?(seed/2147483648-1)*Math.exp(-t*28)*.4:0;
+  const engine=Math.sin(phase)+.42*Math.sin(phase*2)+.2*Math.sin(phase*3)+.1*Math.sin(phase*5);
+  data[i]=Math.tanh((engine*.6+ignition)*envelope)*.8;
+ }
+ return buffer;
+}
+
 // Original fanfare: syncopated brass-like chords, bass and drums at 152 BPM.
 export function createTitleMusic(context){
  const rate=22050,step=60/152/4,seconds=128*step,buffer=context.createBuffer(1,Math.ceil(seconds*rate),rate),data=buffer.getChannelData(0);
