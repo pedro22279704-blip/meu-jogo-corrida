@@ -12,7 +12,7 @@ export function cartoonize(root,{outlines=false}={}){
   const convert=original=>{if(!original||original.isMeshToonMaterial)return original;if(cache.has(original))return cache.get(original);const material=toonMaterial(original.color??'#ffffff');material.name=original.name;material.map=original.map??null;material.transparent=original.transparent;material.opacity=original.opacity;material.side=original.side;cache.set(original,material);return material;};
   part.material=Array.isArray(part.material)?part.material.map(convert):convert(part.material);
   // Somente as grandes silhuetas: evita duplicar todas as rodas e acessórios.
-  if(outlines&&/^(Body|Helmet|Nose|Front.?shield|Seat)/i.test(part.name)&&!part.children.some(c=>c.userData.cartoonOutline)){
+  if(outlines&&(/^(Body|Helmet|Nose|Front.?shield|Seat)/i.test(part.name)||part.userData.cartoonSilhouette)&&!part.children.some(c=>c.userData.cartoonOutline)){
    const outline=new THREE.Mesh(part.geometry,outlineMaterial);outline.name='CartoonContour';outline.userData.cartoonOutline=true;outline.raycast=()=>{};part.add(outline);
   }
  }
