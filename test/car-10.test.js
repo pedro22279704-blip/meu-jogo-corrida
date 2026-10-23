@@ -8,9 +8,9 @@ import {readGhost,saveGhost} from '../src/ghost.js';
 import {readChallenges,finishChallenges,unlockedPaints} from '../src/challenges.js';
 const storage=()=>{const data=new Map();return {getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,v)};};
 test('carro 10 preserva os seis pilotos e persiste seleção e fantasma',()=>{
- assert.deepEqual(PILOTS.slice(0,6),['Lume','Bia Faísca','Téo Musgo','Nina Cometa','Zeca Brisa','Sol Cobre']);assert.equal(COLORS.length,7);
+ assert.deepEqual(PILOTS.slice(0,6),['Lume','Bia Faísca','Téo Musgo','Nina Cometa','Zeca Brisa','Sol Cobre']);assert.equal(COLORS.length,PILOTS.length);
  const s=storage();writeSettings(s,{pilot:6});assert.equal(readSettings(s).pilot,6);
- const race=createRace({pilot:6});assert.equal(race[0].name,'Você · Carro 10');assert.equal(new Set(race.map(r=>r.pilot)).size,7);assert.ok(race.every(r=>r.style));
+ const race=createRace({pilot:6});assert.equal(race[0].name,'Você · Carro 10');assert.equal(new Set(race.map(r=>r.pilot)).size,PILOTS.length);assert.ok(race.every(r=>r.style));
  assert.ok(saveGhost(s,'valley-medium',80,6,[[0,0,0,0,0,0],[80,2280,0,0,0,32]]));assert.equal(readGhost(s,'valley-medium').pilot,6);
 });
 test('modelo 10 tem rig completo, placa, aerofólio e animação de drift',()=>{
