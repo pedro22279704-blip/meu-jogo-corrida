@@ -1,4 +1,4 @@
-export const SHORTCUTS={valley:{start:110,end:175,name:'Corte dos Cristais'},harbor:{start:320,end:390,name:'Passarela dos Guindastes'}};
+export const SHORTCUTS={valley:{start:110,end:175,name:'Corte dos Cristais'},harbor:{start:320,end:390,name:'Passarela dos Guindastes'},fair:{start:210,end:270,name:'Travessa da Feira'},sawmill:{start:440,end:500,name:'Caminho dos Troncos'},night:{start:120,end:180,name:'Beco das Luzes'}};
 export function shortcutState(r){
  const spec=SHORTCUTS[r.settings.track],progress=((r.distance%760)+760)%760,lap=Math.floor(r.distance/760);
  if(r.shortcut&&(progress>spec.end||lap!==r.shortcutLap)){r.shortcut=false;r.shortcutFailed=false;}

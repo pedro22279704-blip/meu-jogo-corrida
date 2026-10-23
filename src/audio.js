@@ -27,6 +27,13 @@ export class RaceAudio{
   return this.playback;
  }
  toggle(){this.muted=!this.muted;if(this.master)this.master.gain.setTargetAtTime(this.muted?0:.22,this.context.currentTime,.04);return this.muted;}
+ setTrack(track){if(this.track!==track){this.track=track;this.ambientNext=0;}}
+ ambience(active){
+  if(!active||!this.context||this.context.currentTime<(this.ambientNext??0))return;
+  const t=this.context.currentTime,patterns={valley:[950,1250,'sine'],harbor:[330,495,'sine'],fair:[660,880,'triangle'],sawmill:[110,165,'triangle'],night:[220,330,'sine']},[a,b,type]=patterns[this.track]??patterns.valley;
+  this.ambientNext=t+3.5;
+  for(const [i,freq] of [a,b].entries()){const osc=this.context.createOscillator(),gain=this.context.createGain(),start=t+i*.17;osc.type=type;osc.frequency.setValueAtTime(freq,start);osc.frequency.exponentialRampToValueAtTime(freq*.85,start+.18);gain.gain.setValueAtTime(.001,start);gain.gain.linearRampToValueAtTime(.08,start+.02);gain.gain.exponentialRampToValueAtTime(.001,start+.22);osc.connect(gain).connect(this.effects);osc.onended=()=>{osc.disconnect();gain.disconnect();};osc.start(start);osc.stop(start+.24);}
+ }
  update(r,active,musicActive=active,lastLap=false){if(!this.engine)return;const t=this.context.currentTime;this.music.playbackRate.setTargetAtTime(lastLap?1.15:1,t,.4);this.musicGain?.gain.setTargetAtTime(musicActive?.65*this.musicVolume:0,t,.15);this.engine.frequency.setTargetAtTime(48+Math.abs(r.speed)*5,t,.08);this.engineGain.gain.setTargetAtTime(active?.13:0,t,.08);this.skid.gain.setTargetAtTime(active&&r.drifting?.16:0,t,.05);this.turboGain.gain.setTargetAtTime(active&&r.boosting?.12:0,t,.05);this.turbo.frequency.setTargetAtTime(420+Math.abs(r.speed)*8,t,.08);}
  finish(place=1){if(!this.context)return;const ctx=this.context;const notes=place===1?[523,659,784,1047,1319]:place===2?[494,622,740,988]:place===3?[440,554,659,880]:[392,494,587];notes.forEach((freq,i)=>{const osc=ctx.createOscillator(),gain=ctx.createGain();const t=ctx.currentTime+i*.14;osc.frequency.value=freq;gain.gain.setValueAtTime(.25,t);gain.gain.exponentialRampToValueAtTime(.001,t+.35);osc.connect(gain).connect(this.effects);osc.start(t);osc.stop(t+.36);});}
 }
