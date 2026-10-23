@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import {TRACKS,createCircuitCurve} from '../src/tracks.js';
+import {TRACKS,createCircuitCurve,trackLength} from '../src/tracks.js';
 import {surfaceProfile} from '../src/surface.js';
 import {SHORTCUTS} from '../src/shortcuts.js';
 import {createRace,stepRace,TRACK_LENGTH} from '../src/race.js';
@@ -11,10 +11,10 @@ import {addTrackDetails} from '../src/track-details.js';
 
 test('cinco circuitos fechados têm perfil contínuo e atalho válido',()=>{
  assert.equal(Object.keys(TRACKS).length,5);
- for(const id of Object.keys(TRACKS)){const curve=createCircuitCurve(id);assert.ok(curve.getPointAt(0).distanceTo(curve.getPointAt(1))<1e-7);const a=surfaceProfile(0,id),b=surfaceProfile(TRACK_LENGTH,id);for(const k of ['height','grade','bank'])assert.ok(Math.abs(a[k]-b[k])<1e-8);assert.ok(SHORTCUTS[id].start<SHORTCUTS[id].end);assert.equal(createRace({track:id})[0].settings.track,id);}
+ for(const id of Object.keys(TRACKS)){const curve=createCircuitCurve(id);assert.ok(curve.getPointAt(0).distanceTo(curve.getPointAt(1))<1e-7);const a=surfaceProfile(0,id),b=surfaceProfile(trackLength(id),id);for(const k of ['height','grade','bank'])assert.ok(Math.abs(a[k]-b[k])<1e-8);assert.ok(SHORTCUTS[id].start<SHORTCUTS[id].end);assert.equal(createRace({track:id})[0].settings.track,id);}
 });
 test('as nove combinações das três pistas novas completam corridas com itens',()=>{
- for(const track of ['fair','sawmill','night'])for(const difficulty of ['easy','medium','hard']){const race=createRace({track,difficulty,pilot:7}),items=createItems();for(let i=0;i<13000;i++){stepRace(race,{up:true},1/60,i/60,d=>surfaceProfile(d,track));stepItems(race,items,{item:i%180===0},1/60,i/60);}assert.ok(race.every(r=>r.finished),`${track}/${difficulty}`);}
+ for(const track of ['fair','sawmill','night'])for(const difficulty of ['easy','medium','hard']){const race=createRace({track,difficulty,pilot:7}),items=createItems({track});for(let i=0;i<24000&&!race.every(r=>r.finished);i++){stepRace(race,{up:true},1/60,i/60,d=>surfaceProfile(d,track));stepItems(race,items,{item:i%180===0},1/60,i/60);}assert.ok(race.every(r=>r.finished),`${track}/${difficulty}`);}
 });
 test('Olinda, Tico e Juma têm poses diferentes e movimento reduzido mantém pose estável',()=>{
  const racer={pilot:0,finished:true,podiumPlace:1},poses=['olinda','tico','juma'].map(id=>JSON.stringify(personalityPose(racer,1,id)));assert.equal(new Set(poses).size,3);

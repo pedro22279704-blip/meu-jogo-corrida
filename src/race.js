@@ -1,3 +1,4 @@
+import {trackLength} from './tracks.js';
 import {updateDrafting} from './drafting.js';
 import {driftLevel,DRIFT_LEVELS} from './drift.js';
 import {SHORTCUTS,shortcutState} from './shortcuts.js';
@@ -12,8 +13,8 @@ export function createRace(options={}){
  return ids.map((pilot,i)=>({name:(i===0?'Você · ':'')+PILOTS[pilot],pilot,settings,style:['defender','attacker','explorer','attacker','explorer','defender','attacker','explorer'][pilot],draft:0,draftActive:false,collisions:0,goodDrifts:0,shortcut:false,shortcutLap:-1,shortcutFailed:false,turboLevel:0,lastAttack:null,shield:0,slow:0,item:null,itemPressed:false,index:i,distance:-Math.floor(i/2)*4-9,speed:0,offset:i%2?2.4:-2.4,nitro:100,angle:0,slide:0,finished:false,finishTime:null,drifting:false,driftCharge:0,miniTurbo:0,boosting:false,hit:0,aiLane:i%2?2.4:-2.4}));
 }
 export function orderRacers(racers){return [...racers].sort((a,b)=>a.finished&&b.finished?a.finishTime-b.finishTime:a.finished?-1:b.finished?1:b.distance-a.distance);}
-export function lapOf(r){return clamp(Math.floor(Math.max(0,r.distance)/TRACK_LENGTH)+1,1,LAPS);}
-function wrapGap(a,b){return ((a-b+TRACK_LENGTH/2)%TRACK_LENGTH+TRACK_LENGTH)%TRACK_LENGTH-TRACK_LENGTH/2;}
+export function lapOf(r){return clamp(Math.floor(Math.max(0,r.distance)/trackLength(r.settings?.track))+1,1,LAPS);}
+function wrapGap(a,b,length=TRACK_LENGTH){return ((a-b+length/2)%length+length)%length-length/2;}
 function barrier(r){
  if(Math.abs(r.offset)>ROAD_LIMIT){
   r.offset=Math.sign(r.offset)*ROAD_LIMIT;
@@ -26,7 +27,7 @@ function barrier(r){
 export function resolveCollisions(racers){
  for(let pass=0;pass<4;pass++)for(let i=0;i<racers.length;i++)for(let j=i+1;j<racers.length;j++){
   const a=racers[i],b=racers[j];if(a.finished||b.finished||!!a.shortcut!==!!b.shortcut)continue;
-  const dz=wrapGap(a.distance,b.distance),dx=a.offset-b.offset;
+  const dz=wrapGap(a.distance,b.distance,trackLength(a.settings?.track)),dx=a.offset-b.offset;
   const overlapZ=3.5-Math.abs(dz),overlapX=2.2-Math.abs(dx);
   if(overlapZ<=0||overlapX<=0)continue;
   if(overlapX<overlapZ&&Math.abs(a.offset)<ROAD_LIMIT-.2&&Math.abs(b.offset)<ROAD_LIMIT-.2){
@@ -43,10 +44,10 @@ export function resolveCollisions(racers){
  }
 }
 function driveAI(r,racers,dt,time){
- const difficulty=DIFFICULTIES[r.settings.difficulty];
- const ahead=racers.filter(other=>other!==r&&!other.finished).map(other=>({other,gap:wrapGap(other.distance,r.distance)})).filter(x=>x.gap>0&&x.gap<22).sort((a,b)=>a.gap-b.gap)[0];
+ const difficulty=DIFFICULTIES[r.settings.difficulty],length=trackLength(r.settings.track);
+ const ahead=racers.filter(other=>other!==r&&!other.finished).map(other=>({other,gap:wrapGap(other.distance,r.distance,length)})).filter(x=>x.gap>0&&x.gap<22).sort((a,b)=>a.gap-b.gap)[0];
  let targetLane=Math.sin(time*.35+r.index)*1.4;
- if(r.style==='explorer'){const section=SHORTCUTS[r.settings.track],progress=((r.distance%TRACK_LENGTH)+TRACK_LENGTH)%TRACK_LENGTH;if(r.shortcut||progress>=section.start-30&&progress<section.start+3)targetLane=3;}
+ if(r.style==='explorer'){const section=SHORTCUTS[r.settings.track],progress=((r.distance%length)+length)%length;if(r.shortcut||progress>=section.start-30&&progress<section.start+3)targetLane=3;}
  const player=racers.find(other=>other.index===0);
  // Recuperação moderada por velocidade, sem alterar posições artificialmente.
  const gapToPlayer=player&&!player.finished?player.distance-r.distance:0;
@@ -58,12 +59,12 @@ function driveAI(r,racers,dt,time){
  if(r.draftActive)targetSpeed+=4;
  if(r.boosting)targetSpeed=42.5+difficulty.pace+clamp(gapToPlayer/20,-3,2);
  if(ahead&&Math.abs(ahead.other.offset-r.offset)<2.6){
-  const candidates=[-4,0,4].map(lane=>({lane,clear:!racers.some(o=>o!==r&&!o.finished&&Math.abs(wrapGap(o.distance,r.distance))<12&&Math.abs(o.offset-lane)<2.4)}));
+  const candidates=[-4,0,4].map(lane=>({lane,clear:!racers.some(o=>o!==r&&!o.finished&&Math.abs(wrapGap(o.distance,r.distance,length))<12&&Math.abs(o.offset-lane)<2.4)}));
   const choice=candidates.filter(c=>c.clear).sort((a,b)=>Math.abs(a.lane-r.offset)-Math.abs(b.lane-r.offset))[0];
   if(choice)targetLane=r.style==='explorer'?candidates.filter(c=>c.clear).sort((a,b)=>Math.abs(b.lane)-Math.abs(a.lane))[0].lane:choice.lane;
   else if(ahead.gap<9){targetSpeed=Math.min(targetSpeed,Math.max(8,ahead.other.speed-2));r.boosting=false;}
  }else if(Math.abs(r.aiLane)>2)targetLane=r.aiLane*.96;
- if(r.style==='explorer'){const section=SHORTCUTS[r.settings.track],progress=((r.distance%TRACK_LENGTH)+TRACK_LENGTH)%TRACK_LENGTH;if(r.shortcut||progress>=section.start-30&&progress<section.start+3)targetLane=3;}
+ if(r.style==='explorer'){const section=SHORTCUTS[r.settings.track],progress=((r.distance%length)+length)%length;if(r.shortcut||progress>=section.start-30&&progress<section.start+3)targetLane=3;}
  r.nitro=clamp(r.nitro+dt*(r.boosting?-27:9),0,100);
  // Pequenos erros determinísticos, sem sorteios a cada quadro.
  const mistake=Math.sin(time*.22+r.index*1.8)>.985;
@@ -108,7 +109,7 @@ export function stepRace(racers,input,dt,time,surface=null){
   r.distance+=r.speed*Math.cos(r.angle)*dt*route;
  }
  resolveCollisions(racers);
- for(const r of racers)if(!r.finished&&r.distance>=TRACK_LENGTH*LAPS){
-  r.distance=TRACK_LENGTH*LAPS;r.finished=true;r.finishTime=time;r.boosting=false;r.drifting=false;
+ for(const r of racers)if(!r.finished&&r.distance>=trackLength(r.settings?.track)*LAPS){
+  r.distance=trackLength(r.settings?.track)*LAPS;r.finished=true;r.finishTime=time;r.boosting=false;r.drifting=false;
  }
 }

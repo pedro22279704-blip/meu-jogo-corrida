@@ -246,6 +246,18 @@ Bandeiras ondulam, barcos balançam e espectadores saltam, com animações leves
 
 A tela de resultado mostra os modelos reais dos pilotos e karts em um pódio 3D, além de tempo, classificação, batidas, drifts, recordes e pinturas novas. O pódio é preenchido conforme os três primeiros terminam. No treino, aparece apenas o piloto treinado. O renderer do resultado só é criado ao chegar, com resolução limitada para conter o custo.
 
+### Circuitos maiores com túneis
+
+Vale Neon e Porto Âmbar preservam seus percursos e recordes. Os três circuitos seguintes têm traçados novos e comprimentos próprios por volta:
+
+- **Vila da Feira — 1,44 km:** chicanes entre praças e duas galerias cobertas.
+- **Serraria dos Barris — 1,68 km:** curvas em S, subida de serra, viaduto e dois túneis na pedreira.
+- **Avenida Neon — 1,90 km:** circuito em oito com cruzamento em níveis separados por 24 metros e dois túneis iluminados.
+
+As corridas continuam com três voltas, todos os oito carros, drift e nitro. Itens, minimapa, atalhos, colisões e vácuo usam o comprimento da pista escolhida. Túneis acompanham curvas e relevo; suas paredes e tetos participam da proteção da câmera. O treino usa uma volta do traçado escolhido. O campeonato permanece nas duas pistas originais.
+
+Os novos tempos e fantasmas usam escopos `fair-r2-*`, `sawmill-r2-*` e `night-r2-*`. Os recordes e fantasmas dos traçados antigos permanecem armazenados e também entram no backup; não são comparados com os novos. Backups anteriores continuam aceitos.
+
 ### Pull requests automáticos
 
 Ao enviar commits para branches `feat/**` ou `fix/**`, o workflow **Abrir PR automaticamente** instala dependências, testa e compila o jogo. Se tudo passar, abre um PR para `main` ou mostra o PR já existente. Não faz merge nem publica a branch diretamente. O link aparece no resumo da execução em Actions.
