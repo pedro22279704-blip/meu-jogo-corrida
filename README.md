@@ -1,4 +1,4 @@
-# Karts do Vale Neon
+# Kart Speed Racers
 
 ## Garagem, pistas e progresso
 
@@ -6,7 +6,7 @@
 - **Garagem:** na aba Pilotos, a prévia grande gira devagar e acompanha a escolha de carro, personagem e pintura. **Pausar giro** congela a rotação. Movimento reduzido também mantém a prévia parada.
 - **Personalidade:** os oito pilotos têm poses próprias; Olinda acena, Tico sacode os punhos e Juma dança. Nitro, batidas, cabelo e olhos têm reações distintas. Movimento reduzido mantém poses estáveis.
 - **Três circuitos novos:** Vila da Feira (barracas, frutas, bandeiras e público), Serraria dos Barris (pilhas de troncos e rodas de moinho) e Avenida Neon (noite, prédios e letreiros). Todos possuem trajeto e atalho próprios, recordes separados e sons sintetizados distintos. As pistas originais e o campeonato original de duas etapas continuam disponíveis; os circuitos novos são escolhidos nas corridas avulsas e no treino.
-- **Backup:** em Opções, clique em **Baixar progresso**. O arquivo `vale-neon-progresso.json` guarda conquistas, recordes e fantasmas. Para usar em outro navegador, clique em **Recuperar arquivo** e selecione o JSON. A recuperação reúne conquistas e mantém o menor tempo em cada pista/dificuldade; suas configurações atuais são preservadas. Arquivos incompatíveis são recusados antes de gravar; falhas de escrita tentam restaurar o estado anterior. Limite: 8 MB. Não é necessário criar conta.
+- **Backup:** em Opções, clique em **Baixar progresso**. O arquivo `kart-speed-racers-progresso.json` guarda conquistas, recordes e fantasmas. Para usar em outro navegador, clique em **Recuperar arquivo** e selecione o JSON. A recuperação reúne conquistas e mantém o menor tempo em cada pista/dificuldade; suas configurações atuais são preservadas. Arquivos incompatíveis são recusados antes de gravar; falhas de escrita tentam restaurar o estado anterior. Limite: 8 MB. Não é necessário criar conta.
 
 ## Carro Barril
 
