@@ -258,6 +258,12 @@ As corridas continuam com três voltas, todos os oito carros, drift e nitro. Ite
 
 Os novos tempos e fantasmas usam escopos `fair-r2-*`, `sawmill-r2-*` e `night-r2-*`. Os recordes e fantasmas dos traçados antigos permanecem armazenados e também entram no backup; não são comparados com os novos. Backups anteriores continuam aceitos.
 
+### Abertura de Kart Speed Racers
+
+Ao abrir o jogo, uma tela de título central mostra o nome em destaque e três karts reais em 3D: Bia Faísca, Carro 10 e Carro Barril. **Ligar motores** (clique, toque, Enter ou A no controle) inicia uma composição original de oito compassos a 152 BPM, com baixo, bateria e fanfarra sintetizada. Depois, **Entrar no jogo** abre o menu. **Pular abertura** ou Esc leva diretamente ao menu, sem espera obrigatória. Em **Opções → Ver abertura**, a apresentação pode ser revista.
+
+O áudio aguarda uma interação para respeitar o bloqueio de reprodução automática do navegador. A abertura respeita o volume de música, o botão de som e movimento reduzido; suspende o áudio quando a aba fica oculta e encerra sua trilha ao sair, sem sobrepor músicas. A versão para telas menores mantém botões acessíveis. O visual e a composição são próprios; a referência de energia e apresentação foi o [site oficial de Mario Kart 8 Deluxe](https://mariokart8deluxe.nintendo.com/), sem importar arte, marcas ou música da Nintendo.
+
 ### Pull requests automáticos
 
 Ao enviar commits para branches `feat/**` ou `fix/**`, o workflow **Abrir PR automaticamente** instala dependências, testa e compila o jogo. Se tudo passar, abre um PR para `main` ou mostra o PR já existente. Não faz merge nem publica a branch diretamente. O link aparece no resumo da execução em Actions.
