@@ -18,7 +18,7 @@ export function createRaceMenu(){
  }
  hero.after(heading,grid);
  const modeHeading=document.createElement('h2');modeHeading.className='circuit-heading';modeHeading.textContent='02 / Escolha como correr';page.querySelector('.menu-actions').before(modeHeading);
- for(const [id,icon,title,detail] of [['play','⚑','Corrida rápida','Uma pista. Oito pilotos. Pé na tábua.'],['horizonCup','🏆','Copa Horizonte','Quatro pistas · apresentação cinematográfica'],['cup','★','Duelo clássico','Vale Neon + Porto Âmbar · por pontos'],['learn','↗','Treino livre','Uma volta para dominar o drift']])document.getElementById(id).innerHTML=`<span class="mode-icon" aria-hidden="true">${icon}</span><span><strong>${title}</strong><small>${detail}</small></span><span aria-hidden="true">→</span>`;
+ for(const [id,icon,title] of [['play','⚑','Corrida rápida'],['horizonCup','🏆','Copa Horizonte'],['cup','★','Duelo clássico'],['learn','↗','Treino livre']])document.getElementById(id).innerHTML=`<span class="mode-icon" aria-hidden="true">${icon}</span><strong>${title}</strong><span aria-hidden="true">→</span>`;
  const sync=()=>{for(const button of grid.children)button.setAttribute('aria-pressed',String(button.dataset.track===select.value));document.getElementById('selectedCircuitArt').innerHTML=circuitArt(select.value)+`<strong>${TRACKS[select.value].name}</strong>`;};
  select.addEventListener('change',sync);sync();return {sync};
 }
