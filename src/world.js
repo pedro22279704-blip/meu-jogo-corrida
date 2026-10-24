@@ -36,14 +36,14 @@ function shortcutFrame(distance,offset=0){
 }
 const roadSteps=rebuilt?Math.ceil(physicalLength/2.5):500;
 function ribbon(width,color,y,innerWidth=0,layer=0){const object=mesh(createRoadRibbon(track,TRACK_LENGTH,roadSteps,width,{innerWidth,height:y,skip:d=>width>=100&&d>=shortcut.start&&d<=shortcut.end}),color);object.material.polygonOffset=true;object.material.polygonOffsetFactor=layer;object.material.polygonOffsetUnits=layer;return object;}
-ribbon(rebuilt?21:harbor?23:100,harbor?'#e0bb86':id==='night'?'#303950':'#89c57a',-.25,16,3);ribbon(16,id==='night'?'#6a71ab':'#ebd7ac',.01,12,2);ribbon(12,id==='night'?'#53677b':'#597886',.04,0,-1);
+ribbon(rebuilt?27:harbor?29:100,harbor?'#e0bb86':id==='night'?'#303950':'#89c57a',-.25,22,3);ribbon(22,id==='night'?'#6a71ab':'#ebd7ac',.01,18,2);ribbon(18,id==='night'?'#53677b':'#597886',.04,0,-1);
 const curbCount=rebuilt?Math.ceil(physicalLength/4):130;
-for(let i=0;i<curbCount;i++){for(const side of [-1,1]){if(side===1&&i/curbCount*TRACK_LENGTH>=shortcut.start&&i/curbCount*TRACK_LENGTH<=shortcut.end)continue;const {p,tangent}=track(i/curbCount*TRACK_LENGTH,side*6.5);const curb=mesh(new THREE.BoxGeometry(.65,.16,physicalLength/curbCount*.8),i%2?'#f4edcf':'#ef806b');curb.position.copy(p);curb.position.y+=.1;curb.rotation.y=Math.atan2(tangent.x,tangent.z);}}
+for(let i=0;i<curbCount;i++){for(const side of [-1,1]){if(side===1&&i/curbCount*TRACK_LENGTH>=shortcut.start&&i/curbCount*TRACK_LENGTH<=shortcut.end)continue;const {p,tangent}=track(i/curbCount*TRACK_LENGTH,side*9.5);const curb=mesh(new THREE.BoxGeometry(.65,.16,physicalLength/curbCount*.8),i%2?'#f4edcf':'#ef806b');curb.position.copy(p);curb.position.y+=.1;curb.rotation.y=Math.atan2(tangent.x,tangent.z);}}
 // Barreiras contínuas acompanham o limite de colisão dos karts.
 const railCount=rebuilt?Math.ceil(physicalLength/4):200;
 const rails=new THREE.InstancedMesh(new THREE.BoxGeometry(.3,.65,physicalLength/railCount+.12),mat('#ffffff'),railCount*2);
 const railTransform=new THREE.Object3D();let railIndex=0;
-for(let i=0;i<railCount;i++)for(const side of [-1,1]){if(side===1&&i/railCount*TRACK_LENGTH>=shortcut.start&&i/railCount*TRACK_LENGTH<=shortcut.end)continue;const {p,tangent}=track(i/railCount*TRACK_LENGTH,side*7.65);railTransform.position.copy(p);railTransform.position.y+=.55;railTransform.rotation.y=Math.atan2(tangent.x,tangent.z);railTransform.updateMatrix();rails.setMatrixAt(railIndex,railTransform.matrix);rails.setColorAt(railIndex++,new THREE.Color(i%4?'#375e68':'#a9fb59'));}rails.count=railIndex;root.add(rails);
+for(let i=0;i<railCount;i++)for(const side of [-1,1]){if(side===1&&i/railCount*TRACK_LENGTH>=shortcut.start&&i/railCount*TRACK_LENGTH<=shortcut.end)continue;const {p,tangent}=track(i/railCount*TRACK_LENGTH,side*10.65);railTransform.position.copy(p);railTransform.position.y+=.55;railTransform.rotation.y=Math.atan2(tangent.x,tangent.z);railTransform.updateMatrix();rails.setMatrixAt(railIndex,railTransform.matrix);rails.setColorAt(railIndex++,new THREE.Color(i%4?'#375e68':'#a9fb59'));}rails.count=railIndex;root.add(rails);
 // Marcos do vale: cristais e pequenos moinhos, criados para esta pista.
 
 for(let i=0;i<(id==='valley'?18:0);i++){
@@ -51,18 +51,18 @@ for(let i=0;i<(id==='valley'?18:0);i++){
  const crystal=mesh(new THREE.OctahedronGeometry(1.4+i%3),'#77d7d3');crystal.position.copy(p);crystal.position.y+=2;crystal.scale.y=2;
  if(i%3===0){const base=p.clone().add(new THREE.Vector3(6,0,4));const tower=mesh(new THREE.CylinderGeometry(.5,1.2,9,6),'#e8d3a6');tower.position.copy(base);tower.position.y+=4.5;const rotor=new THREE.Group();rotor.position.copy(base);rotor.position.y+=8;root.add(rotor);for(let j=0;j<3;j++){const arm=new THREE.Group();arm.rotation.z=j*Math.PI*2/3;rotor.add(arm);const blade=mesh(new THREE.BoxGeometry(.7,4,.18),'#f5b86d',arm);blade.position.y=2;}windmills.push(rotor);}
 }
-for(let i=0;i<12;i++){for(let j=0;j<2;j++){const {p,tangent}=track(j*1.5,i-5.5);const tile=mesh(new THREE.BoxGeometry(1,.045,physicalLength/TRACK_LENGTH*1.5),(i+j)%2?'#172b37':'#ffffff');tile.position.copy(p);tile.position.y+=.075;tile.rotation.y=Math.atan2(tangent.x,tangent.z);}}
-const start=track(0);for(const side of [-1,1]){const pillar=mesh(new THREE.CylinderGeometry(.25,.25,7), '#ffe5a3');pillar.position.copy(start.p).addScaledVector(start.normal,side*8);pillar.position.y+=3.5;}
-const banner=mesh(new THREE.BoxGeometry(16,1.1,.5),'#a9fb59');banner.position.copy(start.p);banner.position.y+=7;banner.rotation.y=Math.atan2(start.tangent.x,start.tangent.z);
+for(let i=0;i<18;i++){for(let j=0;j<2;j++){const {p,tangent}=track(j*1.5,i-8.5);const tile=mesh(new THREE.BoxGeometry(1,.045,physicalLength/TRACK_LENGTH*1.5),(i+j)%2?'#172b37':'#ffffff');tile.position.copy(p);tile.position.y+=.075;tile.rotation.y=Math.atan2(tangent.x,tangent.z);}}
+const start=track(0);for(const side of [-1,1]){const pillar=mesh(new THREE.CylinderGeometry(.25,.25,7), '#ffe5a3');pillar.position.copy(start.p).addScaledVector(start.normal,side*11);pillar.position.y+=3.5;}
+const banner=mesh(new THREE.BoxGeometry(22,1.1,.5),'#a9fb59');banner.position.copy(start.p);banner.position.y+=7;banner.rotation.y=Math.atan2(start.tangent.x,start.tangent.z);
 // Árvores e cristais usam posições determinísticas para manter o vale original.
 const treeCount=harbor||id==='night'?0:light?24:id==='fair'?28:80;
 for(let i=0;i<treeCount;i++){const d=i/treeCount*TRACK_LENGTH;const side=i%2?1:-1;const {p}=track(d,side*(24+(i*17%31)));const tree=new THREE.Group();root.add(tree);tree.position.copy(p);const trunk=mesh(new THREE.CylinderGeometry(.35,.5,3,6),'#76634b',tree);trunk.position.y=1.5;const crown=mesh(new THREE.ConeGeometry(2.4+(i%3)*.4,7,6),i%3?'#366c62':'#4b8571',tree);crown.position.y=5;}
 function loadProp(name,placements){loader.load(`${import.meta.env.BASE_URL}models/prop-${name}.glb`,gltf=>{if(!alive)return;cartoonize(gltf.scene);placements.forEach(({distance,offset=0,scale=1})=>{
- const frame=track(distance,offset),object=gltf.scene.clone(true);object.position.copy(frame.p);object.quaternion.copy(frame.quaternion);object.scale.setScalar(scale);root.add(object);if(name==='portal'||name==='tunnel')obstacles.push(object);if(name==='grandstand'){let count=0;object.traverse(part=>{if(/^Spectator/.test(part.name)&&count++<(light?6:21)){const base=part.position.clone(),phase=count;ambient.push(t=>{part.position.y=base.y+Math.max(0,Math.sin(t*4+phase))*.16;});}});}
+ const frame=track(distance,offset),object=gltf.scene.clone(true);object.position.copy(frame.p);object.quaternion.copy(frame.quaternion);object.scale.setScalar(scale);if(['portal','bridge','tunnel'].includes(name))object.scale.x*=1.5;root.add(object);if(name==='portal'||name==='tunnel')obstacles.push(object);if(name==='grandstand'){let count=0;object.traverse(part=>{if(/^Spectator/.test(part.name)&&count++<(light?6:21)){const base=part.position.clone(),phase=count;ambient.push(t=>{part.position.y=base.y+Math.max(0,Math.sin(t*4+phase))*.16;});}});}
 });},undefined,error=>console.warn('Objeto decorativo indisponível.',error));}
 if(!harbor&&id!=='night')loadProp('tree',Array.from({length:light?16:32},(_,i)=>({distance:i/32*TRACK_LENGTH,offset:(i%2?1:-1)*(26+i%4*3),scale:.8+i%3*.15})));
 loadProp('portal',[{distance:0}]);root.remove(banner);banner.geometry.dispose();banner.material.dispose();
-loadProp('sign',[80,210,400,600].map(distance=>({distance:rebuilt?distance/760*TRACK_LENGTH:distance,offset:rebuilt?15:10})).filter(({distance})=>!rebuilt||!TUNNELS[id].some(t=>distance>t.start*TRACK_LENGTH-20&&distance<t.end*TRACK_LENGTH+20)));
+loadProp('sign',[80,210,400,600].map(distance=>({distance:rebuilt?distance/760*TRACK_LENGTH:distance,offset:rebuilt?18:14})).filter(({distance})=>!rebuilt||!TUNNELS[id].some(t=>distance>t.start*TRACK_LENGTH-20&&distance<t.end*TRACK_LENGTH+20)));
 loadProp('grandstand',[{distance:35,offset:17},{distance:65,offset:-17}]);
 if(!harbor&&!rebuilt)loadProp('bridge',[{distance:TRACK_LENGTH*.25}]);
 if(!harbor&&!rebuilt)loadProp('tunnel',[{distance:TRACK_LENGTH*.63}]);

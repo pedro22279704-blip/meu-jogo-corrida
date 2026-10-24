@@ -1,7 +1,7 @@
 import {PILOTS} from './settings.js';
 import {lengthForScope} from './tracks.js';
 const key=scope=>`vale-neon-ghost-v7-${scope}`;
-const valid=(s,total)=>Array.isArray(s)&&s.length===6&&s.every(Number.isFinite)&&s[0]>=0&&s[1]>=-30&&s[1]<=total&&Math.abs(s[2])<=7&&Math.abs(s[3])<=1&&[0,1].includes(s[4])&&s[5]>=-7&&s[5]<=60;
+const valid=(s,total)=>Array.isArray(s)&&s.length===6&&s.every(Number.isFinite)&&s[0]>=0&&s[1]>=-30&&s[1]<=total&&Math.abs(s[2])<=10&&Math.abs(s[3])<=1&&[0,1].includes(s[4])&&s[5]>=-7&&s[5]<=60;
 export function readGhost(storage,scope){try{const total=lengthForScope(scope)*3,g=JSON.parse(storage.getItem(key(scope)));if(!g||g.version!==7||!Number.isInteger(g.pilot)||g.pilot<0||g.pilot>=PILOTS.length||!Number.isFinite(g.time)||g.time<=0||!Array.isArray(g.samples)||g.samples.length<2||g.samples.length>9000||g.samples.some((s,i)=>!valid(s,total)||(i>0&&s[0]<=g.samples[i-1][0]))||Math.abs(g.samples.at(-1)[0]-g.time)>.01||g.samples.at(-1)[1]<total)return null;return g;}catch{return null;}}
 export function captureGhost(samples,time,r,force=false){if(!samples.length||force||time-samples.at(-1)[0]>=.1){if(samples.length>=9000)return false;if(samples.at(-1)?.[0]===time)samples.pop();samples.push([time,r.distance,r.offset,r.angle,Number(r.shortcut),r.speed]);}return true;}
 export function saveGhost(storage,scope,time,pilot,samples){if(samples.length<2||samples.at(-1)[1]<lengthForScope(scope)*3)return false;try{storage.setItem(key(scope),JSON.stringify({version:7,time,pilot,samples}));return true;}catch{return false;}}

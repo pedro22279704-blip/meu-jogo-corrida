@@ -15,7 +15,7 @@ export function animateKart(rig,racer,dt,time,{reduced=false}={}){
  const pose=personalityPose(racer,time,rig.driver?.userData.character,reduced);
  rig.wheelAngle=(rig.wheelAngle+(racer.finished?0:racer.speed)*dt/.37)%(Math.PI*2);
  for(const wheel of rig.rolls)rotate(wheel,x,rig.wheelAngle);
- for(const wheel of rig.front)rotate(wheel,y,racer.angle*.65);
+ for(const wheel of rig.front)rotate(wheel,y,racer.angle*(racer.drifting?-.55:.65));
  rotate(rig.steering,y,racer.angle*1.3);
  rotate(rig.driver,z,-racer.angle*.24+pose.roll);
  rig.arms.forEach((arm,i)=>{rotate(arm,z,racer.angle*.25+pose.arms[i].z+(racer.powerGesture>0?(i?-.35:.35):0));if(arm)arm.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(x,pose.arms[i].x));});

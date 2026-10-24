@@ -5,12 +5,12 @@ import {SHORTCUTS,shortcutState} from './shortcuts.js';
 import {normalizeSettings,DIFFICULTIES,PILOTS} from './settings.js';
 export const LAPS = 3;
 export const TRACK_LENGTH = 760;
-export const ROAD_LIMIT = 6.4;
+export const ROAD_LIMIT = 9.4;
 export const NAMES = PILOTS.map((name,i)=>(i===0?'Você · ':'')+name);
 export const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
 export function createRace(options={}){
  const settings=normalizeSettings(options),ids=[settings.pilot,...PILOTS.map((_,i)=>i).filter(i=>i!==settings.pilot)];
- return ids.map((pilot,i)=>({name:(i===0?'Você · ':'')+PILOTS[pilot],pilot,settings,style:['defender','attacker','explorer','attacker','explorer','defender','attacker','explorer'][pilot],draft:0,draftActive:false,collisions:0,goodDrifts:0,shortcut:false,shortcutLap:-1,shortcutFailed:false,turboLevel:0,lastAttack:null,shield:0,slow:0,item:null,itemPressed:false,index:i,distance:-Math.floor(i/2)*4-9,speed:0,offset:i%2?2.4:-2.4,nitro:100,angle:0,slide:0,finished:false,finishTime:null,drifting:false,driftCharge:0,miniTurbo:0,boosting:false,hit:0,aiLane:i%2?2.4:-2.4}));
+ return ids.map((pilot,i)=>({name:(i===0?'Você · ':'')+PILOTS[pilot],pilot,settings,style:['defender','attacker','explorer','attacker','explorer','defender','attacker','explorer'][pilot],draft:0,draftActive:false,collisions:0,goodDrifts:0,shortcut:false,shortcutLap:-1,shortcutFailed:false,turboLevel:0,lastAttack:null,shield:0,slow:0,item:null,itemPressed:false,index:i,distance:-Math.floor(i/2)*4-9,speed:0,offset:i%2?2.4:-2.4,nitro:100,angle:0,slide:0,finished:false,finishTime:null,drifting:false,driftDirection:0,driftHop:0,driftCharge:0,miniTurbo:0,boosting:false,hit:0,aiLane:i%2?2.4:-2.4}));
 }
 export function orderRacers(racers){return [...racers].sort((a,b)=>a.finished&&b.finished?a.finishTime-b.finishTime:a.finished?-1:b.finished?1:b.distance-a.distance);}
 export function lapOf(r){return clamp(Math.floor(Math.max(0,r.distance)/trackLength(r.settings?.track))+1,1,LAPS);}
@@ -46,7 +46,7 @@ export function resolveCollisions(racers){
 function driveAI(r,racers,dt,time){
  const difficulty=DIFFICULTIES[r.settings.difficulty],length=trackLength(r.settings.track);
  const ahead=racers.filter(other=>other!==r&&!other.finished).map(other=>({other,gap:wrapGap(other.distance,r.distance,length)})).filter(x=>x.gap>0&&x.gap<22).sort((a,b)=>a.gap-b.gap)[0];
- let targetLane=Math.sin(time*.35+r.index)*1.4;
+ let targetLane=Math.sin(time*.35+r.index)*2.8;
  if(r.style==='explorer'){const section=SHORTCUTS[r.settings.track],progress=((r.distance%length)+length)%length;if(r.shortcut||progress>=section.start-30&&progress<section.start+3)targetLane=3;}
  const player=racers.find(other=>other.index===0);
  // Recuperação moderada por velocidade, sem alterar posições artificialmente.
@@ -59,7 +59,7 @@ function driveAI(r,racers,dt,time){
  if(r.draftActive)targetSpeed+=4;
  if(r.boosting)targetSpeed=42.5+difficulty.pace+clamp(gapToPlayer/20,-3,2);
  if(ahead&&Math.abs(ahead.other.offset-r.offset)<2.6){
-  const candidates=[-4,0,4].map(lane=>({lane,clear:!racers.some(o=>o!==r&&!o.finished&&Math.abs(wrapGap(o.distance,r.distance,length))<12&&Math.abs(o.offset-lane)<2.4)}));
+  const candidates=[-7,-3.5,0,3.5,7].map(lane=>({lane,clear:!racers.some(o=>o!==r&&!o.finished&&Math.abs(wrapGap(o.distance,r.distance,length))<12&&Math.abs(o.offset-lane)<2.4)}));
   const choice=candidates.filter(c=>c.clear).sort((a,b)=>Math.abs(a.lane-r.offset)-Math.abs(b.lane-r.offset))[0];
   if(choice)targetLane=r.style==='explorer'?candidates.filter(c=>c.clear).sort((a,b)=>Math.abs(b.lane)-Math.abs(a.lane))[0].lane:choice.lane;
   else if(ahead.gap<9){targetSpeed=Math.min(targetSpeed,Math.max(8,ahead.other.speed-2));r.boosting=false;}
@@ -84,21 +84,28 @@ export function stepRace(racers,input,dt,time,surface=null){
   if(r.index===0){
    const steer=Number.isFinite(input.steer)?clamp(input.steer,-1,1):Number(!!input.left)-Number(!!input.right);
    const wasDrifting=r.drifting;
-   r.drifting=!!input.drift&&!!steer&&r.speed>12;
+   r.driftHop=Math.max(0,(r.driftHop??0)-dt);
+   r.drifting=!!input.drift&&r.speed>12&&(wasDrifting||Math.abs(steer)>.05);
+   if(r.drifting&&!wasDrifting){r.driftDirection=Math.sign(steer);r.driftHop=.3;}
+   if(r.drifting&&!r.driftDirection)r.driftDirection=Math.sign(steer)||1;
    r.miniTurbo=Math.max(0,r.miniTurbo-dt);
    if(r.drifting)r.driftCharge=clamp(r.driftCharge+dt*.65,0,1);
    else if(wasDrifting){
     const level=driftLevel(r.driftCharge);if(!input.drift&&level>0){r.turboLevel=level;r.miniTurbo=DRIFT_LEVELS[level-1].duration;r.goodDrifts++;}
     r.driftCharge=0;
    }
-   r.angle+=steer*r.settings.sensitivity*dt*(r.drifting?1.65:1.18)-r.angle*dt*(r.drifting?2.0:4.2);
+   if(r.drifting){
+    // The initiating turn stays locked; countersteering widens the slide without cancelling charge.
+    const target=r.driftDirection*(.58+.22*steer*r.driftDirection)*r.settings.sensitivity;
+    r.angle+=(target-r.angle)*(1-Math.exp(-dt*7));
+   }else r.angle+=steer*r.settings.sensitivity*dt*1.18-r.angle*dt*4.2;
    r.angle=clamp(r.angle,-.85,.85);
    const boost=input.boost&&input.up&&r.nitro>1&&r.speed>0;
    r.boosting=!!boost||r.miniTurbo>0;
    r.nitro=clamp(r.nitro+dt*(boost?-27:r.drifting?20:7),0,100);
    r.speed+=dt*(input.up?(boost?24:r.miniTurbo>0?22:r.draftActive?18:14):input.down?-26:r.miniTurbo>0?12:-6);
    r.speed=clamp(r.speed,input.down?-7:0,boost?49:r.miniTurbo>0?DRIFT_LEVELS[Math.max(0,r.turboLevel-1)].speed:r.draftActive?36:32);
-   const targetSlide=Math.sin(r.angle)*r.speed*(r.drifting?.48:.8);
+   const targetSlide=Math.sin(r.angle)*r.speed*(r.drifting?.22:.8);
    r.slide+=(targetSlide-r.slide)*(1-Math.exp(-dt*(r.drifting?2.2:9)));
    r.offset+=r.slide*dt;
   }else driveAI(r,racers,dt,time);
@@ -106,7 +113,7 @@ export function stepRace(racers,input,dt,time,surface=null){
   if(r.slow>0)r.speed=Math.min(r.speed,21);
   barrier(r);
   const route=shortcutState(r);if(r.shortcutFailed)r.speed=Math.min(r.speed,18);
-  r.distance+=r.speed*Math.cos(r.angle)*dt*route;
+  r.distance+=r.speed*(r.drifting?Math.max(.94,Math.cos(r.angle)):Math.cos(r.angle))*dt*route;
  }
  resolveCollisions(racers);
  for(const r of racers)if(!r.finished&&r.distance>=trackLength(r.settings?.track)*LAPS){
