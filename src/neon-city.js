@@ -1,3 +1,4 @@
+import {billboardTexture,addCityBillboards} from './city-billboards.js';
 import * as THREE from 'three';
 import {toonMaterial} from './cartoon.js';
 import {trackLength} from './tracks.js';
@@ -9,15 +10,23 @@ export function citySites(track,light=false){
   const count=distant?(light?12:24):(light?24:48),candidates=count/2;
   for(let i=0;i<candidates*2;i++){
    const side=i%2?1:-1,d=((Math.floor(i/2)+.28)/candidates*length+(distant?13:0))%length,offset=side*(distant?80+i%4*17:26+i%3*5),f=track(d,offset),width=distant?16:10+i%3*2,depth=distant?16:10,radius=Math.hypot(width,depth)/2;
+   f.p.x=Math.round((f.p.x-21)/42)*42+21;f.p.z=Math.round((f.p.z-21)/42)*42+21;
    if(road.some(p=>Math.hypot(p.x-f.p.x,p.z-f.p.z)<radius+15))continue;
    if(sites.some(s=>Math.hypot(s.x-f.p.x,s.z-f.p.z)<s.radius+radius+3))continue;
-   sites.push({x:f.p.x,z:f.p.z,angle:Math.atan2(f.tangent?.x??0,f.tangent?.z??1),width,depth,radius,height:distant?58+i%5*14:28+i%7*7,distant,index:i});
+   sites.push({x:f.p.x,z:f.p.z,angle:Math.round(Math.atan2(f.tangent?.x??0,f.tangent?.z??1)/(Math.PI/2))*Math.PI/2,width,depth,radius,height:distant?58+i%5*14:28+i%7*7,distant,index:i});
   }
+ }
+ // Fill the city blocks around the circuit so sweeping bends retain a dense skyline.
+ const infill=[];for(let x=-357;x<=357;x+=42)for(let z=-315;z<=315;z+=42){const distance=Math.min(...road.map(p=>Math.hypot(p.x-x,p.z-z)));if(distance>25&&distance<125)infill.push({x,z,distance});}
+ infill.sort((a,b)=>a.distance-b.distance);
+ for(const [index,candidate] of infill.entries()){if(sites.length>=(light?44:96))break;const radius=Math.hypot(12,12)/2;if(candidate.distance<radius+15||sites.some(s=>Math.hypot(s.x-candidate.x,s.z-candidate.z)<s.radius+radius+3))continue;
+  sites.push({x:candidate.x,z:candidate.z,angle:Math.PI/2*(index%4),width:12,depth:12,radius,height:32+index%7*9,distant:candidate.distance>65,index:200+index});
  }
  return sites;
 }
 
 export function addNeonCity(root,track,light){
+ const textures=Array.from({length:4},(_,i)=>billboardTexture(i));
  const sites=citySites(track,light),windowGeometry=new THREE.PlaneGeometry(1,1.5),windowMaterial=new THREE.MeshBasicMaterial({color:'#ffffff'}),transform=new THREE.Object3D();
  const materials=new Map(),palettes=['#35425e','#536275','#6a5361','#4d536b','#6a625a'];
  function part(parent,geometry,color,x,y,z){let material=materials.get(color);if(!material){material=toonMaterial(color);materials.set(color,material);}const m=new THREE.Mesh(geometry,material);m.position.set(x,y,z);parent.add(m);return m;}
@@ -35,7 +44,7 @@ export function addNeonCity(root,track,light){
    if(face%2===0){transform.position.set(across,y,side*(d/2+.03));transform.rotation.set(0,side===1?0:Math.PI,0);}else{transform.position.set(side*(w/2+.03),y,across);transform.rotation.set(0,side*Math.PI/2,0);}
    transform.updateMatrix();windows.setMatrixAt(n,transform.matrix);windows.setColorAt(n++,new THREE.Color((floor+col+i)%7===0?'#76e9ef':(floor+i)%3?'#ffe2a1':'#d8c6ff'));
   }
-  windows.count=n;g.add(windows);
+  windows.count=n;g.add(windows);addCityBillboards(g,site,light,textures);
   if(!site.distant){
    // Fire escape landings and a zigzag stair silhouette on the street-facing facade.
    if(!light&&i%2)for(let floor=1;floor<Math.min(floors,10);floor++){const y=floor*3.1;part(g,new THREE.BoxGeometry(3,.12,1.1),'#24364b',0,y,d/2+.6);const stair=part(g,new THREE.BoxGeometry(.14,3.7,.14),'#a3a6a1',0,y+1.55,d/2+.9);stair.rotation.z=floor%2?.55:-.55;}

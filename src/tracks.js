@@ -4,7 +4,7 @@ export const TRACKS={
  harbor:{name:'Porto Âmbar',sky:'#efad91',ground:'#407d89'},
  fair:{name:'Vila da Feira',sky:'#a3dce4',ground:'#91b56c',length:1440,revision:2,description:'Chicanes entre praças e duas galerias cobertas. 1,44 km por volta.'},
  sawmill:{name:'Serraria dos Barris',sky:'#d4bfa0',ground:'#8caa76',length:1680,revision:2,description:'Subida da serra, curvas em S, viaduto e dois túneis na pedreira. 1,68 km por volta.'},
- night:{name:'Avenida Neon',sky:'#151c40',ground:'#28314c',length:1900,revision:2,description:'Uma metrópole de arranha-céus iluminados, com circuito em oito, viaduto e túneis neon. 1,90 km por volta.'},
+ night:{name:'Avenida Neon',sky:'#151c40',ground:'#28314c',length:1900,revision:2,description:'Metrópole neon inspirada em Tóquio: painéis gigantes, avenidas e viaduto em oito com túneis. 1,90 km por volta.'},
 };
 export const trackLength=id=>TRACKS[id]?.length??760;
 export const lapProgress=(distance,id)=>((distance%trackLength(id))+trackLength(id))%trackLength(id);
@@ -12,7 +12,7 @@ export function lengthForScope(scope=''){const id=Object.keys(TRACKS).find(id=>s
 export const TUNNELS={
  fair:[{start:.045,end:.145,name:'Galeria dos Arcos'},{start:.53,end:.63,name:'Passagem da Praça'}],
  sawmill:[{start:.045,end:.20,name:'Túnel da Pedreira'},{start:.60,end:.72,name:'Mina dos Barris'}],
- night:[{start:.04,end:.17,name:'Metrô Neon'},{start:.65,end:.80,name:'Túnel do Viaduto'}],
+ night:[{start:.04,end:.17,name:'Metrô Neon'},{start:.60,end:.70,name:'Túnel do Viaduto'}],
 };
 export const BRIDGES={fair:[],sawmill:[{start:.36,end:.49}],night:[{start:.20,end:.30}]};
 export function createCircuitCurve(id){

@@ -258,11 +258,11 @@ As corridas continuam com três voltas, todos os oito carros, drift e nitro. Ite
 
 Os novos tempos e fantasmas usam escopos `fair-r2-*`, `sawmill-r2-*` e `night-r2-*`. Os recordes e fantasmas dos traçados antigos permanecem armazenados e também entram no backup; não são comparados com os novos. Backups anteriores continuam aceitos.
 
-### Metrópole da Avenida Neon
+### Avenida Neon: ruas, viaduto e painéis de Tóquio
 
-A Avenida Neon tem cenário urbano original inspirado na silhueta de Nova York: arranha-céus com alturas variadas, torres em degraus, pináculos, caixas-d’água, escadas de incêndio e fachadas com janelas iluminadas. Edifícios próximos e torres mais distantes formam a paisagem ao longo da volta. O modo Leve reduz a quantidade de prédios e detalhes; as janelas usam instâncias compartilhadas para reduzir o custo de desenho. A visibilidade distante foi ampliada apenas nesta pista.
+A cidade tem quarteirões com ruas no chão, faixas de pista, calçadas e passagens de pedestres. O circuito elevado possui laje contínua com faces inferiores, vigas longitudinais, travessas, colunas e bases apoiadas no solo. Os apoios preservam espaço para a pista inferior do oito. O segundo túnel termina antes do cruzamento para revelar o viaduto por baixo.
 
-O posicionamento dos edifícios mantém distância de todo o asfalto, inclusive dos dois trechos do cruzamento em oito. Traçado, túneis, viaduto, atalhos, recordes e física permanecem iguais.
+Grandes painéis originais nas fachadas, letreiros verticais e janelas iluminadas dão um clima de metrópole noturna inspirada em Tóquio. Os anúncios são fictícios e estáticos, sem flashes. A cidade é mais densa; o modo Leve reduz prédios, painéis, postes e pilares. Repetições de vigas, faixas e luminárias usam instâncias para reduzir chamadas de desenho. O traçado e os recordes permanecem iguais.
 
 ### Abertura de Kart Speed Racers
 

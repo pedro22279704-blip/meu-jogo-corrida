@@ -14,7 +14,7 @@ export function createWorld(scene,id,{quality='pretty'}={}){
  for(const light of scene.children){if(light.isHemisphereLight)light.intensity=id==='night'?1.2:1.7;if(light.isDirectionalLight){light.intensity=id==='night'?1.1:2.2;light.color.set(id==='night'?'#a9b9ff':'#ffe9ca');}}
  const mat=toonMaterial;
  function mesh(geometry,color,parent=root){const object=new THREE.Mesh(geometry,mat(color));parent.add(object);return object;}
- const ground=mesh(new THREE.PlaneGeometry(2000,2000),theme.ground);ground.rotation.x=-Math.PI/2;ground.position.y=-.15;
+ const ground=mesh(new THREE.PlaneGeometry(2000,2000),theme.ground);ground.rotation.x=-Math.PI/2;ground.position.y=-.15;if(id==='night'){ground.material.dispose();ground.material=new THREE.MeshBasicMaterial({color:'#283c4b'});}
  const curve=createCircuitCurve(id),physicalLength=curve.getLength();
  const shortcut=SHORTCUTS[id];
 function track(distance,offset=0){
@@ -35,7 +35,7 @@ function shortcutFrame(distance,offset=0){
 }
 const roadSteps=rebuilt?Math.ceil(physicalLength/2.5):500;
 function ribbon(width,color,y){const positions=[],indices=[];for(let i=0;i<=roadSteps;i++){for(const side of [-1,1]){const {p}=track(i/roadSteps*TRACK_LENGTH,side*width/2);positions.push(p.x,p.y+y,p.z);}if(i<roadSteps&&!(width>=100&&i/roadSteps*TRACK_LENGTH>=shortcut.start&&i/roadSteps*TRACK_LENGTH<=shortcut.end)){const j=i*2;indices.push(j,j+2,j+1,j+1,j+2,j+3);}}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setIndex(indices);g.computeVertexNormals();return mesh(g,color);}
-ribbon(rebuilt?21:harbor?23:100,harbor?'#e0bb86':id==='night'?'#303950':'#89c57a',-.25);ribbon(16,id==='night'?'#6a71ab':'#ebd7ac',.01);ribbon(12,id==='night'?'#39425d':'#597886',.03);
+ribbon(rebuilt?21:harbor?23:100,harbor?'#e0bb86':id==='night'?'#303950':'#89c57a',-.25);ribbon(16,id==='night'?'#6a71ab':'#ebd7ac',.01);ribbon(12,id==='night'?'#53677b':'#597886',.03);
 const curbCount=rebuilt?Math.ceil(physicalLength/4):130;
 for(let i=0;i<curbCount;i++){for(const side of [-1,1]){if(side===1&&i/curbCount*TRACK_LENGTH>=shortcut.start&&i/curbCount*TRACK_LENGTH<=shortcut.end)continue;const {p,tangent}=track(i/curbCount*TRACK_LENGTH,side*6.5);const curb=mesh(new THREE.BoxGeometry(.65,.16,physicalLength/curbCount*.8),i%2?'#f4edcf':'#ef806b');curb.position.copy(p);curb.position.y+=.1;curb.rotation.y=Math.atan2(tangent.x,tangent.z);}}
 // Barreiras contínuas acompanham o limite de colisão dos karts.
@@ -87,7 +87,7 @@ if(!harbor&&!rebuilt)loadProp('tunnel',[{distance:TRACK_LENGTH*.63}]);
  for(let i=0;i<=40;i++){const d=shortcut.start+(shortcut.end-shortcut.start)*i/40;for(const offset of [1.7,4.3]){const p=shortcutFrame(d,offset).p;routePositions.push(p.x,p.y+.065,p.z);}if(i<40){const j=i*2;routeIndices.push(j,j+2,j+1,j+1,j+2,j+3);}}
  const routeGeo=new THREE.BufferGeometry();routeGeo.setAttribute('position',new THREE.Float32BufferAttribute(routePositions,3));routeGeo.setIndex(routeIndices);routeGeo.computeVertexNormals();const routeMesh=mesh(routeGeo,'#d4ad69');routeMesh.material.side=THREE.DoubleSide;
  for(const d of [shortcut.start-7,shortcut.end])for(const offset of [1.4,4.6]){const f=track(d,offset),gate=mesh(new THREE.ConeGeometry(.7,2,4),'#db9bff');gate.position.copy(f.p).addScaledVector(f.up,1);}
- if(rebuilt)addTrackStructures(root,track,id,obstacles);
+ if(rebuilt)addTrackStructures(root,track,id,obstacles,light);
  const updateDetails=addTrackDetails(root,track,id,light);
  return {root,track,shortcutFrame,curve,windmills,obstacles,update(time,reduced){const t=reduced?0:time;for(const rotor of windmills)rotor.rotation.z=t*.7;for(const animate of ambient)animate(t);updateDetails(t);},profile:distance=>surfaceProfile(distance,id),dispose(){alive=false;root.removeFromParent();const geometries=new Set(),materials=new Set(),textures=new Set();root.traverse(o=>{if(o.geometry)geometries.add(o.geometry);if(o.material)for(const m of Array.isArray(o.material)?o.material:[o.material]){materials.add(m);if(m.map)textures.add(m.map);}});geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());}};
 }
