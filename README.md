@@ -303,3 +303,12 @@ Antes da primeira largada, uma apresentação de aproximadamente 29 segundos per
 A apresentação usa o próprio mundo 3D do jogo, com uma pista carregada por vez, proteção contra obstruções nas câmeras próximas e uma interface adaptada ao celular. Movimento reduzido usa vistas aéreas estáticas, quatro segundos por pista. Ocultar a aba congela a cena. A copa é uma sessão: sair ao menu abandona seus pontos, enquanto recordes e conquistas das corridas continuam seguindo as regras existentes.
 
 Referência de formato: [Grand Prix no guia oficial de Mario Kart 8 Deluxe](https://www.nintendo.com/jp/ichikara/aabpa/index_en.html). Nome, cenários, interface, troféu e trilha utilizados são os do Kart Speed Racers.
+
+
+### Pistas suaves e semáforo de largada
+
+As faixas de asfalto e acostamento possuem geometrias separadas, evitando superfícies sobrepostas que produziam listras e cintilação à distância. O tratamento de profundidade mantém a ordem visual entre terreno, acostamento e asfalto. As curvas, medidas e regras de corrida são preservadas.
+
+No modo Bonito, a cena usa suavização multiamostrada e um filtro de bordas direcional após a conversão de cor, inclusive durante a apresentação da copa. O modo Leve usa o desenho direto e a correção geométrica, sem o pós-processamento extra. O tamanho dos buffers é limitado para conter consumo de memória em telas grandes e de alta densidade. Redimensionar a janela ou trocar qualidade atualiza os buffers e libera os recursos anteriores.
+
+Todas as largadas (corrida, treino e copa) mostram um semáforo com três lentes: uma luz vermelha em 3, duas em 2, três em 1 e todas verdes em JÁ. Tons originais acompanham a sequência e respeitam mudo/volume de efeitos. O sinal verde desaparece após cerca de 0,85 segundo. Pausar congela a contagem e não repete os tons; reiniciar cria uma nova sequência. Os karts continuam esperando a liberação da contagem original de três segundos.
