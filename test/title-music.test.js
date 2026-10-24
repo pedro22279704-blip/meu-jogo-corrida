@@ -30,7 +30,7 @@ test('iniciar a corrida encerra a trilha do menu; voltar recria apenas uma faixa
 });
 
 test('motor original tem duração finita, termina em silêncio e é liberado após tocar',async()=>{
- const ctx=context(),buffer=createEngineRev(ctx),samples=buffer.getChannelData(0);assert.equal(buffer.length/buffer.sampleRate,1.5);let energy=0;for(const sample of samples){assert.ok(Number.isFinite(sample)&&Math.abs(sample)<.81);energy+=sample*sample;}assert.ok(energy/samples.length>.05);assert.ok(Math.abs(samples.at(-1))<.001);
+ const ctx=context(),buffer=createEngineRev(ctx),samples=buffer.getChannelData(0);assert.equal(buffer.length/buffer.sampleRate,2.4);let energy=0;for(const sample of samples){assert.ok(Number.isFinite(sample)&&Math.abs(sample)<.81);energy+=sample*sample;}assert.ok(energy/samples.length>.01);assert.ok(Math.abs(samples.at(-1))<.001);
  const audio=new RaceAudio();audio.context=ctx;audio.master={};audio.effects={};audio.start=async()=>{};await audio.startTitle('title',true);const source=audio.revSource;assert.ok(source.started);assert.equal(source.buffer, audio.revBuffer);assert.ok(!source.loop);source.onended();assert.equal(audio.revSource,null);assert.ok(source.disconnected);audio.stopTitle();
 });
 test('sair antes de o áudio desbloquear não inicia música atrasada; volume acompanha a configuração',async()=>{

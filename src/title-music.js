@@ -1,13 +1,27 @@
-// Original engine ignition with two rising revs and a soft release.
+// Original four-cylinder engine: combustion pulses, exhaust resonances and intake noise.
 export function createEngineRev(context){
- const rate=22050,duration=1.5,buffer=context.createBuffer(1,Math.ceil(rate*duration),rate),data=buffer.getChannelData(0);let phase=0,seed=87;
+ const rate=22050,duration=2.4,buffer=context.createBuffer(1,Math.ceil(rate*duration),rate),data=buffer.getChannelData(0);
+ const rpmCurve=[[0,260],[.14,450],[.24,1150],[.4,1400],[.9,5400],[1.12,2600],[1.65,6500],[2.05,2000],[2.4,1100]];
+ const resonator=(frequency,q)=>{const w=2*Math.PI*frequency/rate,alpha=Math.sin(w)/(2*q),a0=1+alpha,b0=alpha/a0,a1=-2*Math.cos(w)/a0,a2=(1-alpha)/a0;let x1=0,x2=0,y1=0,y2=0;return x=>{const y=b0*(x-x2)-a1*y1-a2*y2;x2=x1;x1=x;y2=y1;y1=y;return y;};};
+ const low=resonator(105,1.3),body=resonator(270,1.6),rasp=resonator(720,1.1);
+ let phase=0,cycle=0,seed=87,air=0,high=0,previous=0,peak=0;
  for(let i=0;i<data.length;i++){
-  const t=i/rate,rev=t<.18?45+t*180:t<.67?77+(t-.18)*270:t<.87?209-(t-.67)*570:t<1.15?95+(t-.87)*340:190-(t-1.15)*340;
-  phase+=2*Math.PI*Math.max(40,rev)/rate;seed=(seed*1664525+1013904223)>>>0;
-  const envelope=Math.min(1,t/.025,Math.max(0,(duration-t)/.25)),ignition=t<.16?(seed/2147483648-1)*Math.exp(-t*28)*.4:0;
-  const engine=Math.sin(phase)+.42*Math.sin(phase*2)+.2*Math.sin(phase*3)+.1*Math.sin(phase*5);
-  data[i]=Math.tanh((engine*.6+ignition)*envelope)*.8;
+  const t=i/rate;let segment=0;while(segment<rpmCurve.length-2&&t>rpmCurve[segment+1][0])segment++;
+  const [a,ra]=rpmCurve[segment],[b,rb]=rpmCurve[segment+1],u=(t-a)/(b-a),rpm=ra+(rb-ra)*(u*u*(3-2*u));
+  // Two firing events per crankshaft revolution, with small cylinder differences.
+  phase+=rpm/30/rate*(1+.013*Math.sin(t*83)+.006*Math.sin(t*137));if(phase>=1){phase-=1;cycle++;}
+  seed=(seed*1664525+1013904223)>>>0;const noise=seed/2147483648-1,throttle=Math.max(0,Math.min(1,(rpm-1000)/5500));
+  air+=(noise-air)*(1-Math.exp(-2*Math.PI*(450+throttle*1700)/rate));
+  const combustion=(Math.exp(-phase*18)+.22*Math.exp(-phase*7)*Math.sin(phase*27))*[1,.88,1.06,.94][cycle%4];
+  const raw=combustion*(t<.2?.35:1)+air*(.08+throttle*.22);
+  high=.9915*(high+raw-previous);previous=raw;
+  const exhaust=low(high)*1.6+body(high)*1.1+rasp(high)*.55+high*.11;
+  const starter=t<.22?noise*Math.exp(-t*12)*.1:0;
+  const envelope=Math.min(1,t/.025,Math.max(0,(duration-t)/.23));
+  data[i]=Math.tanh((exhaust+starter)*2.2)*envelope;peak=Math.max(peak,Math.abs(data[i]));
  }
+ // Bound the peak without hard clipping; DC is filtered before the exhaust.
+ if(peak>0)for(let i=0;i<data.length;i++)data[i]*=.78/peak;
  return buffer;
 }
 
