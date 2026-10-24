@@ -10,7 +10,7 @@ export const NAMES = PILOTS.map((name,i)=>(i===0?'Você · ':'')+name);
 export const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
 export function createRace(options={}){
  const settings=normalizeSettings(options),ids=[settings.pilot,...PILOTS.map((_,i)=>i).filter(i=>i!==settings.pilot)];
- return ids.map((pilot,i)=>({name:(i===0?'Você · ':'')+PILOTS[pilot],pilot,settings,style:['defender','attacker','explorer','attacker','explorer','defender','attacker','explorer'][pilot],draft:0,draftActive:false,collisions:0,goodDrifts:0,shortcut:false,shortcutLap:-1,shortcutFailed:false,turboLevel:0,lastAttack:null,shield:0,slow:0,item:null,itemPressed:false,index:i,distance:-Math.floor(i/2)*4-9,speed:0,offset:i%2?2.4:-2.4,nitro:100,angle:0,slide:0,finished:false,finishTime:null,drifting:false,driftDirection:0,driftHop:0,driftCharge:0,miniTurbo:0,boosting:false,hit:0,aiLane:i%2?2.4:-2.4}));
+ return ids.map((pilot,i)=>({name:(i===0?'Você · ':'')+PILOTS[pilot],pilot,settings,style:['defender','attacker','explorer','attacker','explorer','defender','attacker','explorer'][pilot],draft:0,draftActive:false,collisions:0,goodDrifts:0,shortcut:false,shortcutLap:-1,shortcutFailed:false,turboLevel:0,lastAttack:null,shield:0,slow:0,boneSpin:0,item:i===0&&settings.character==='gugar'?'bone':null,itemPressed:false,index:i,distance:-Math.floor(i/2)*4-9,speed:0,offset:i%2?2.4:-2.4,nitro:100,angle:0,slide:0,finished:false,finishTime:null,drifting:false,driftDirection:0,driftHop:0,driftCharge:0,miniTurbo:0,boosting:false,hit:0,aiLane:i%2?2.4:-2.4}));
 }
 export function orderRacers(racers){return [...racers].sort((a,b)=>a.finished&&b.finished?a.finishTime-b.finishTime:a.finished?-1:b.finished?1:b.distance-a.distance);}
 export function lapOf(r){return clamp(Math.floor(Math.max(0,r.distance)/trackLength(r.settings?.track))+1,1,LAPS);}
@@ -79,7 +79,7 @@ export function stepRace(racers,input,dt,time,surface=null){
  dt=clamp(dt,0,.05);if(!dt)return;
  updateDrafting(racers,dt);
  for(const r of racers){
-  r.hit=Math.max(0,r.hit-dt);r.powerGesture=Math.max(0,(r.powerGesture??0)-dt);
+  r.boneSpin=Math.max(0,(r.boneSpin??0)-dt);r.hit=Math.max(0,r.hit-dt);r.powerGesture=Math.max(0,(r.powerGesture??0)-dt);
   if(r.finished){r.speed=Math.max(0,r.speed-dt*15);r.boosting=false;r.drifting=false;continue;}
   if(r.index===0){
    const steer=Number.isFinite(input.steer)?clamp(input.steer,-1,1):Number(!!input.left)-Number(!!input.right);
