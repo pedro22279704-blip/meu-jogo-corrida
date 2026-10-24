@@ -30,3 +30,5 @@
 #menu .pilot-choice:hover{background:#3b6470;color:#fff}
 
 #menu.menu-fullscreen:not([data-stage=home]) .menu-header{background:#102b46}
+#menu .character-card small{font-size:11px;line-height:1.5;color:#ffe1a0;max-width:180px}
+@media(min-width:1000px){.character-grid{grid-template-columns:repeat(5,minmax(0,1fr))}#menu .character-card{padding:16px 8px}}

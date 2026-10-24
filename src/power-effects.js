@@ -6,7 +6,7 @@ export class PowerEffects{
   if(dt<=0)return;
   for(const r of racers){const before=this.previous.get(r.index);if(before){const attack=r.lastAttack!==before.attack&&r.lastAttack;
    const pop=before.shield>0&&r.shield<=0;
-   if(attack||pop){const count=reduced?4:light?8:18,base=frame(r).p;for(let i=0;i<count;i++){const p=this.pool.find(p=>p.life<=0);if(!p)break;const a=i/count*Math.PI*2;p.life=.55;p.mesh.position.copy(base).add(new THREE.Vector3(Math.cos(a)*.7,1+Math.sin(a)*.2,Math.sin(a)*.7));p.velocity.set(Math.cos(a)*3.5,1.5+Math.sin(a*2),Math.sin(a)*3.5);p.mesh.material.color.set(pop?'#8deaff':attack.item==='gum'?'#ff8bdc':'#d2adff');}}
+   if(attack||pop){const count=reduced?4:light?8:18,base=frame(r).p;for(let i=0;i<count;i++){const p=this.pool.find(p=>p.life<=0);if(!p)break;const a=i/count*Math.PI*2;p.life=.55;p.mesh.position.copy(base).add(new THREE.Vector3(Math.cos(a)*.7,1+Math.sin(a)*.2,Math.sin(a)*.7));p.velocity.set(Math.cos(a)*3.5,1.5+Math.sin(a*2),Math.sin(a)*3.5);p.mesh.material.color.set(pop?'#8deaff':attack.item==='gum'?'#ff8bdc':attack.item==='bone'?'#ffe5aa':'#d2adff');}}
   }this.previous.set(r.index,{shield:r.shield,attack:r.lastAttack});}
   for(const p of this.pool){p.life=Math.max(0,p.life-dt);p.mesh.visible=p.life>0;if(p.life>0){p.mesh.position.addScaledVector(p.velocity,dt);p.velocity.y-=4*dt;p.mesh.scale.setScalar(p.life/.55);p.mesh.material.opacity=p.life/.55;}}
  }

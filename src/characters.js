@@ -1,8 +1,10 @@
 import * as THREE from 'three';
+import {createGugar} from './gugar.js';
 import {toonMaterial} from './cartoon.js';
 
 export const CHARACTERS=[
  {id:'original',name:'Piloto original',bio:'O companheiro de sempre do seu kart.'},
+ {id:'gugar',name:'Gugar',bio:'Explorador das cavernas: cabelo rebelde, barba farta e túnica de manchas. Especial: Osso Perseguidor. Começa com um osso; lance com E ou B no controle.'},
  {id:'olinda',name:'Dona Olinda',bio:'Inventora aposentada. Cabelo de nuvem, olhar de quem já venceu e um laço de oficina.'},
  {id:'tico',name:'Tico Rebite',bio:'Mecânico de ideias enormes. Topete de cobre, óculos redondos e sorriso torto.'},
  {id:'juma',name:'Juma Vagalume',bio:'Locutora das madrugadas. Tranças elétricas e sobrancelhas que narram cada curva.'},
@@ -12,6 +14,7 @@ export const normalizeCharacter=id=>CHARACTERS.some(c=>c.id===id)?id:'original';
 // Geometria original em +Y (cima), +Z (frente), compatível com os karts.
 export function createCharacter(id){
  if(normalizeCharacter(id)==='original')return null;
+ if(id==='gugar')return createGugar();
  const root=new THREE.Group();root.name='Driver';root.userData.character=id;
  const skin=id==='olinda'?'#ba8268':id==='tico'?'#e1ad78':'#79503e';
  const suit=id==='olinda'?'#347c80':id==='tico'?'#eea43a':'#ae64d9';

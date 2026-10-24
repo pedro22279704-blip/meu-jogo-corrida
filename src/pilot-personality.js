@@ -9,6 +9,7 @@ export const PILOT_PERSONALITIES=[
  {name:'Carro Barril',bio:'Brincalhão: balança os braços como um barril dançante.',phase:7,roll:.16,left:-1.6,right:-2.3},
 ];
 export const CHARACTER_PERSONALITIES={
+ gugar:{name:'Gugar',bio:'Bate no peito, abre um sorriso e sacode a cabeleira. Seu Osso Perseguidor vai atrás do rival à frente.',phase:1.8,roll:.17,left:-2.35,right:-1.7},
  olinda:{name:'Dona Olinda',bio:'Comemora com um aceno majestoso e seu cabelo acompanha cada reação.',phase:2.4,roll:.10,left:-1.35,right:-2.05},
  tico:{name:'Tico Rebite',bio:'Sacode os punhos de alegria; o topete dispara para trás com o nitro.',phase:.5,roll:.15,left:-2.4,right:-2.15},
  juma:{name:'Juma Vagalume',bio:'Dança no pódio e acompanha o ritmo com as tranças.',phase:4,roll:.19,left:-1.6,right:-1.85},

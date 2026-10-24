@@ -1,5 +1,13 @@
 # Kart Speed Racers
 
+## Gugar e Osso Perseguidor
+
+Na etapa Piloto, Gugar aparece com cabelo escuro volumoso, barba, túnica com manchas, shorts azul e pés descalços, inspirado no desenho enviado. O modelo cartoon é original e pode dirigir qualquer um dos oito carros, incluindo Carro 10 e Carro Barril.
+
+Gugar começa cada corrida com um **Osso Perseguidor**. Use **E** no teclado ou **B** no controle para lançar. Ele busca o rival mais próximo à frente dentro do alcance, acompanha sua faixa e o faz girar e perder velocidade ao acertar. Uma Bolha protetora bloqueia o impacto. Sem alvo, segue em frente, rebate nas laterais e desaparece após alguns segundos. Não atinge o dono, pilotos que já chegaram ou carros em outro nível do oito da Avenida Neon.
+
+As cápsulas podem oferecer outro osso ao Gugar, mantendo também os três poderes comuns. Os demais personagens mantêm seus itens existentes. O ícone, o osso 3D e os efeitos foram criados para o jogo. A seleção de Gugar é salva nas configurações e Movimento reduzido desativa o giro decorativo do osso e do kart atingido.
+
 ## Menu principal e preparação da corrida
 
 O menu principal mostra Rápida, Copa, Duelo e Treino numa coluna sobre um panorama 3D da Avenida Neon, com karts em movimento. Opções e Desafios continuam acessíveis no cabeçalho. Movimento reduzido mantém o panorama estático.
