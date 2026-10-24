@@ -1,4 +1,4 @@
-import {createTitleMusic} from './title-music.js';
+import {createTitleMusic,createEngineRev} from './title-music.js';
 import {createRetroMusic} from './music.js';
 // Áudio sintetizado localmente: não há arquivos ou serviços de terceiros.
 export class RaceAudio{
@@ -22,15 +22,25 @@ export class RaceAudio{
    await this.setPaused(false);
   }catch{ /* Corrida continua se o navegador bloquear áudio. */ }
  }
- async startTitle(){
-  this.stopTitle();const generation=this.titleGeneration;await this.start();if(generation!==this.titleGeneration||!this.context)return false;
-  const ctx=this.context;this.titleBuffer??=createTitleMusic(ctx);this.titleSource=ctx.createBufferSource();this.titleSource.buffer=this.titleBuffer;this.titleSource.loop=true;this.titleGain=ctx.createGain();this.titleGain.gain.value=.9*this.musicVolume;this.titleGain.connect(this.master);this.titleSource.connect(this.titleGain);this.titleSource.start();return ctx.state==='running';
+ async startTitle(mode='title',rev=false){
+  this.stopTitle();this.titleMode=mode;this.titlePending=true;const generation=this.titleGeneration;await this.start();if(generation!==this.titleGeneration)return false;this.titlePending=false;if(!this.context)return false;
+  const ctx=this.context;this.titleBuffer??=createTitleMusic(ctx);this.titleSource=ctx.createBufferSource();this.titleSource.buffer=this.titleBuffer;this.titleSource.loop=true;this.titleGain=ctx.createGain();this.titleGain.gain.value=this.titleLevel()*this.musicVolume;this.titleGain.connect(this.master);this.titleSource.connect(this.titleGain);this.titleSource.start();if(rev)this.revEngine();return ctx.state==='running';
+ }
+ titleLevel(){return this.titleMode==='menu'?.6:.9;}
+ menuMusic(){
+  if(this.titleMode==='menu'&&(this.titleSource||this.titlePending))return;
+  this.titleMode='menu';if(this.titleGain)this.titleGain.gain.setTargetAtTime(.6*this.musicVolume,this.context.currentTime,.25);
+  else if(!this.titlePending)this.startTitle('menu');
+ }
+ revEngine(){
+  if(!this.context||!this.effects)return;
+  this.revSource?.stop();const ctx=this.context,source=ctx.createBufferSource();this.revBuffer??=createEngineRev(ctx);source.buffer=this.revBuffer;source.connect(this.effects);source.onended=()=>{source.disconnect();if(this.revSource===source)this.revSource=null;};this.revSource=source;source.start();
  }
  stopTitle(){
-  this.titleGeneration=(this.titleGeneration??0)+1;const source=this.titleSource,gain=this.titleGain;this.titleSource=null;this.titleGain=null;if(!source)return;
+  this.titleMode='off';this.titlePending=false;this.titleGeneration=(this.titleGeneration??0)+1;const source=this.titleSource,gain=this.titleGain;this.titleSource=null;this.titleGain=null;if(!source)return;
   const t=this.context.currentTime;gain.gain.setTargetAtTime(0,t,.04);source.onended=()=>{source.disconnect();gain.disconnect();};source.stop(t+.2);
  }
- setVolumes(music,effects){this.musicVolume=Math.max(0,Math.min(1,music));this.effectsVolume=Math.max(0,Math.min(1,effects));if(this.titleGain)this.titleGain.gain.setTargetAtTime(.9*this.musicVolume,this.context.currentTime,.05);if(this.effects)this.effects.gain.setTargetAtTime(this.effectsVolume,this.context.currentTime,.05);}
+ setVolumes(music,effects){this.musicVolume=Math.max(0,Math.min(1,music));this.effectsVolume=Math.max(0,Math.min(1,effects));if(this.titleGain)this.titleGain.gain.setTargetAtTime(this.titleLevel()*this.musicVolume,this.context.currentTime,.05);if(this.effects)this.effects.gain.setTargetAtTime(this.effectsVolume,this.context.currentTime,.05);}
  setPaused(paused){
   this.playback=(this.playback??Promise.resolve()).then(async()=>{if(this.context&&this.context.state!=='closed'){if(paused)await this.context.suspend();else await this.context.resume();}}).catch(()=>{});
   return this.playback;
@@ -43,6 +53,6 @@ export class RaceAudio{
   this.ambientNext=t+3.5;
   for(const [i,freq] of [a,b].entries()){const osc=this.context.createOscillator(),gain=this.context.createGain(),start=t+i*.17;osc.type=type;osc.frequency.setValueAtTime(freq,start);osc.frequency.exponentialRampToValueAtTime(freq*.85,start+.18);gain.gain.setValueAtTime(.001,start);gain.gain.linearRampToValueAtTime(.08,start+.02);gain.gain.exponentialRampToValueAtTime(.001,start+.22);osc.connect(gain).connect(this.effects);osc.onended=()=>{osc.disconnect();gain.disconnect();};osc.start(start);osc.stop(start+.24);}
  }
- update(r,active,musicActive=active,lastLap=false){if(!this.engine)return;const t=this.context.currentTime;this.music.playbackRate.setTargetAtTime(lastLap?1.15:1,t,.4);this.musicGain?.gain.setTargetAtTime(musicActive?.65*this.musicVolume:0,t,.15);this.engine.frequency.setTargetAtTime(48+Math.abs(r.speed)*5,t,.08);this.engineGain.gain.setTargetAtTime(active?.13:0,t,.08);this.skid.gain.setTargetAtTime(active&&r.drifting?.16:0,t,.05);this.turboGain.gain.setTargetAtTime(active&&r.boosting?.12:0,t,.05);this.turbo.frequency.setTargetAtTime(420+Math.abs(r.speed)*8,t,.08);}
+ update(r,active,musicActive=active,lastLap=false,menuActive=false){if(!this.engine)return;if(menuActive)this.menuMusic();else if(this.titleSource||this.titlePending)this.stopTitle();const t=this.context.currentTime;this.music.playbackRate.setTargetAtTime(lastLap?1.15:1,t,.4);this.musicGain?.gain.setTargetAtTime(musicActive?.65*this.musicVolume:0,t,.15);this.engine.frequency.setTargetAtTime(48+Math.abs(r.speed)*5,t,.08);this.engineGain.gain.setTargetAtTime(active?.13:0,t,.08);this.skid.gain.setTargetAtTime(active&&r.drifting?.16:0,t,.05);this.turboGain.gain.setTargetAtTime(active&&r.boosting?.12:0,t,.05);this.turbo.frequency.setTargetAtTime(420+Math.abs(r.speed)*8,t,.08);}
  finish(place=1){if(!this.context)return;const ctx=this.context;const notes=place===1?[523,659,784,1047,1319]:place===2?[494,622,740,988]:place===3?[440,554,659,880]:[392,494,587];notes.forEach((freq,i)=>{const osc=ctx.createOscillator(),gain=ctx.createGain();const t=ctx.currentTime+i*.14;osc.frequency.value=freq;gain.gain.setValueAtTime(.25,t);gain.gain.exponentialRampToValueAtTime(.001,t+.35);osc.connect(gain).connect(this.effects);osc.start(t);osc.stop(t+.36);});}
 }
