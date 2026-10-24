@@ -5,9 +5,9 @@ import {citySites} from './neon-city.js';
 
 export function viaductPiers(track,light=false){
  const length=trackLength('night'),samples=Array.from({length:380},(_,i)=>track(i/380*length).p),piers=[];
- for(let d=12;d<length;d+=light?60:36){const f=track(d),feet=[-9.5,9.5].map(side=>track(d,side).p);
+ for(let d=12;d<length;d+=light?60:36){const f=track(d),feet=[-12.5,12.5].map(side=>track(d,side).p);
   // Footings must clear the lower road and its tunnel, even below the crossing.
-  if(feet.some(foot=>samples.some(p=>p.y<f.p.y-8&&Math.hypot(p.x-foot.x,p.z-foot.z)<17)))continue;
+  if(feet.some(foot=>samples.some(p=>p.y<f.p.y-8&&Math.hypot(p.x-foot.x,p.z-foot.z)<20)))continue;
   piers.push({distance:d,frame:f,feet,height:Math.max(1,f.p.y-2)});
  }
  return piers;
@@ -31,13 +31,13 @@ export function addNeonInfrastructure(root,track,light,obstacles){
  for(let d=32;d<length;d+=190){const f=track(d);for(let offset=-15;offset<=15;offset+=3.3){const p=track(d,offset).p,m=mesh(crossGeometry,paint);m.position.set(p.x,.09,p.z);m.rotation.y=Math.atan2(f.tangent.x,f.tangent.z);}}
  // Continuous slab: road surface, deep side fascia and visible underside.
  const positions=[],indices=[],steps=Math.ceil(length/5);
- for(let i=0;i<=steps;i++){const f=track(i/steps*length);for(const [offset,drop] of [[-9.25,.15],[9.25,.15],[-9.25,1.35],[9.25,1.35]]){const p=f.p.clone().addScaledVector(f.normal,offset).addScaledVector(f.up,-drop);positions.push(...p.toArray());}
+ for(let i=0;i<=steps;i++){const f=track(i/steps*length);for(const [offset,drop] of [[-12.25,.15],[12.25,.15],[-12.25,1.35],[12.25,1.35]]){const p=f.p.clone().addScaledVector(f.normal,offset).addScaledVector(f.up,-drop);positions.push(...p.toArray());}
   if(i<steps){const a=i*4,b=a+4;indices.push(a,b,a+1,a+1,b,b+1,a+2,a+3,b+2,a+3,b+3,b+2,a,a+2,b,a+2,b+2,b,a+1,b+1,a+3,a+3,b+1,b+3);}}
  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geo.setIndex(indices);geo.computeVertexNormals();const deck=mesh(geo,concrete);deck.name='Continuous viaduct deck';deck.material.side=THREE.DoubleSide;obstacles.push(deck);
  const beamGeometry=new THREE.BoxGeometry(.65,1,5.3);
- for(let d=0;d<length;d+=5){const f=track(d);for(const side of [-1,1]){const beam=mesh(beamGeometry,dark);beam.position.copy(f.p).addScaledVector(f.normal,side*7.5).addScaledVector(f.up,-1.55);beam.quaternion.copy(f.quaternion);}}
+ for(let d=0;d<length;d+=5){const f=track(d);for(const side of [-1,1]){const beam=mesh(beamGeometry,dark);beam.position.copy(f.p).addScaledVector(f.normal,side*10.5).addScaledVector(f.up,-1.55);beam.quaternion.copy(f.quaternion);}}
  for(const {frame:f,feet,height} of viaductPiers(track,light)){
-  const head=mesh(new THREE.BoxGeometry(22,1.4,3.6),concrete);head.name='Viaduct crosshead';head.position.copy(f.p).addScaledVector(f.up,-2);head.quaternion.copy(f.quaternion);
+  const head=mesh(new THREE.BoxGeometry(28,1.4,3.6),concrete);head.name='Viaduct crosshead';head.position.copy(f.p).addScaledVector(f.up,-2);head.quaternion.copy(f.quaternion);
   for(const foot of feet){
    const shaft=mesh(new THREE.CylinderGeometry(1.05,1.4,height,8),concrete);shaft.name='Grounded viaduct column';shaft.position.set(foot.x,height/2,foot.z);
    const base=mesh(new THREE.BoxGeometry(4.8,.7,4.2),concrete);base.position.set(foot.x,.35,foot.z);
@@ -46,7 +46,7 @@ export function addNeonInfrastructure(root,track,light,obstacles){
  }
  // Lamps stay outside the driving lane and do not intrude into tunnel roofs.
  const glow=new THREE.MeshBasicMaterial({color:'#a4f7ff'}),poleGeometry=new THREE.CylinderGeometry(.1,.16,5,6),lampGeometry=new THREE.BoxGeometry(1.8,.18,.6);
- for(let d=15;d<length;d+=light?72:36){if(TUNNELS.night.some(t=>d>t.start*length-12&&d<t.end*length+12))continue;for(const side of [-1,1]){const f=track(d,side*8.7),pole=mesh(poleGeometry,dark);pole.position.copy(f.p).add(new THREE.Vector3(0,2.5,0));const lamp=mesh(lampGeometry,glow);lamp.position.copy(f.p).add(new THREE.Vector3(0,5,0));}}
+ for(let d=15;d<length;d+=light?72:36){if(TUNNELS.night.some(t=>d>t.start*length-12&&d<t.end*length+12))continue;for(const side of [-1,1]){const f=track(d,side*11.7),pole=mesh(poleGeometry,dark);pole.position.copy(f.p).add(new THREE.Vector3(0,2.5,0));const lamp=mesh(lampGeometry,glow);lamp.position.copy(f.p).add(new THREE.Vector3(0,5,0));}}
  // Batch the repeated beams, lane markings and lamps into a handful of draw calls.
  const batches=new Map();for(const object of root.children.slice(firstChild)){if(!object.isMesh||object===deck)continue;const key=object.geometry.uuid+object.material.uuid;if(!batches.has(key))batches.set(key,[]);batches.get(key).push(object);}
  for(const objects of batches.values()){if(objects.length<4)continue;const batch=new THREE.InstancedMesh(objects[0].geometry,objects[0].material,objects.length);objects.forEach((object,i)=>{object.updateMatrix();batch.setMatrixAt(i,object.matrix);root.remove(object);});root.add(batch);}

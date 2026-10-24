@@ -1,3 +1,5 @@
+import './race-menu.css';
+import {createRaceMenu} from './race-menu.js';
 import './start-signal.css';
 import {StartSignal} from './start-signal.js';
 import {SmoothRenderer,renderPixelRatio} from './smooth-renderer.js';
@@ -146,6 +148,7 @@ function refreshCharacters(){
 }
 refreshCharacters();
 $('trackSelect').value=settings.track;$('difficultySelect').value=settings.difficulty;$('sensitivity').value=settings.sensitivity;
+const raceMenu=createRaceMenu();
 function updateChallenges(){
  const unlocked=unlockedPaints(challengeProgress);if(!unlocked.some(p=>p.id===paintId))paintId='original';
  $('paintSelect').replaceChildren(...unlocked.map(p=>{const option=document.createElement('option');option.value=p.id;option.textContent=p.name;return option;}));$('paintSelect').value=paintId;
@@ -174,6 +177,7 @@ function applyQuality(){
  document.body.classList.toggle('reduce-motion',settings.reducedMotion);
 }
 function showSettings(){
+ raceMenu.sync();
  $('trackDescription').textContent=TRACKS[settings.track].description??'';
  $('raceSelection').textContent=`Piloto: ${PILOTS[settings.pilot]} · ${settings.quality==='light'?'Gráficos leves':'Visual bonito'}`;applyQuality();
  $('sensitivityValue').textContent=`${Math.round(settings.sensitivity*100)}%`;
@@ -296,7 +300,7 @@ function animate(now){const TRACK_LENGTH=trackLength(settings.track);requestAnim
   if(racers[0].finished)finishRace();
  }
  if(mode==='finished'){resultsElapsed+=dt;stepRace(training?[racers[0]]:racers,{},dt,elapsed+resultsElapsed,world.profile);const finishers=orderRacers(training?[racers[0]]:racers).filter(r=>r.finished);for(const r of racers)r.podiumPlace=finishers.findIndex(p=>p===r)+1||99;$('podium').replaceChildren(...[0,1,2].map(i=>{const card=document.createElement('div');card.textContent=`${['🥇','🥈','🥉'][i]} ${finishers[i]?.name??'Aguardando chegada…'}`;return card;}));resultStage??=new ResultStage($('resultScene'));const cupDone=cupComplete(cup);const stageRacers=cupDone?cupStandings(cup).map(p=>racers.find(r=>r.pilot===p.pilot)):finishers;resultStage.trophy.visible=cupDone;resultStage.update(stageRacers,karts,dt,visualTime,settings.reducedMotion);list('finalRanking',orderRacers(training?[racers[0]]:racers));updateCupResult();}
- for(const r of racers){const frame=r.shortcut?world.shortcutFrame(r.distance,r.offset):track(r.distance,r.offset);const {p,tangent}=frame;karts[r.pilot].visible=!training||r.index===0;karts[r.pilot].position.copy(p);const shadow=contactShadows[r.pilot];shadow.visible=settings.quality!=='light'&&(!training||r.index===0);shadow.position.copy(p).addScaledVector(frame.up,.05);shadow.quaternion.copy(frame.quaternion).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),-Math.PI/2));karts[r.pilot].quaternion.copy(frame.quaternion).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),r.angle));animateKart(karts[r.pilot].userData.rig,r,dt,visualTime,{reduced:settings.reducedMotion});karts[r.pilot].userData.flame.visible=mode==='racing'&&r.boosting;}
+ for(const r of racers){const frame=r.shortcut?world.shortcutFrame(r.distance,r.offset):track(r.distance,r.offset);const {p,tangent}=frame;karts[r.pilot].visible=!training||r.index===0;karts[r.pilot].position.copy(p);if(r.driftHop>0&&!settings.reducedMotion)karts[r.pilot].position.addScaledVector(frame.up,Math.sin(r.driftHop/.3*Math.PI)*.48);const shadow=contactShadows[r.pilot];shadow.visible=settings.quality!=='light'&&(!training||r.index===0);shadow.position.copy(p).addScaledVector(frame.up,.05);shadow.quaternion.copy(frame.quaternion).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),-Math.PI/2));karts[r.pilot].quaternion.copy(frame.quaternion).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),r.angle));animateKart(karts[r.pilot].userData.rig,r,dt,visualTime,{reduced:settings.reducedMotion});karts[r.pilot].userData.flame.visible=mode==='racing'&&r.boosting;}
  const drifting=mode==='racing'&&racers[0].drifting;
  sparkClock+=dt;
  if(mode==='racing'&&(drifting||racers[0].speed>15)&&sparkClock>(settings.quality==='light'||settings.reducedMotion?.09:.035)){sparkClock=0;for(const side of [-1,1]){const particle=sparks.find(s=>s.life<=0);if(particle){particle.life=.35;particle.mesh.material.color.set(drifting?(DRIFT_LEVELS[Math.max(0,driftLevel(racers[0].driftCharge)-1)].color):'#a3b6b9');particle.mesh.position.copy(karts[racers[0].pilot].localToWorld(new THREE.Vector3(side*.95,.15,-.8)));particle.velocity.set((Math.random()-.5)*2,1+Math.random(),(Math.random()-.5)*2);}}}

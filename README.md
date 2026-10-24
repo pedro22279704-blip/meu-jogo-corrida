@@ -1,5 +1,13 @@
 # Kart Speed Racers
 
+## Menu de circuitos e drift
+
+O menu tem cartões com os cinco traçados, mapa ampliado da seleção e atalhos para corrida rápida, Copa Horizonte, duelo clássico e treino. Todas as abas mantêm tela inteira, cabeçalho fixo e rolagem vertical, inclusive no celular.
+
+O asfalto passou de 12 para 18 unidades de largura; barreiras, largada, túneis e estruturas dos viadutos acompanham a ampliação. Os percursos, carros, nitro, campeonatos e progresso existente continuam disponíveis. Os fantasmas e backups também aceitam as novas faixas externas.
+
+Para derrapar, acelere, vire e segure Espaço (A/LB no controle). Um salto curto inicia o drift e mantém o lado escolhido. Faça contravolante para abrir a curva ou vire para o mesmo lado para fechá-la. As faíscas evoluem de azul para laranja e roxo; solte o drift para liberar o impulso. Movimento reduzido desativa o salto visual. Interface, efeitos e arte são originais.
+
 ## Garagem, pistas e progresso
 
 - **Chegada limpa:** os painéis da corrida somem ao terminar. O resultado destaca o pódio, tempo, recorde e recompensas; a classificação completa pode ser expandida. Durante a corrida, **Ver classificação e mapa** alterna entre painéis compactos e completos.

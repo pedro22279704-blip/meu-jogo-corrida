@@ -1,0 +1,26 @@
+#menu.menu-fullscreen{background:#0b2037}
+#menu.menu-fullscreen>.menu-shell{background:radial-gradient(ellipse at 100% 0,#14566b66,transparent 55%),#0b2037}
+#menu.menu-fullscreen .menu-header{background:#102b46f5;border-color:#4586a0;padding-top:18px;padding-bottom:12px}
+#menu.menu-fullscreen h1{font-size:clamp(25px,3.2vw,40px);letter-spacing:-1.5px;font-style:italic;text-transform:uppercase}
+#menu .menu-tabs{gap:10px}#menu .menu-tabs button{border-radius:10px;letter-spacing:.4px;transition:background .15s,box-shadow .15s}
+#menu .menu-tabs [aria-selected=true]{background:#c3ff64;color:#142c43;box-shadow:0 4px 0 #72ac30}
+#menu.menu-fullscreen #page-race{width:min(1160px,100%);gap:18px;padding-top:26px}
+.race-hero{display:grid;grid-template-columns:1.2fr 1fr;align-items:center;gap:20px;padding:28px 30px;border:1px solid #65d8d577;border-radius:22px;background:linear-gradient(125deg,#25577a,#142e51 65%,#394967);box-shadow:0 10px 30px #02101f66;overflow:hidden}
+.race-hero .race-overline{font-size:10px;letter-spacing:3px;font-weight:900;color:#c4ff77}
+.race-hero h2{font-size:clamp(26px,3vw,42px);line-height:1.08;margin:12px 0;color:#fff;letter-spacing:-1px}.race-hero p{color:#d0e2ef;line-height:1.6;font-size:13px}.race-badge{display:inline-block;padding:8px 12px;border-radius:20px;background:#0e284b;color:#d6ff9d;font-size:11px;font-weight:800}
+.selected-circuit-art{position:relative;transform:rotate(-4deg);filter:drop-shadow(0 12px 0 #061c3266)}.selected-circuit-art svg{width:100%;display:block}.selected-circuit-art>strong{position:absolute;bottom:14px;left:20px;background:#0b2037e8;padding:8px 14px;border-radius:8px;font-size:15px}
+#menu .circuit-heading{font-size:12px;text-transform:uppercase;letter-spacing:2px;margin:8px 0 0;color:#c4ff77}
+.circuit-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+#menu .circuit-card{display:flex;flex-direction:column;align-items:stretch;text-align:left;background:#193650;border:2px solid #3b5d78;padding:7px 7px 12px;margin:0;border-radius:14px;min-width:0;box-shadow:0 5px 0 #051526;white-space:normal;transition:border-color .15s,background .15s}
+.circuit-card svg{width:100%;display:block;border-radius:9px}.circuit-card small{font-size:8px;letter-spacing:1px;color:#9ecad8;margin:9px 5px 5px}.circuit-card strong{font-size:14px;color:#fff;margin:0 5px}.circuit-card span{font-size:10px;color:#bdd2e2;margin:7px 5px 0}
+#menu .circuit-card[aria-pressed=true]{border-color:#c4ff77;background:#345c60;box-shadow:0 5px 0 #72ac30}
+#menu .circuit-card:hover{border-color:#d6edf3}#menu button:focus-visible{outline:3px solid #fff;outline-offset:4px}
+#menu.menu-fullscreen #page-race .option-grid{grid-template-columns:2fr 1fr}
+#menu.menu-fullscreen #page-race .menu-actions{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+#menu #page-race .menu-actions>button{display:grid;grid-template-columns:44px 1fr 20px;gap:12px;align-items:center;text-align:left;padding:20px;background:#244663;border:2px solid #50718b;border-radius:14px;white-space:normal;color:#fff}
+#menu #page-race .menu-actions>button#play{background:#c3ff64;border-color:#c3ff64;color:#152d3f}
+.mode-icon{font-size:30px;text-align:center}#menu .menu-actions strong{display:block;font-size:20px}#menu .menu-actions small{display:block;font-size:11px;font-weight:500;line-height:1.6;margin-top:5px}#menu .menu-actions>p{grid-column:1/-1;order:5}
+#menu #page-race>p:first-of-type{display:none}
+@media(max-width:800px){.circuit-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.race-hero{padding:20px;gap:12px}.race-hero h2{font-size:28px}.selected-circuit-art>strong{font-size:11px;left:10px;bottom:8px;padding:6px}}
+@media(max-width:520px){.race-hero{grid-template-columns:1fr}.selected-circuit-art{width:85%;margin:0 auto;transform:none}.race-hero h2{font-size:28px}.circuit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#menu.menu-fullscreen #page-race .option-grid,#menu.menu-fullscreen #page-race .menu-actions{grid-template-columns:1fr}.circuit-card strong{font-size:13px}#menu .menu-actions>p{grid-column:1}#menu #page-race .menu-actions>button{padding:17px}.race-hero-copy>p:not(.race-overline){margin-bottom:10px}}
+@media(prefers-reduced-motion:reduce){#menu .menu-tabs button,#menu .circuit-card{transition:none}}

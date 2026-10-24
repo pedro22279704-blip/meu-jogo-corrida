@@ -11,7 +11,7 @@ export class DrivingEffects{
  const f=frame(r.distance-.8,r.offset+side*.88);
  if(r.drifting){const p=this.marks[this.cursor++%(light?64:160)];p.life=5;p.mesh.visible=true;p.mesh.position.copy(f.p).addScaledVector(f.up,.055);p.mesh.quaternion.copy(f.quaternion).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),-Math.PI/2));p.mesh.scale.y=Math.max(.7,r.speed*(light||reduced?.18:.085));}
  // A faixa de terra é a margem externa, além do asfalto.
- if(Math.abs(r.offset)>5.4&&!reduced){const p=this.dust.find(p=>p.life<=0);if(p){p.life=.6;p.mesh.visible=true;p.mesh.position.copy(f.p).addScaledVector(f.up,.25);}}
+ if(Math.abs(r.offset)>8.4&&!reduced){const p=this.dust.find(p=>p.life<=0);if(p){p.life=.6;p.mesh.visible=true;p.mesh.position.copy(f.p).addScaledVector(f.up,.25);}}
  }
  }
 }
