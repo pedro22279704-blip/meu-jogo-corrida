@@ -20,6 +20,9 @@ export function createGugar(){
  const smile=box('Smile',[0,.76,.322],[.30,.045,.03],ink);smile.rotation.z=-.08;
  box('BigTooth',[.07,.767,.343],[.08,.065,.028],'#fff4d5');
  const hair=new THREE.Group();hair.name='CharacterHair';root.add(hair);
+ // Cobertura contínua na nuca, com cachos sobrepostos vistos pela câmera de corrida.
+ ell('BackHair',[0,1.035,-.13],[.355,.335,.245],hairColor,hair);
+ for(const [x,y,z,r] of [[-.24,1.16,-.22,.20],[0,1.23,-.25,.23],[.24,1.15,-.22,.20],[-.24,.96,-.22,.17],[0,1.00,-.30,.20],[.24,.95,-.22,.17],[-.16,.80,-.18,.14],[.08,.80,-.23,.15],[.25,.82,-.15,.12]])ell('BackCurl',[x,y,z],[r,r*.95,r*.85],hairColor,hair);
  for(const [x,y,z,r] of [[-.29,1.20,.04,.23],[-.12,1.39,-.03,.24],[.15,1.37,-.04,.25],[.33,1.22,-.03,.23],[.03,1.23,.18,.19],[-.31,1.07,-.15,.16],[.32,1.05,-.15,.15]]){const curl=ell('DarkCurl',[x,y,z],[r,r*.95,r*.9],hairColor,hair);curl.rotation.z=x;}
  const clasp=ell('BoneClasp',[.25,.50,.24],[.085,.025,.025],'#fff0d1');clasp.rotation.z=-.3;
  for(const side of [-1,1])ell('BoneClaspEnd',[.25+side*.08,.50-side*.02,.24],[.034,.04,.03],'#fff0d1');
