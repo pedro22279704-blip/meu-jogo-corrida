@@ -6,9 +6,10 @@ export class KartPreview{
   this.scene=new THREE.Scene();this.scene.add(new THREE.HemisphereLight(0xf1fcff,0x61747a,1.7));const sun=new THREE.DirectionalLight(0xffe9ca,2.2);sun.position.set(3,6,4);this.scene.add(sun);
   this.turntable=new THREE.Group();this.scene.add(this.turntable);this.camera=new THREE.PerspectiveCamera(38,1,.1,40);this.rotating=true;this.angle=.4;
  }
- setModel(source){
+ setModel(source,{driverVisible=true}={}){
   this.turntable.clear();if(!source)return;
   const model=source.clone(true);model.traverse(part=>{const original=source.getObjectByName(part.name);if(original?.userData.rest?.isQuaternion)part.quaternion.copy(original.userData.rest);});
+  if(!driverVisible)model.traverse(part=>{if(/^(Driver|Arm_[LR])([._]?\d+)?$/.test(part.name))part.visible=false;});
   const bounds=new THREE.Box3().setFromObject(model),center=bounds.getCenter(new THREE.Vector3());model.position.sub(center);this.turntable.add(model);this.radius=bounds.getSize(new THREE.Vector3()).length()/2;this.angle=.4;
  }
  update(dt,reduced){

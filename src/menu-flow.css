@@ -1,0 +1,32 @@
+#menu.menu-fullscreen[data-stage=home]{background:linear-gradient(90deg,#061629e8 0%,#0616298c 30%,#06162915 75%);pointer-events:none}
+#menu.menu-fullscreen[data-stage=home]>.menu-shell{background:transparent;min-height:100dvh}
+#menu.menu-fullscreen[data-stage=home] .menu-header{background:linear-gradient(#061b34ee,#0e2d4bb8);pointer-events:auto}
+#menu.menu-fullscreen[data-stage=home] .menu-tabs{justify-content:flex-end}
+#menu.menu-fullscreen[data-stage=home] #page-home{pointer-events:none;min-height:calc(100dvh - 160px);width:100%;max-width:none;margin:0;justify-content:center;padding:32px max(24px,calc((100vw - 1100px)/2));}
+#page-home .home-kicker{letter-spacing:3px;font-size:10px;font-weight:800;color:#d0ff91}
+#menu.menu-fullscreen[data-stage=home] .menu-actions{width:clamp(230px,26vw,340px);gap:18px;pointer-events:auto}
+#menu #page-home .menu-actions>button{display:grid;grid-template-columns:36px 1fr 20px;align-items:center;gap:14px;padding:22px 18px;min-height:80px;background:#133655eb;border:2px solid #8cbbc3;border-radius:14px;text-align:left;color:#fff;box-shadow:0 6px 0 #04121e99}
+#menu #page-home .menu-actions>button:hover,#menu #page-home .menu-actions>button:focus-visible{background:#c3ff64;color:#122840;border-color:#edffd1}
+#menu #page-home .menu-actions strong{font-size:24px;text-transform:uppercase;letter-spacing:1px}
+#menu #page-home .home-caption{position:absolute;bottom:20px;right:30px;letter-spacing:3px;font-size:10px;font-weight:900;color:#d9ffff;text-shadow:0 2px 4px #000}
+#menu .menu-heading #flowProgress{grid-column:1/-1;color:#d3ff93;font-size:13px;font-weight:800;letter-spacing:2px;margin:12px 0 0}
+#menu[data-stage=cars] #pilotPersonality,#menu[data-stage=cars] #page-pilots>p.hint{display:none}
+#menu[data-stage=cars] #page-pilots{gap:18px}
+#menu[data-stage=cars] .pilot-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+#menu[data-stage=cars] .pilot-choice img{height:120px}
+#menu[data-stage=cars] .kart-showcase{order:2}#menu[data-stage=cars] #page-pilots>fieldset{order:1}
+#menu[data-stage=cars] #page-pilots>label,#menu[data-stage=cars] #page-pilots>.hint{order:3}
+.character-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+#menu .character-card{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 12px;margin:0;min-width:0;background:#23455e;border:2px solid #739caa;border-radius:18px;white-space:normal;color:#fff;gap:14px;min-height:230px}
+.character-card img{width:100%;height:160px;object-fit:contain}.character-card .driver-original{font-size:76px}.character-card strong{font-size:17px}
+#menu .character-card:hover,#menu .character-card[aria-pressed=true]{border-color:#c3ff64;background:#365d64}
+#page-characters>label,#page-characters>#characterPreview,#page-characters>#characterBio,#page-characters>.hint{display:none!important}
+#menu[data-stage=tracks] .circuit-grid{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+#menu[data-stage=tracks] .circuit-card{min-height:220px}
+@media(max-width:650px){#menu.menu-fullscreen[data-stage=home] #page-home{padding:22px 18px;min-height:calc(100dvh - 150px)}#menu.menu-fullscreen[data-stage=home] .menu-actions{width:min(270px,80vw);gap:12px}#menu #page-home .menu-actions>button{min-height:65px;padding:16px}#menu #page-home .menu-actions strong{font-size:20px}#menu #page-home .home-caption{right:12px;bottom:8px;font-size:8px;letter-spacing:1px}.character-grid,#menu[data-stage=cars] .pilot-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#menu .character-card{min-height:190px}.character-card img{height:120px}#menu .menu-heading #flowProgress{font-size:10px;letter-spacing:1px}#menu[data-stage=tracks] .circuit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+#menu .menu-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}
+#menu .menu-tabs button[aria-selected=false]:hover{background:#52778c;color:#fff}
+#menu .pilot-choice:hover{background:#3b6470;color:#fff}
+
+#menu.menu-fullscreen:not([data-stage=home]) .menu-header{background:#102b46}

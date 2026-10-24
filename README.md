@@ -1,8 +1,16 @@
 # Kart Speed Racers
 
+## Menu principal e preparação da corrida
+
+O menu principal mostra Rápida, Copa, Duelo e Treino numa coluna sobre um panorama 3D da Avenida Neon, com karts em movimento. Opções e Desafios continuam acessíveis no cabeçalho. Movimento reduzido mantém o panorama estático.
+
+Todos os modos seguem **Carro → Piloto → Pista**. A tela de carros mostra os oito veículos sem personagens; clicar em um abre os retratos dos pilotos. Depois de escolher um piloto, clicar numa pista inicia a corrida ou a apresentação da Copa. Voltar/Esc e o botão de retorno do controle percorrem as etapas anteriores.
+
+Rápida e Treino oferecem os cinco circuitos. Copa oferece os quatro da Copa Horizonte; Duelo oferece Vale Neon e Porto Âmbar. A pista escolhida abre o campeonato, mantendo as demais etapas em ordem circular e a pontuação existente. As escolhas de carro, personagem e configurações continuam salvas no navegador.
+
 ## Menu de circuitos e drift
 
-O menu tem cartões com os cinco traçados, mapa ampliado da seleção e atalhos para corrida rápida, Copa Horizonte, duelo clássico e treino. Todas as abas mantêm tela inteira, cabeçalho fixo e rolagem vertical, inclusive no celular.
+A etapa Pista tem cartões com os cinco traçados, mapa ampliado da seleção e atalhos para corrida rápida, Copa Horizonte, duelo clássico e treino. Todas as abas mantêm tela inteira, cabeçalho fixo e rolagem vertical, inclusive no celular.
 
 O asfalto passou de 12 para 18 unidades de largura; barreiras, largada, túneis e estruturas dos viadutos acompanham a ampliação. Os percursos, carros, nitro, campeonatos e progresso existente continuam disponíveis. Os fantasmas e backups também aceitam as novas faixas externas.
 
@@ -18,13 +26,13 @@ Para derrapar, acelere, vire e segure Espaço (A/LB no controle). Um salto curto
 
 ## Carro Barril
 
-O **Carro Barril** é a oitava escolha da aba **Pilotos**, adicionada depois do Carro 10 sem substituir nenhum veículo. O modelo original segue o desenho de referência: aduelas de madeira formando um barril curvo, duas cintas metálicas com rebites e quatro rodas abertas de raios. É construído em `src/barrel-car.js`, sem arquivos ou dependências externos.
+O **Carro Barril** é a oitava escolha da etapa **Carro**, adicionada depois do Carro 10 sem substituir nenhum veículo. O modelo original segue o desenho de referência: aduelas de madeira formando um barril curvo, duas cintas metálicas com rebites e quatro rodas abertas de raios. É construído em `src/barrel-car.js`, sem arquivos ou dependências externos.
 
 As rodas giram e esterçam, os braços acompanham o volante e a chegada tem comemoração. Dona Olinda, Tico Rebite e Juma Vagalume também podem dirigir o barril. Aceleração, drift, nitro e colisões usam as mesmas regras dos outros carros. Os índices anteriores e as chaves de recordes/conquistas são preservados. Ouro solar continua exigindo os seis pilotos originais, mantendo conquistas existentes. O campeonato aceita oito participantes, com pontos 10 / 7 / 5 / 3 / 2 / 1 / 0 / 0.
 
 ## Novos personagens
 
-Na aba **Pilotos**, escolha um dos sete karts e depois **Personagem no seu kart**:
+Na etapa **Carro**, escolha um dos oito karts. Na etapa **Piloto**, escolha o personagem:
 
 - **Dona Olinda**: inventora aposentada, cachos prateados assimétricos, laço coral lateral, brincos e olhar determinado.
 - **Tico Rebite**: mecânico de topete de cobre, óculos redondos e sorriso torto.
