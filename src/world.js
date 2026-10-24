@@ -10,7 +10,7 @@ export function createWorld(scene,id,{quality='pretty'}={}){
  const root=new THREE.Group();scene.add(root);let alive=true;
  const TRACK_LENGTH=trackLength(id),rebuilt=!!TRACKS[id]?.revision;
  const harbor=id==='harbor',light=quality==='light',theme=TRACKS[id],windmills=[],loader=new GLTFLoader(),obstacles=[],ambient=[];
- scene.background=new THREE.Color(theme.sky);scene.fog=new THREE.Fog(theme.sky,120,340);
+ scene.background=new THREE.Color(theme.sky);scene.fog=new THREE.Fog(theme.sky,id==='night'?220:120,id==='night'?650:340);
  for(const light of scene.children){if(light.isHemisphereLight)light.intensity=id==='night'?1.2:1.7;if(light.isDirectionalLight){light.intensity=id==='night'?1.1:2.2;light.color.set(id==='night'?'#a9b9ff':'#ffe9ca');}}
  const mat=toonMaterial;
  function mesh(geometry,color,parent=root){const object=new THREE.Mesh(geometry,mat(color));parent.add(object);return object;}

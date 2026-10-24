@@ -258,6 +258,12 @@ As corridas continuam com três voltas, todos os oito carros, drift e nitro. Ite
 
 Os novos tempos e fantasmas usam escopos `fair-r2-*`, `sawmill-r2-*` e `night-r2-*`. Os recordes e fantasmas dos traçados antigos permanecem armazenados e também entram no backup; não são comparados com os novos. Backups anteriores continuam aceitos.
 
+### Metrópole da Avenida Neon
+
+A Avenida Neon tem cenário urbano original inspirado na silhueta de Nova York: arranha-céus com alturas variadas, torres em degraus, pináculos, caixas-d’água, escadas de incêndio e fachadas com janelas iluminadas. Edifícios próximos e torres mais distantes formam a paisagem ao longo da volta. O modo Leve reduz a quantidade de prédios e detalhes; as janelas usam instâncias compartilhadas para reduzir o custo de desenho. A visibilidade distante foi ampliada apenas nesta pista.
+
+O posicionamento dos edifícios mantém distância de todo o asfalto, inclusive dos dois trechos do cruzamento em oito. Traçado, túneis, viaduto, atalhos, recordes e física permanecem iguais.
+
 ### Abertura de Kart Speed Racers
 
 Ao abrir o jogo, uma tela de título central mostra o nome em destaque e três karts reais em 3D: Bia Faísca, Carro 10 e Carro Barril. **Ligar motores** (clique, toque, Enter ou A no controle) toca uma partida de motor de 2,4 segundos, com pulsos de combustão, ressonância de escapamento e duas aceleradas de giro progressivo e inicia uma composição original de oito compassos a 152 BPM, com baixo, bateria e fanfarra sintetizada. Depois, **Entrar no jogo** abre o menu. **Pular abertura** ou Esc leva diretamente ao menu, sem espera obrigatória. Em **Opções → Ver abertura**, a apresentação pode ser revista.
