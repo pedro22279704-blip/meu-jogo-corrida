@@ -292,3 +292,14 @@ Ao estabelecer um novo recorde, o jogo tenta salvar também a trajetória do jog
 O sétimo veículo, **Carro 10**, é inspirado no desenho de referência: carroceria azul-violeta, piloto vermelho, pneus pretos expostos, escudo frontal cinza, placa branca com o número 10 e aerofólio traseiro com suportes. Selecione-o na aba **Pilotos**. Usa os mesmos controles e física dos karts originais: Espaço + curva para drift, Shift para nitro e E para item.
 
 O modelo cartoon é criado em `src/car-10.js`, sem downloads ou exportação pelo Blender. Os seis modelos GLB originais permanecem intactos. Corridas e campeonato agora têm sete participantes; o sétimo lugar soma zero pontos. Ouro solar continua exigindo vitórias com os seis pilotos originais, preservando as conquistas anteriores; vitórias e fantasmas do Carro 10 também são salvos.
+
+
+### Copa Horizonte e apresentação das pistas
+
+Em **Correr → Copa Horizonte · 4 pistas**, dispute Vale Neon, Porto Âmbar, Vila da Feira e Serraria dos Barris, nesta ordem, com o mesmo piloto e dificuldade. Cada etapa tem três voltas e oito pilotos. A pontuação por colocação é **15 / 12 / 10 / 9 / 8 / 7 / 6 / 5**; vence a maior soma após quatro etapas. Empates usam a menor soma das colocações e depois o resultado da última corrida. A próxima etapa espera todos terminarem e cada corrida pontua uma única vez. Na final, o pódio usa a classificação da copa e exibe o troféu. O campeonato curto de duas pistas continua disponível.
+
+Antes da primeira largada, uma apresentação de aproximadamente 29 segundos percorre as quatro pistas com três tomadas por pista: panorama aéreo, passagem próxima do circuito e enquadramento da largada. As etapas seguintes têm uma introdução curta da pista atual. A música da abertura acompanha a cena. **Pausar** ou P/Start interrompe apresentação e áudio; **Pular apresentação**, Esc ou A/B leva à contagem de largada; **Voltar ao menu** abandona a copa e restaura a pista selecionada antes da cena. Não há espera obrigatória.
+
+A apresentação usa o próprio mundo 3D do jogo, com uma pista carregada por vez, proteção contra obstruções nas câmeras próximas e uma interface adaptada ao celular. Movimento reduzido usa vistas aéreas estáticas, quatro segundos por pista. Ocultar a aba congela a cena. A copa é uma sessão: sair ao menu abandona seus pontos, enquanto recordes e conquistas das corridas continuam seguindo as regras existentes.
+
+Referência de formato: [Grand Prix no guia oficial de Mario Kart 8 Deluxe](https://www.nintendo.com/jp/ichikara/aabpa/index_en.html). Nome, cenários, interface, troféu e trilha utilizados são os do Kart Speed Racers.
