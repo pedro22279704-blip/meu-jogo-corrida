@@ -1,3 +1,4 @@
+import {createRoadRibbon} from './road-surface.js';
 import * as THREE from 'three';
 import {addTrackStructures} from './track-structures.js';
 import {addTrackDetails} from './track-details.js';
@@ -34,8 +35,8 @@ function shortcutFrame(distance,offset=0){
  return {p,tangent,normal,up,quaternion:new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(normal,up,tangent))};
 }
 const roadSteps=rebuilt?Math.ceil(physicalLength/2.5):500;
-function ribbon(width,color,y){const positions=[],indices=[];for(let i=0;i<=roadSteps;i++){for(const side of [-1,1]){const {p}=track(i/roadSteps*TRACK_LENGTH,side*width/2);positions.push(p.x,p.y+y,p.z);}if(i<roadSteps&&!(width>=100&&i/roadSteps*TRACK_LENGTH>=shortcut.start&&i/roadSteps*TRACK_LENGTH<=shortcut.end)){const j=i*2;indices.push(j,j+2,j+1,j+1,j+2,j+3);}}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setIndex(indices);g.computeVertexNormals();return mesh(g,color);}
-ribbon(rebuilt?21:harbor?23:100,harbor?'#e0bb86':id==='night'?'#303950':'#89c57a',-.25);ribbon(16,id==='night'?'#6a71ab':'#ebd7ac',.01);ribbon(12,id==='night'?'#53677b':'#597886',.03);
+function ribbon(width,color,y,innerWidth=0,layer=0){const object=mesh(createRoadRibbon(track,TRACK_LENGTH,roadSteps,width,{innerWidth,height:y,skip:d=>width>=100&&d>=shortcut.start&&d<=shortcut.end}),color);object.material.polygonOffset=true;object.material.polygonOffsetFactor=layer;object.material.polygonOffsetUnits=layer;return object;}
+ribbon(rebuilt?21:harbor?23:100,harbor?'#e0bb86':id==='night'?'#303950':'#89c57a',-.25,16,3);ribbon(16,id==='night'?'#6a71ab':'#ebd7ac',.01,12,2);ribbon(12,id==='night'?'#53677b':'#597886',.04,0,-1);
 const curbCount=rebuilt?Math.ceil(physicalLength/4):130;
 for(let i=0;i<curbCount;i++){for(const side of [-1,1]){if(side===1&&i/curbCount*TRACK_LENGTH>=shortcut.start&&i/curbCount*TRACK_LENGTH<=shortcut.end)continue;const {p,tangent}=track(i/curbCount*TRACK_LENGTH,side*6.5);const curb=mesh(new THREE.BoxGeometry(.65,.16,physicalLength/curbCount*.8),i%2?'#f4edcf':'#ef806b');curb.position.copy(p);curb.position.y+=.1;curb.rotation.y=Math.atan2(tangent.x,tangent.z);}}
 // Barreiras contínuas acompanham o limite de colisão dos karts.
