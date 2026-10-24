@@ -1,3 +1,4 @@
+import {addNeonCity} from './neon-city.js';
 import * as THREE from 'three';
 import {trackLength} from './tracks.js';
 import {toonMaterial} from './cartoon.js';
@@ -32,12 +33,6 @@ export function addTrackDetails(root,track,id,light){
   if(i%3===0){box(g,[6,3.5,4],'#b47648',[0,1.75,-6]);const roof=part(g,new THREE.ConeGeometry(4.7,2,4),'#507d79',[0,4,-6]);roof.rotation.y=Math.PI/4;sign(g,'SERRARIA','#ffe1a4',[0,3,-3.9]);
    const wheel=part(g,new THREE.TorusGeometry(1.2,.18,6,18),'#c48e51',[4,1.6,-5]);for(let j=0;j<6;j++){const paddle=box(wheel,[.25,2.4,.3],'#a86f42',[0,0,0]);paddle.rotation.z=j*Math.PI/3;}animate.push(t=>wheel.rotation.z=-t*.6);}
  }
- if(id==='night')for(let i=0;i<count+4;i++){
-  const g=place(15+i*45,i%2?17:-17),color=['#68e2ec','#f888cf','#c4a1ff'][i%3],h=5+i%4*2;
-  box(g,[6,h,4],'#354263',[0,h/2,0]);
-  for(let floor=0;floor<3;floor++)for(let j=0;j<3;j++)part(g,new THREE.BoxGeometry(.7,.7,.06),color,[-1.8+j*1.8,1.4+floor*1.3,2.04],true);
-  const s=sign(g,['VALE NEON','TURBO CLUB','BOA CORRIDA','KARTS'][i%4],color,[0,h+1,0]);animate.push(t=>s.material.color.setScalar(.86+.14*Math.sin(t*.7+i)));
-  for(const x of [-2.9,2.9])part(g,new THREE.BoxGeometry(.07,h,.07),color,[x,h/2,2.06],true);
- }
+ if(id==='night')addNeonCity(root,track,light);
  return time=>{for(const update of animate)update(time);};
 }

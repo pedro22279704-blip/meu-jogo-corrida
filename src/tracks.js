@@ -4,7 +4,7 @@ export const TRACKS={
  harbor:{name:'Porto Âmbar',sky:'#efad91',ground:'#407d89'},
  fair:{name:'Vila da Feira',sky:'#a3dce4',ground:'#91b56c',length:1440,revision:2,description:'Chicanes entre praças e duas galerias cobertas. 1,44 km por volta.'},
  sawmill:{name:'Serraria dos Barris',sky:'#d4bfa0',ground:'#8caa76',length:1680,revision:2,description:'Subida da serra, curvas em S, viaduto e dois túneis na pedreira. 1,68 km por volta.'},
- night:{name:'Avenida Neon',sky:'#151c40',ground:'#28314c',length:1900,revision:2,description:'Circuito em oito: cruze por cima e depois por baixo do viaduto, entre túneis iluminados. 1,90 km por volta.'},
+ night:{name:'Avenida Neon',sky:'#151c40',ground:'#28314c',length:1900,revision:2,description:'Uma metrópole de arranha-céus iluminados, com circuito em oito, viaduto e túneis neon. 1,90 km por volta.'},
 };
 export const trackLength=id=>TRACKS[id]?.length??760;
 export const lapProgress=(distance,id)=>((distance%trackLength(id))+trackLength(id))%trackLength(id);
