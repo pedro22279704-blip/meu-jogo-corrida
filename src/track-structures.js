@@ -1,9 +1,10 @@
+import {addNeonInfrastructure} from './neon-infrastructure.js';
 import * as THREE from 'three';
 import {toonMaterial} from './cartoon.js';
 import {TUNNELS,BRIDGES,trackLength} from './tracks.js';
 
 // Every section follows the same road frame as the karts, including elevation.
-export function addTrackStructures(root,track,id,obstacles){
+export function addTrackStructures(root,track,id,obstacles,light=false){
  const length=trackLength(id),night=id==='night';
  const wallColor=night?'#334169':id==='fair'?'#ca936b':'#786a62';
  const accent=night?'#71f2ef':id==='fair'?'#ffe49a':'#e7bd78';
@@ -29,7 +30,8 @@ export function addTrackStructures(root,track,id,obstacles){
    for(const side of [-1,1]){const pillar=part(g,new THREE.BoxGeometry(1.1,2,1.2),accent);pillar.position.set(side*9.2,1,0);}
   }
  }
- for(const spec of BRIDGES[id]??[])for(let d=spec.start*length;d<spec.end*length;d+=8){const g=frameGroup(d),deck=part(g,new THREE.BoxGeometry(17,.8,8.2),night?'#505c83':'#9a7654');deck.position.y=-.7;
+ if(night)addNeonInfrastructure(root,track,light,obstacles);
+ for(const spec of (night?[]:BRIDGES[id]??[]))for(let d=spec.start*length;d<spec.end*length;d+=8){const g=frameGroup(d),deck=part(g,new THREE.BoxGeometry(17,.8,8.2),night?'#505c83':'#9a7654');deck.position.y=-.7;
   // Keep the lower lane of the figure-eight clear of bridge supports.
   if(night&&Math.abs(d/length-.25)<.035)continue;
   const height=Math.max(1,track(d).p.y-1);for(const side of [-1,1]){const support=part(g,new THREE.BoxGeometry(1,height,1),wallColor);support.position.set(side*7.8,-height/2-1,0);}
