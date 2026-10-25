@@ -7,7 +7,7 @@ import {exportProgress,parseBackup} from '../src/progress-backup.js';
 function solo(){const r=[createRace()[0]];Object.assign(r[0],{speed:30,offset:0});return r;}
 test('drift mantém o lado inicial e carrega com contravolante e direção neutra',()=>{
  const r=solo();for(let i=0;i<12;i++)stepRace(r,{up:true,steer:1,drift:true},1/60,i/60);
- assert.ok(r[0].driftHop>0);const inside=r[0].angle;
+ assert.equal(r[0].driftHop,0);const inside=r[0].angle;
  for(let i=0;i<18;i++)stepRace(r,{up:true,steer:-1,drift:true},1/60,i/60);
  assert.ok(r[0].drifting&&r[0].angle>0&&r[0].angle<inside);
  for(let i=0;i<25;i++)stepRace(r,{up:true,steer:0,drift:true},1/60,i/60);

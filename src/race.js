@@ -1,5 +1,4 @@
 import {courseHeading,steerManually,wrapAngle} from './manual-steering.js';
-import {flightHeight} from './arcade-race.js';
 import {trackLength} from './tracks.js';
 import {updateDrafting} from './drafting.js';
 import {driftLevel,DRIFT_LEVELS} from './drift.js';
@@ -28,7 +27,7 @@ function barrier(r){
 // Corpos arcade alinhados à pista: resolve também encontros entre voltas diferentes.
 export function resolveCollisions(racers){
  for(let pass=0;pass<4;pass++)for(let i=0;i<racers.length;i++)for(let j=i+1;j<racers.length;j++){
-  const a=racers[i],b=racers[j];if(a.finished||b.finished||!!a.shortcut!==!!b.shortcut||Math.abs(flightHeight(a)-flightHeight(b))>2.4)continue;
+  const a=racers[i],b=racers[j];if(a.finished||b.finished||!!a.shortcut!==!!b.shortcut)continue;
   const dz=wrapGap(a.distance,b.distance,trackLength(a.settings?.track)),dx=a.offset-b.offset;
   const overlapZ=3.5-Math.abs(dz),overlapX=2.2-Math.abs(dx);
   if(overlapZ<=0||overlapX<=0)continue;
@@ -88,8 +87,8 @@ export function stepRace(racers,input,dt,time,surface=null){
    const steer=Number.isFinite(input.steer)?clamp(input.steer,-1,1):Number(!!input.left)-Number(!!input.right);
    const wasDrifting=r.drifting;
    r.driftHop=Math.max(0,(r.driftHop??0)-dt);
-   r.drifting=!(r.airTime>0)&&!!input.drift&&r.speed>12&&(wasDrifting||Math.abs(steer)>.05);
-   if(r.drifting&&!wasDrifting){r.driftDirection=Math.sign(steer);r.driftHop=.3;}
+   r.drifting=!!input.drift&&r.speed>12&&(wasDrifting||Math.abs(steer)>.05);
+   if(r.drifting&&!wasDrifting){r.driftDirection=Math.sign(steer);r.driftHop=0;}
    if(r.drifting&&!r.driftDirection)r.driftDirection=Math.sign(steer)||1;
    r.miniTurbo=Math.max(0,r.miniTurbo-dt);
    if(r.drifting)r.driftCharge=clamp(r.driftCharge+dt*.65,0,1);

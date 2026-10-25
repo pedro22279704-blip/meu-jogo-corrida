@@ -54,7 +54,4 @@ test('osso lançado no atalho permanece na rota e ignora rival na pista principa
  for(let i=0;i<8;i++)stepItems(racers,world,{},.05,i*.05);
  assert.equal(racers[1].lastAttack.item,'bone');assert.equal(racers[2].lastAttack,null);
 });
-test('osso lançado na planagem desce antes de acertar karts no chão',()=>{
- const {racers,world}=setup();Object.assign(racers[0],{airTime:1.9,airDuration:3.8,airKind:'glide'});racers[1].distance=110;
- stepItems(racers,world,{item:true},.1,0);assert.ok(world.bones[0].height>9);assert.equal(racers[1].lastAttack,null);
-});
+test('osso não herda altura de voo removido',()=>{const {racers,world}=setup();Object.assign(racers[0],{airTime:1.9,airDuration:3.8,airKind:'glide'});racers[1].distance=110;racers[1].offset=0;stepItems(racers,world,{item:true},.1,0);assert.equal(world.bones[0].height,0);stepItems(racers,world,{},.1,.1);assert.equal(racers[1].lastAttack.item,'bone');});
