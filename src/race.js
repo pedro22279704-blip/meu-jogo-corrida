@@ -1,3 +1,4 @@
+import {courseHeading,steerManually,wrapAngle} from './manual-steering.js';
 import {flightHeight} from './arcade-race.js';
 import {trackLength} from './tracks.js';
 import {updateDrafting} from './drafting.js';
@@ -21,7 +22,7 @@ function barrier(r){
   r.offset=Math.sign(r.offset)*ROAD_LIMIT;
   if(Math.sign(r.slide)===Math.sign(r.offset))r.slide*=-.22;
   if(r.hit<=0)r.collisions++;
-  r.angle*=.55;r.speed*=.82;r.hit=.3;
+  if(r.index===0){r.wallContact=true;r.speed*=.3;r.slide=0;r.drifting=false;r.driftCharge=0;}else{r.angle*=.55;r.speed*=.82;}r.hit=.3;
  }
 }
 // Corpos arcade alinhados à pista: resolve também encontros entre voltas diferentes.
@@ -96,26 +97,29 @@ export function stepRace(racers,input,dt,time,surface=null){
     const level=driftLevel(r.driftCharge);if(!input.drift&&level>0){r.turboLevel=level;r.miniTurbo=DRIFT_LEVELS[level-1].duration;r.goodDrifts++;}
     r.driftCharge=0;
    }
-   if(r.drifting){
-    // The initiating turn stays locked; countersteering widens the slide without cancelling charge.
-    const target=r.driftDirection*(.58+.22*steer*r.driftDirection)*r.settings.sensitivity;
-    r.angle+=(target-r.angle)*(1-Math.exp(-dt*7));
-   }else r.angle+=steer*r.settings.sensitivity*dt*1.18-r.angle*dt*4.2;
-   r.angle=clamp(r.angle,-.85,.85);
+   steerManually(r,steer,dt);
    const boost=input.boost&&input.up&&r.nitro>1&&r.speed>0;
    r.boosting=!!boost||r.miniTurbo>0||r.trackBoost>0;
    r.nitro=clamp(r.nitro+dt*(boost?-27:r.drifting?20:7),0,100);
    r.speed+=dt*(input.up?(boost?24:r.trackBoost>0?23:r.miniTurbo>0?22:r.draftActive?18:14):input.down?-26:r.miniTurbo>0?12:-6);
    r.speed=clamp(r.speed,input.down?-7:0,boost?49:r.trackBoost>0?44:r.miniTurbo>0?DRIFT_LEVELS[Math.max(0,r.turboLevel-1)].speed:r.draftActive?36:32+(r.coins??0)*.25);
-   const targetSlide=Math.sin(r.angle)*r.speed*(r.drifting?.22:.8);
+   const targetSlide=Math.sin(r.heading)*r.speed;
    r.slide+=(targetSlide-r.slide)*(1-Math.exp(-dt*(r.drifting?2.2:9)));
    r.offset+=r.slide*dt;
   }else driveAI(r,racers,dt,time);
   if(surface){const {grade}=surface(r.distance);r.speed-=grade*28*dt;r.speed=clamp(r.speed,-7,r.boosting?49:43);}
   if(r.slow>0)r.speed=Math.min(r.speed,21);
-  barrier(r);
+  r.wallContact=false;barrier(r);
+  const previousHeading=r.index===0?courseHeading(r.settings.track,r.distance,r.shortcut):0;
   const route=shortcutState(r);if(r.shortcutFailed)r.speed=Math.min(r.speed,18);
-  r.distance+=r.speed*(r.drifting?Math.max(.94,Math.cos(r.angle)):Math.cos(r.angle))*dt*route;
+  if(r.index===0){
+   const heading=r.heading??r.angle,outward=r.offset*Math.sin(heading)*Math.sign(r.speed)>0;
+   // A barrier stops forward progress until the player steers away or reverses.
+   if(Math.abs(r.offset)>=ROAD_LIMIT-.015&&outward){r.wallContact=true;r.speed=0;r.slide=0;}
+   else r.distance+=r.speed*Math.cos(heading)*dt*route;
+   const turn=wrapAngle(courseHeading(r.settings.track,r.distance,r.shortcut)-previousHeading);
+   r.heading=wrapAngle(heading-turn);r.angle=wrapAngle(r.heading+(r.driftSlip??0));
+  }else r.distance+=r.speed*Math.cos(r.angle)*dt*route;
  }
  resolveCollisions(racers);
  for(const r of racers)if(!r.finished&&r.distance>=trackLength(r.settings?.track)*LAPS){

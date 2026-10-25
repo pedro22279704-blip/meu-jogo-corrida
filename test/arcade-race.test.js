@@ -1,3 +1,4 @@
+import {driveInput} from './drive-helper.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
@@ -44,5 +45,5 @@ test('asfalto tem UVs finitas e acostamento continua separado',()=>{
  const frame=(d,o)=>({p:new THREE.Vector3(o,0,d)}),g=createRoadRibbon(frame,100,20,18);assert.equal(g.attributes.uv.count,g.attributes.position.count);assert.ok([...g.attributes.uv.array].every(Number.isFinite));
 });
 test('simulação dos cinco circuitos mantém voo, moedas e posição finitos',()=>{
- for(const track of ['valley','harbor','fair','sawmill','night']){const r=racer(track),c=createArcadeCourse(track);let flew=false,boosted=false;for(let i=0;i<6000&&!r.finished;i++){const input={up:true,drift:i%100===1};stepRace([r],input,.05,i*.05);stepArcade([r],c,input,.05);flew||=r.airTime>0;boosted||=r.trackBoost>0;assert.ok(Number.isFinite(r.distance)&&Number.isFinite(flightHeight(r)));assert.ok(r.coins>=0&&r.coins<=10);}assert.ok(flew&&boosted);assert.equal(r.finished,true);}
+ for(const track of ['valley','harbor','fair','sawmill','night']){const r=racer(track),c=createArcadeCourse(track);let flew=false,boosted=false;for(let i=0;i<6000&&!r.finished;i++){const input=driveInput(r);stepRace([r],input,.05,i*.05);stepArcade([r],c,input,.05);flew||=r.airTime>0;boosted||=r.trackBoost>0;assert.ok(Number.isFinite(r.distance)&&Number.isFinite(flightHeight(r)));assert.ok(r.coins>=0&&r.coins<=10);}assert.ok(flew&&boosted);assert.equal(r.finished,true);}
 });

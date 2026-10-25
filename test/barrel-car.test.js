@@ -1,3 +1,4 @@
+import {driveInput} from './drive-helper.js';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
@@ -31,12 +32,12 @@ test('barril tem aduelas, duas cintas, quatro rodas de raios e rig animado',()=>
 
 test('Carro Barril usa as mesmas regras de aceleração, drift e nitro do Carro 10',()=>{
  const a=[createRace({pilot:7})[0]],b=[createRace({pilot:6})[0]];
- for(let i=0;i<300;i++){const input={up:true,boost:i>=180&&i<210,drift:i>=220&&i<260,steer:i>=220&&i<260?.1:0};for(const r of [a,b])stepRace(r,input,1/60,i/60);if(i===209)assert.ok(a[0].boosting&&a[0].nitro<100);if(i===260)assert.ok(a[0].miniTurbo>0);}
+ for(let i=0;i<300;i++){const input=driveInput(a[0],{boost:i>=180&&i<210});if(i>=220&&i<260){input.drift=true;input.steer=.1;}for(const r of [a,b])stepRace(r,input,1/60,i/60);if(i===209)assert.ok(a[0].boosting&&a[0].nitro<100);if(i===260)assert.ok(a[0].miniTurbo>0);}
  for(const key of ['speed','nitro','distance','miniTurbo','driftCharge'])assert.equal(a[0][key],b[0][key]);assert.ok(a[0].goodDrifts>0);
 });
 
 test('oito carros terminam campeonato sem pontuação inválida e vitória preserva conquistas',()=>{
- const cup=createCup(),race=createRace({pilot:7});for(let i=0;i<14000;i++)stepRace(race,{up:true},1/60,i/60);assert.ok(race.every(r=>r.finished));
+ const cup=createCup(),race=createRace({pilot:7});for(let i=0;i<14000;i++)stepRace(race,driveInput(race[0]),1/60,i/60);assert.ok(race.every(r=>r.finished));
  assert.ok(scoreCup(cup,orderRacers(race)));cup.round=1;assert.ok(scoreCup(cup,[...orderRacers(race)].reverse()));assert.equal(cupStandings(cup).length,8);assert.ok(cup.scores.every(Number.isFinite));
  const s=storage();s.setItem('vale-neon-challenges-v1',JSON.stringify({clean:true,drift:true,wins:[0,1,2,3,4,5,6]}));finishChallenges(s,race[0],1);
  const p=readChallenges(s);assert.equal(p.wins.length,8);assert.ok(unlockedPaints(p).some(p=>p.id==='champion'));

@@ -1,3 +1,4 @@
+import {driveInput} from './drive-helper.js';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
@@ -17,7 +18,7 @@ test('etapas esperam todos, pontuam uma vez e não avançam além da final',()=>
  assert.equal(cup.scores[0],60);assert.equal(cupStandings(cup)[0].pilot,0);assert.equal(cup.results.length,4);assert.equal(scoreCup(cup,race),false);
 });
 test('os oito pilotos completam as quatro corridas com itens e acumulam a copa inteira',()=>{
- const cup=createCup('horizon');do{const track=cup.tracks[cup.round],race=createRace({track,pilot:7,difficulty:'medium'}),items=createItems({track});for(let i=0;i<24000&&!race.every(r=>r.finished);i++){stepRace(race,{up:true},1/60,i/60,d=>surfaceProfile(d,track));stepItems(race,items,{item:i%180===0},1/60,i/60);}assert.ok(race.every(r=>r.finished),track);assert.ok(scoreCup(cup,orderRacers(race)));}while(advanceCup(cup));assert.ok(cupComplete(cup));assert.equal(cup.scores.reduce((a,b)=>a+b,0),HORIZON_POINTS.reduce((a,b)=>a+b,0)*4);assert.equal(new Set(cupStandings(cup).map(r=>r.pilot)).size,8);
+ const cup=createCup('horizon');do{const track=cup.tracks[cup.round],race=createRace({track,pilot:7,difficulty:'medium'}),items=createItems({track});for(let i=0;i<24000&&!race.every(r=>r.finished);i++){stepRace(race,driveInput(race[0]),1/60,i/60,d=>surfaceProfile(d,track));stepItems(race,items,{item:i%180===0},1/60,i/60);}assert.ok(race.every(r=>r.finished),track);assert.ok(scoreCup(cup,orderRacers(race)));}while(advanceCup(cup));assert.ok(cupComplete(cup));assert.equal(cup.scores.reduce((a,b)=>a+b,0),HORIZON_POINTS.reduce((a,b)=>a+b,0)*4);assert.equal(new Set(cupStandings(cup).map(r=>r.pilot)).size,8);
 });
 test('apresentação percorre doze tomadas e movimento reduzido usa quatro vistas estáticas',()=>{
  for(let i=0;i<12;i++){const frame=tourFrame((i+.1)*TOUR_SHOT_SECONDS,HORIZON_TRACKS);assert.equal(frame.track,HORIZON_TRACKS[Math.floor(i/3)]);assert.equal(frame.shot,i%3);assert.equal(frame.done,false);}assert.ok(tourFrame(12*TOUR_SHOT_SECONDS,HORIZON_TRACKS).done);
