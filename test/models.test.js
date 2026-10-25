@@ -18,5 +18,5 @@ test('relevo e inclinação contínuos na linha de chegada',()=>{const a=surface
 test('subida reduz e descida aumenta velocidade, e corrida completa continua possível',()=>{
  const uphill=[createRace()[0]],downhill=[createRace()[0]];for(const r of [uphill,downhill]){r[0].speed=20;r[0].offset=0;}
  stepRace(uphill,{up:true},.05,0,()=>({grade:.04}));stepRace(downhill,{up:true},.05,0,()=>({grade:-.04}));assert.ok(uphill[0].speed<downhill[0].speed);
- const racers=createRace();for(let i=0;i<14000;i++)stepRace(racers,driveInput(racers[0]),1/60,i/60,surfaceProfile);assert.ok(racers.every(r=>r.finished));
+ const racers=createRace();for(let i=0;i<20000;i++)stepRace(racers,driveInput(racers[0]),1/60,i/60,surfaceProfile);assert.ok(racers.every(r=>r.finished));
 });

@@ -13,7 +13,7 @@ export const NAMES = PILOTS.map((name,i)=>(i===0?'Você · ':'')+name);
 export const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
 export function createRace(options={}){
  const settings=normalizeSettings(options),ids=[settings.pilot,...PILOTS.map((_,i)=>i).filter(i=>i!==settings.pilot)];
- return ids.map((pilot,i)=>({name:(i===0?'Você · ':'')+PILOTS[pilot],pilot,settings,stats:vehicleStats({...settings,pilot}),environment:'ground',style:['defender','attacker','explorer','attacker','explorer','defender','attacker','explorer'][pilot],draft:0,draftActive:false,collisions:0,goodDrifts:0,shortcut:false,shortcutLap:-1,shortcutFailed:false,turboLevel:0,lastAttack:null,shield:0,slow:0,boneSpin:0,item:i===0&&settings.character==='gugar'?'bone':null,itemPressed:false,index:i,distance:-Math.floor(i/2)*4-9,speed:0,offset:i%2?2.4:-2.4,nitro:100,coins:0,coinsCollected:0,trackBoost:0,airTime:0,airDuration:1,airKind:null,trickTimer:0,trick:false,angle:0,slide:0,finished:false,finishTime:null,drifting:false,driftDirection:0,driftHop:0,driftCharge:0,miniTurbo:0,boosting:false,hit:0,aiLane:i%2?2.4:-2.4}));
+ return ids.map((pilot,i)=>({name:(i===0?'Você · ':'')+PILOTS[pilot],pilot,settings,stats:vehicleStats({...settings,pilot}),environment:'ground',style:['defender','attacker','explorer','attacker','explorer','defender','attacker','explorer'][pilot],draft:0,draftActive:false,collisions:0,goodDrifts:0,shortcut:false,shortcutLap:-1,shortcutFailed:false,turboLevel:0,lastAttack:null,shield:0,slow:0,boneSpin:0,item:i===0&&settings.character==='gugar'?'bone':null,itemPressed:false,index:i,distance:-Math.floor(i/2)*4-9,speed:0,offset:i%2?2.4:-2.4,coins:0,coinsCollected:0,trackBoost:0,airTime:0,airDuration:1,airKind:null,trickTimer:0,trick:false,angle:0,slide:0,finished:false,finishTime:null,drifting:false,driftDirection:0,driftHop:0,driftCharge:0,miniTurbo:0,boosting:false,hit:0,aiLane:i%2?2.4:-2.4}));
 }
 export function orderRacers(racers){return [...racers].sort((a,b)=>a.finished&&b.finished?a.finishTime-b.finishTime:a.finished?-1:b.finished?1:b.distance-a.distance);}
 export function lapOf(r){return clamp(Math.floor(Math.max(0,r.distance)/trackLength(r.settings?.track))+1,1,LAPS);}
@@ -57,11 +57,10 @@ function driveAI(r,racers,dt,time){
  const packAdjustment=clamp(gapToPlayer/12,-4,4);
  let targetSpeed=normalTopSpeed(r)-.2+difficulty.pace+r.index*.12+Math.sin(time*.8+r.index)*.6+packAdjustment;
  r.miniTurbo=Math.max(0,r.miniTurbo-dt);
- const turboWindow=(time+r.index*1.7)%9<difficulty.turbo;
- r.boosting=(turboWindow&&r.nitro>8||r.miniTurbo>0)&&r.speed>18;
+ r.boosting=(r.miniTurbo>0||r.trackBoost>0)&&r.speed>18;
  if(r.trackBoost>0){targetSpeed=44;r.boosting=true;}
  if(r.draftActive)targetSpeed+=4;
- if(r.boosting)targetSpeed=42.5+difficulty.pace+clamp(gapToPlayer/20,-3,2);
+ if(r.miniTurbo>0)targetSpeed=Math.max(targetSpeed,DRIFT_LEVELS[Math.min(DRIFT_LEVELS.length-1,Math.max(0,r.turboLevel-1))].speed);
  if(ahead&&Math.abs(ahead.other.offset-r.offset)<2.6){
   const candidates=[-7,-3.5,0,3.5,7].map(lane=>({lane,clear:!racers.some(o=>o!==r&&!o.finished&&Math.abs(wrapGap(o.distance,r.distance,length))<12&&Math.abs(o.offset-lane)<2.4)}));
   const choice=candidates.filter(c=>c.clear).sort((a,b)=>Math.abs(a.lane-r.offset)-Math.abs(b.lane-r.offset))[0];
@@ -69,7 +68,6 @@ function driveAI(r,racers,dt,time){
   else if(ahead.gap<9){targetSpeed=Math.min(targetSpeed,Math.max(8,ahead.other.speed-2));r.boosting=false;}
  }else if(Math.abs(r.aiLane)>2)targetLane=r.aiLane*.96;
  if(r.style==='explorer'){const section=SHORTCUTS[r.settings.track],progress=((r.distance%length)+length)%length;if(r.shortcut||progress>=section.start-30&&progress<section.start+3)targetLane=3;}
- r.nitro=clamp(r.nitro+dt*(r.boosting?-27:9),0,100);
  // Pequenos erros determinísticos, sem sorteios a cada quadro.
  const mistake=Math.sin(time*.22+r.index*1.8)>.985;
  if(mistake){targetSpeed-=difficulty.mistake;targetLane+=Math.sin(r.index)*.8;}
@@ -100,11 +98,9 @@ export function stepRace(racers,input,dt,time,surface=null){
     r.driftCharge=0;
    }
    steerManually(r,steer,dt);
-   const boost=input.boost&&input.up&&r.nitro>1&&r.speed>0;
-   r.boosting=!!boost||r.miniTurbo>0||r.trackBoost>0;
-   r.nitro=clamp(r.nitro+dt*(boost?-27:r.drifting?20:7),0,100);
-   r.speed+=dt*(input.up?(boost?24:r.trackBoost>0?23:r.miniTurbo>0?22:r.draftActive?r.stats.acceleration+4:r.stats.acceleration):input.down?-26:r.miniTurbo>0?12:-6)*environment.acceleration;
-   const maximum=boost?49:r.trackBoost>0?44:r.miniTurbo>0?DRIFT_LEVELS[Math.min(DRIFT_LEVELS.length-1,Math.max(0,r.turboLevel-1))].speed:r.draftActive?normalTopSpeed(r)+4:normalTopSpeed(r);
+   r.boosting=r.miniTurbo>0||r.trackBoost>0;
+   r.speed+=dt*(input.up?(r.trackBoost>0?23:r.miniTurbo>0?22:r.draftActive?r.stats.acceleration+4:r.stats.acceleration):input.down?-26:r.miniTurbo>0?12:-6)*environment.acceleration;
+   const maximum=r.trackBoost>0?44:r.miniTurbo>0?DRIFT_LEVELS[Math.min(DRIFT_LEVELS.length-1,Math.max(0,r.turboLevel-1))].speed:r.draftActive?normalTopSpeed(r)+4:normalTopSpeed(r);
    const traction=(r.shortcutFailed||!r.shortcut&&Math.abs(r.offset)>8.4)?r.stats.offroad:1;
    r.speed=clamp(r.speed,input.down?-7:0,maximum*environment.speed*traction);
    // Project travel into the current track frame each step. Retaining an old
@@ -114,9 +110,9 @@ export function stepRace(racers,input,dt,time,surface=null){
   }else driveAI(r,racers,dt,time);
   const shoulder=!r.shortcut&&Math.abs(r.offset)>8.4,offroad=r.shortcutFailed||shoulder;
   r.offroad=!!offroad;
-  const speedLimit=(r.boosting?49:normalTopSpeed(r))*environment.speed*(offroad?r.stats.offroad:1);
+  const speedLimit=(r.boosting?46:normalTopSpeed(r))*environment.speed*(offroad?r.stats.offroad:1);
   if((offroad||environment.state==='water')&&Math.abs(r.speed)>speedLimit)r.speed=Math.sign(r.speed)*Math.max(speedLimit,Math.abs(r.speed)-dt*(environment.state==='water'?18:28));
-  if(surface){const {grade}=surface(r.distance);r.speed-=grade*28*dt;r.speed=clamp(r.speed,-7,r.boosting?49:43);}
+  if(surface){const {grade}=surface(r.distance);r.speed-=grade*28*dt;r.speed=clamp(r.speed,-7,r.boosting?46:43);}
   if(r.slow>0)r.speed=Math.min(r.speed,21);
   r.wallContact=false;barrier(r);
   const previousHeading=r.index===0?courseHeading(r.settings.track,r.distance,r.shortcut):0;

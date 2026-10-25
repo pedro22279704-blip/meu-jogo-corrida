@@ -10,10 +10,10 @@ test('cápsulas incluem os dois novos poderes e preservam os anteriores e o espe
  for(const item of ['shield','gum','pulse','shell','mushroom'])assert.ok(items.has(item),item);
  assert.equal(racerItem(createRace({character:'gugar'})[0],1,8,.2),'bone');
 });
-test('cogumelo dá impulso temporário sem gastar nitro, sem voo e sem repetir ao segurar E',()=>{
+test('cogumelo dá impulso temporário sem nitro manual, sem voo e sem repetir ao segurar E',()=>{
  const {racers,world}=setup(),r=racers[0];r.item='mushroom';stepItems(racers,world,{item:true},.01,0);
- assert.equal(r.item,null);assert.equal(r.miniTurbo,2.3);assert.equal(r.turboLevel,2);assert.equal(r.nitro,100);
- stepRace(racers,{up:true},.05,0);assert.ok(r.speed>30);assert.equal(r.nitro,100);assert.equal(r.airTime,0);
+ assert.equal(r.item,null);assert.equal(r.miniTurbo,2.3);assert.equal(r.turboLevel,2);assert.equal('nitro' in r,false);
+ stepRace(racers,{up:true},.05,0);assert.ok(r.speed>30);assert.equal('nitro' in r,false);assert.equal(r.airTime,0);
  r.item='mushroom';stepItems(racers,world,{item:true},.01,.1);assert.equal(r.item,'mushroom');r.item=null;
  for(let i=0;i<150;i++)stepRace(racers,{},.02,i*.02);
  assert.equal(r.miniTurbo,0);

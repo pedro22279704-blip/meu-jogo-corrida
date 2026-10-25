@@ -7,14 +7,14 @@ import {driveInput} from './drive-helper.js';
 import {surfaceProfile} from '../src/surface.js';
 
 for(const track of ['valley','harbor','fair','sawmill','night']){
- test(`${track}: acelerar com nitro e poderes de pista não completa corrida sozinho`,()=>{
+ test(`${track}: acelerar com comando antigo de nitro e poderes de pista não completa corrida sozinho`,()=>{
   const r=createRace({track})[0],c=createArcadeCourse(track);
   for(let i=0;i<8000;i++){stepRace([r],{up:true,boost:true},.05,i*.05);stepArcade([r],c,{up:true},.05);}
   assert.equal(r.finished,false);assert.ok(r.collisions>0);assert.ok(Math.abs(r.offset)<=ROAD_LIMIT);assert.ok(r.distance<c.length);assert.equal(r.speed,0);
  });
  test(`${track}: entradas de direção e freio permitem completar três voltas`,()=>{
   const r=createRace({track})[0];
-  for(let i=0;i<10000&&!r.finished;i++)stepRace([r],driveInput(r),.05,i*.05);
+  for(let i=0;i<18000&&!r.finished;i++)stepRace([r],driveInput(r),.05,i*.05);
   assert.equal(r.finished,true,`${track}: d=${r.distance} offset=${r.offset} heading=${r.heading}`);
  });
 }
@@ -30,5 +30,5 @@ test('barreira não alinha o kart nem concede avanço, mas direção permite sai
  for(let i=0;i<70;i++)stepRace([r],{up:true,right:true},.05,i*.05);assert.ok(r.offset<ROAD_LIMIT-1);assert.ok(r.distance>d);
 });
 test('adversários não carregam o jogador até a chegada sem direção',()=>{
- for(const track of ['valley','harbor','fair','sawmill','night']){const racers=createRace({track}),course=createArcadeCourse(track);for(let i=0;i<11000;i++){stepRace(racers,{up:true,boost:true},.05,i*.05,d=>surfaceProfile(d,track));stepArcade(racers,course,{up:true},.05);}assert.equal(racers[0].finished,false,track);assert.ok(racers.slice(1).every(r=>r.finished),track);}
+ for(const track of ['valley','harbor','fair','sawmill','night']){const racers=createRace({track}),course=createArcadeCourse(track);for(let i=0;i<18000;i++){stepRace(racers,{up:true,boost:true},.05,i*.05,d=>surfaceProfile(d,track));stepArcade(racers,course,{up:true},.05);}assert.equal(racers[0].finished,false,track);assert.ok(racers.slice(1).every(r=>r.finished),track);}
 });

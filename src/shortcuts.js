@@ -1,5 +1,5 @@
 import {trackLength,lapProgress} from './tracks.js';
-export const SHORTCUTS={valley:{start:220,end:350,name:'Corte dos Cristais'},harbor:{start:640,end:780,name:'Passarela dos Guindastes'},fair:{start:920,end:1070,name:'Travessa do Mercado'},sawmill:{start:2640,end:2780,name:'Corte da Floresta'},night:{start:1640,end:1780,name:'Beco dos Hologramas'}};
+export const SHORTCUTS={valley:{start:330,end:525,name:'Corte dos Cristais'},harbor:{start:960,end:1170,name:'Passarela dos Guindastes'},fair:{start:1380,end:1605,name:'Travessa do Mercado'},sawmill:{start:3960,end:4170,name:'Corte da Floresta'},night:{start:2460,end:2670,name:'Beco dos Hologramas'}};
 export function shortcutState(r){
  const spec=SHORTCUTS[r.settings.track],progress=lapProgress(r.distance,r.settings.track),lap=Math.floor(r.distance/trackLength(r.settings.track));
  if(r.shortcut&&(progress>spec.end||lap!==r.shortcutLap)){r.shortcut=false;r.shortcutFailed=false;}

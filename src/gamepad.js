@@ -8,7 +8,7 @@ export function readStandardPad(pad){
  const down=i=>!!pad.buttons?.[i]?.pressed||(pad.buttons?.[i]?.value??0)>.15;
  const axis=axisWithDeadzone(pad.axes?.[0]??0);
  const digital=Number(down(14))-Number(down(15));
- return {steer:digital||-axis,up:down(7),down:down(6),drift:down(0)||down(4),boost:down(2)||down(5),item:down(1),pause:down(9),confirm:down(0),back:down(1),navX:Number(down(15))-Number(down(14))||Math.sign(Math.abs(pad.axes?.[0]??0)>.6?pad.axes[0]:0),navY:Number(down(13))-Number(down(12))||Math.sign(Math.abs(pad.axes?.[1]??0)>.6?pad.axes[1]:0)};
+ return {steer:digital||-axis,up:down(7),down:down(6),drift:down(0)||down(4),item:down(1),pause:down(9),confirm:down(0),back:down(1),navX:Number(down(15))-Number(down(14))||Math.sign(Math.abs(pad.axes?.[0]??0)>.6?pad.axes[0]:0),navY:Number(down(13))-Number(down(12))||Math.sign(Math.abs(pad.axes?.[1]??0)>.6?pad.axes[1]:0)};
 }
 export class GamepadInput{
  constructor(getPads=()=>navigator.getGamepads?.()??[]){this.getPads=getPads;this.index=null;this.previous={};this.nav=null;this.navTime=0;this.hadPad=false;}

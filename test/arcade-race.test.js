@@ -20,8 +20,8 @@ test('moedas limitam em dez, não repetem enquanto escondidas e retornam',()=>{
 test('colisão ou item tira até três moedas uma vez, Bolha bloqueada preserva moedas',()=>{
  const r=racer(),c=createArcadeCourse('valley');r.coins=8;stepArcade([r],c,{},.05);r.collisions++;stepArcade([r],c,{},.05);assert.equal(r.coins,5);stepArcade([r],c,{},.05);assert.equal(r.coins,5);r.lastAttack={blocked:true};stepArcade([r],c,{},.05);assert.equal(r.coins,5);r.lastAttack={blocked:false};stepArcade([r],c,{},.05);assert.equal(r.coins,2);
 });
-test('faixa é ativada na travessia e novamente na próxima volta, sem gastar nitro',()=>{
- const r=racer(),c=createArcadeCourse('valley'),d=c.pads[0].distance;r.arcadeDistance=d-1;r.distance=d+1;r.nitro=50;stepArcade([r],c,{},.05);assert.ok(r.trackBoost>1);stepRace([r],{up:true},.05,0);assert.equal(r.boosting,true);assert.ok(r.nitro>=50);const t=r.trackBoost;stepArcade([r],c,{},.05);assert.ok(r.trackBoost<t);r.arcadeDistance=d+c.length-1;r.distance=d+c.length+1;stepArcade([r],c,{},.05);assert.ok(r.trackBoost>1);
+test('faixa é ativada na travessia e novamente na próxima volta, sem nitro manual',()=>{
+ const r=racer(),c=createArcadeCourse('valley'),d=c.pads[0].distance;r.arcadeDistance=d-1;r.distance=d+1;stepArcade([r],c,{},.05);assert.ok(r.trackBoost>1);stepRace([r],{up:true},.05,0);assert.equal(r.boosting,true);assert.equal('nitro' in r,false);const t=r.trackBoost;stepArcade([r],c,{},.05);assert.ok(r.trackBoost<t);r.arcadeDistance=d+c.length-1;r.distance=d+c.length+1;stepArcade([r],c,{},.05);assert.ok(r.trackBoost>1);
 });
 test('antigos pontos de salto e planagem não lançam nenhum dos oito karts',()=>{
  const old={valley:[.36,.80],harbor:[.08,.65],fair:[.78,.23],sawmill:[.80,.23],night:[.33,.82]};
@@ -38,5 +38,5 @@ test('asfalto tem UVs finitas e acostamento continua separado',()=>{
  const frame=(d,o)=>({p:new THREE.Vector3(o,0,d)}),g=createRoadRibbon(frame,100,20,18);assert.equal(g.attributes.uv.count,g.attributes.position.count);assert.ok([...g.attributes.uv.array].every(Number.isFinite));
 });
 test('cinco circuitos completos mantêm jogador e rivais no chão, sem perder o impulso',()=>{
- for(const track of ['valley','harbor','fair','sawmill','night']){const racers=createRace({track}),c=createArcadeCourse(track);let boosted=false;for(let i=0;i<10000&&!racers.every(r=>r.finished);i++){const input=driveInput(racers[0]);stepRace(racers,input,.05,i*.05);stepArcade(racers,c,input,.05);boosted||=racers[0].trackBoost>0;for(const r of racers){assert.ok(Number.isFinite(r.distance));assert.equal(r.airTime,0);assert.equal(r.driftHop,0);assert.ok(r.coins>=0&&r.coins<=10);}}assert.ok(boosted);assert.ok(racers.every(r=>r.finished),track);}
+ for(const track of ['valley','harbor','fair','sawmill','night']){const racers=createRace({track}),c=createArcadeCourse(track);let boosted=false;for(let i=0;i<18000&&!racers.every(r=>r.finished);i++){const input=driveInput(racers[0]);stepRace(racers,input,.05,i*.05);stepArcade(racers,c,input,.05);boosted||=racers[0].trackBoost>0;for(const r of racers){assert.ok(Number.isFinite(r.distance));assert.equal(r.airTime,0);assert.equal(r.driftHop,0);assert.ok(r.coins>=0&&r.coins<=10);}}assert.ok(boosted);assert.ok(racers.every(r=>r.finished),track);}
 });
