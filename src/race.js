@@ -1,3 +1,4 @@
+import {ROAD_LIMIT,OFFROAD_LIMIT} from './road-width.js';
 import {vehicleStats,normalTopSpeed} from './vehicle-stats.js';
 import {environmentAt} from './race-environment.js';
 import {courseHeading,steerManually,wrapAngle} from './manual-steering.js';
@@ -8,12 +9,12 @@ import {SHORTCUTS,shortcutState} from './shortcuts.js';
 import {normalizeSettings,DIFFICULTIES,PILOTS} from './settings.js';
 export const LAPS = 3;
 export const TRACK_LENGTH = trackLength('valley');
-export const ROAD_LIMIT = 9.4;
+export {ROAD_LIMIT} from './road-width.js';
 export const NAMES = PILOTS.map((name,i)=>(i===0?'Você · ':'')+name);
 export const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
 export function createRace(options={}){
  const settings=normalizeSettings(options),ids=[settings.pilot,...PILOTS.map((_,i)=>i).filter(i=>i!==settings.pilot)];
- return ids.map((pilot,i)=>({name:(i===0?'Você · ':'')+PILOTS[pilot],pilot,settings,stats:vehicleStats({...settings,pilot}),environment:'ground',style:['defender','attacker','explorer','attacker','explorer','defender','attacker','explorer'][pilot],draft:0,draftActive:false,collisions:0,goodDrifts:0,shortcut:false,shortcutLap:-1,shortcutFailed:false,turboLevel:0,lastAttack:null,shield:0,slow:0,boneSpin:0,item:i===0&&settings.character==='gugar'?'bone':null,itemPressed:false,index:i,distance:-Math.floor(i/2)*4-9,speed:0,offset:i%2?2.4:-2.4,coins:0,coinsCollected:0,trackBoost:0,airTime:0,airDuration:1,airKind:null,trickTimer:0,trick:false,angle:0,slide:0,finished:false,finishTime:null,drifting:false,driftDirection:0,driftHop:0,driftCharge:0,miniTurbo:0,boosting:false,hit:0,aiLane:i%2?2.4:-2.4}));
+ return ids.map((pilot,i)=>({name:(i===0?'Você · ':'')+PILOTS[pilot],pilot,settings,stats:vehicleStats({...settings,pilot}),environment:'ground',style:['defender','attacker','explorer','attacker','explorer','defender','attacker','explorer'][pilot],draft:0,draftActive:false,collisions:0,goodDrifts:0,shortcut:false,shortcutLap:-1,shortcutFailed:false,turboLevel:0,lastAttack:null,invincible:0,tripleCharges:null,shield:0,slow:0,boneSpin:0,item:i===0&&settings.character==='gugar'?'bone':null,itemPressed:false,index:i,distance:-Math.floor(i/2)*4-9,speed:0,offset:i%2?2.4:-2.4,coins:0,coinsCollected:0,trackBoost:0,airTime:0,airDuration:1,airKind:null,trickTimer:0,trick:false,angle:0,slide:0,finished:false,finishTime:null,drifting:false,driftDirection:0,driftHop:0,driftCharge:0,miniTurbo:0,boosting:false,hit:0,aiLane:i%2?2.4:-2.4}));
 }
 export function orderRacers(racers){return [...racers].sort((a,b)=>a.finished&&b.finished?a.finishTime-b.finishTime:a.finished?-1:b.finished?1:b.distance-a.distance);}
 export function lapOf(r){return clamp(Math.floor(Math.max(0,r.distance)/trackLength(r.settings?.track))+1,1,LAPS);}
@@ -101,14 +102,14 @@ export function stepRace(racers,input,dt,time,surface=null){
    r.boosting=r.miniTurbo>0||r.trackBoost>0;
    r.speed+=dt*(input.up?(r.trackBoost>0?23:r.miniTurbo>0?22:r.draftActive?r.stats.acceleration+4:r.stats.acceleration):input.down?-26:r.miniTurbo>0?12:-6)*environment.acceleration;
    const maximum=r.trackBoost>0?44:r.miniTurbo>0?DRIFT_LEVELS[Math.min(DRIFT_LEVELS.length-1,Math.max(0,r.turboLevel-1))].speed:r.draftActive?normalTopSpeed(r)+4:normalTopSpeed(r);
-   const traction=(r.shortcutFailed||!r.shortcut&&Math.abs(r.offset)>8.4)?r.stats.offroad:1;
+   const traction=(r.shortcutFailed||!r.shortcut&&Math.abs(r.offset)>OFFROAD_LIMIT)?r.stats.offroad:1;
    r.speed=clamp(r.speed,input.down?-7:0,maximum*environment.speed*traction);
    // The vector of travel differs from the body by driftSlip. Project it into
    // the current road frame, so banking/curvature cannot accumulate a lane push.
    r.slide=Math.sin(r.heading)*r.speed;
    r.offset+=r.slide*dt;
   }else driveAI(r,racers,dt,time);
-  const shoulder=!r.shortcut&&Math.abs(r.offset)>8.4,offroad=r.shortcutFailed||shoulder;
+  const shoulder=!r.shortcut&&Math.abs(r.offset)>OFFROAD_LIMIT,offroad=r.shortcutFailed||shoulder;
   r.offroad=!!offroad;
   const speedLimit=(r.boosting?46:normalTopSpeed(r))*environment.speed*(offroad?r.stats.offroad:1);
   if((offroad||environment.state==='water')&&Math.abs(r.speed)>speedLimit)r.speed=Math.sign(r.speed)*Math.max(speedLimit,Math.abs(r.speed)-dt*(environment.state==='water'?18:28));

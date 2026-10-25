@@ -1,3 +1,4 @@
+import {ROAD_SCALE} from './road-width.js';
 import {addNeonInfrastructure} from './neon-infrastructure.js';
 import * as THREE from 'three';
 import {toonMaterial} from './cartoon.js';
@@ -9,11 +10,11 @@ export function addTrackStructures(root,track,id,obstacles,light=false){
  const wallColor=night?'#334169':id==='fair'?'#ca936b':'#786a62';
  const accent=night?'#71f2ef':id==='fair'?'#ffe49a':'#e7bd78';
  function part(parent,geometry,color,glow=false){const mesh=new THREE.Mesh(geometry,glow?new THREE.MeshBasicMaterial({color}):toonMaterial(color));parent.add(mesh);return mesh;}
- function frameGroup(d){const f=track(d),g=new THREE.Group();g.position.copy(f.p);g.quaternion.copy(f.quaternion);root.add(g);return g;}
+ function frameGroup(d){const f=track(d),g=new THREE.Group();g.position.copy(f.p);g.quaternion.copy(f.quaternion);g.scale.x=ROAD_SCALE;root.add(g);return g;}
  function shell(start,end){
   const positions=[],indices=[],steps=Math.ceil((end-start)/4),sides=16;
   for(let i=0;i<=steps;i++){const f=track(start+(end-start)*i/steps);
-   for(let j=0;j<=sides;j++){const a=j/sides*Math.PI,p=f.p.clone().addScaledVector(f.normal,12.2*Math.cos(a)).addScaledVector(f.up,1.5+8*Math.sin(a));positions.push(p.x,p.y,p.z);}
+   for(let j=0;j<=sides;j++){const a=j/sides*Math.PI,p=f.p.clone().addScaledVector(f.normal,12.2*ROAD_SCALE*Math.cos(a)).addScaledVector(f.up,1.5+8*Math.sin(a));positions.push(p.x,p.y,p.z);}
    if(i<steps)for(let j=0;j<sides;j++){const k=i*(sides+1)+j;indices.push(k,k+1,k+sides+1,k+1,k+sides+2,k+sides+1);}
   }
   const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geo.setIndex(indices);geo.computeVertexNormals();const roof=part(root,geo,wallColor);roof.name='Tunnel roof';roof.material.side=THREE.DoubleSide;obstacles.push(roof);
