@@ -158,7 +158,37 @@ function refreshCharacters(){
  }
 }
 refreshCharacters();
-$('trackSelect').value=settings.tra…1047 tokens truncated…);
+$('trackSelect').value=settings.track;$('difficultySelect').value=settings.difficulty;$('sensitivity').value=settings.sensitivity;
+const panorama=new MenuPanorama(renderer,()=>karts.map(k=>k.userData.model));
+raceMenu=createRaceMenu({onStart:startSelectedMode,onPilotStage:refreshOriginalDriver,onCarStage:()=>kartPreview.setModel(karts[settings.pilot].userData.model,{driverVisible:false})});
+for(const character of CHARACTERS){
+ const button=document.createElement('button');button.type='button';button.className='character-card';button.dataset.character=character.id;
+ const model=createCharacter(character.id);
+ if(model){
+  const portraitCamera=new THREE.PerspectiveCamera(38,4/3,.1,30);portraitCamera.position.set(1,character.id==='gugar'?1.1:1.2,character.id==='gugar'?3.1:2.7);portraitCamera.lookAt(0,character.id==='gugar'?.65:.85,0);
+  portraitRenderer.setSize(320,240);portraitScene.add(model);portraitRenderer.render(portraitScene,portraitCamera);
+  const image=document.createElement('img');image.src=portraitRenderer.domElement.toDataURL('image/png');image.alt=character.name;button.append(image);
+  portraitScene.remove(model);model.traverse(p=>{p.geometry?.dispose();p.material?.dispose();});portraitRenderer.setSize(160,100);
+ }else{const icon=document.createElement('span');icon.className='driver-original';icon.innerHTML='<svg viewBox="0 0 120 120" width="120" height="120" aria-hidden="true"><path d="M20 103 Q25 80 60 80 Q95 80 100 103" fill="#a8ee64"/><circle cx="60" cy="49" r="33" fill="#e0ad7b"/><path d="M26 45 Q22 8 60 8 Q100 8 94 45 L82 32 H38Z" fill="#4cd7d7"/><rect x="29" y="37" width="62" height="19" rx="9" fill="#183149"/><path d="M46 68 Q60 79 74 68" fill="none" stroke="#63402f" stroke-width="4"/></svg>';icon.setAttribute('aria-hidden','true');button.append(icon);}
+ const name=document.createElement('strong');name.textContent=character.id==='original'?'Piloto do carro':character.name;button.append(name);if(character.id==='gugar'){const special=document.createElement('small');special.textContent='Especial: Osso Perseguidor · E / B';button.append(special);}
+ button.onclick=()=>{characterSelect.value=character.id;characterSelect.dispatchEvent(new Event('change',{bubbles:true}));raceMenu.show('tracks');};$('characterChoices').append(button);
+}
+function refreshOriginalDriver(){
+ const button=document.querySelector('.character-card[data-character="original"]');if(!button)return;
+ const source=karts[settings.pilot].userData.model;let driver;source?.traverse(p=>{if(p.name.replace(/[._]?\d+$/,'')==='Driver'&&!p.userData.character)driver??=p;});if(!driver)return;
+ const clone=driver.clone(true);clone.visible=true;clone.position.set(0,0,0);clone.quaternion.identity();
+ const bounds=new THREE.Box3().setFromObject(clone),center=bounds.getCenter(new THREE.Vector3()),radius=bounds.getSize(new THREE.Vector3()).length()/2;clone.position.sub(center);
+ const camera=new THREE.PerspectiveCamera(38,4/3,.1,30);camera.position.set(radius*.6,radius*.3,radius*3.4);camera.lookAt(0,0,0);
+ portraitRenderer.setSize(320,240);portraitScene.add(clone);portraitRenderer.render(portraitScene,camera);
+ let image=button.querySelector('img');if(!image){image=document.createElement('img');image.alt='Piloto original do carro';button.querySelector('.driver-original').replaceWith(image);}image.src=portraitRenderer.domElement.toDataURL('image/png');portraitScene.remove(clone);portraitRenderer.setSize(160,100);
+}
+function updateChallenges(){
+ const unlocked=unlockedPaints(challengeProgress);if(!unlocked.some(p=>p.id===paintId))paintId='original';
+ $('paintSelect').replaceChildren(...unlocked.map(p=>{const option=document.createElement('option');option.value=p.id;option.textContent=p.name;return option;}));$('paintSelect').value=paintId;
+ $('challengeList').textContent=`${challengeProgress.clean?'✓':'○'} Termine sem bater: Pérola · ${challengeProgress.drift?'✓':'○'} Faça 3 drifts carregados: Chama roxa · Vitórias com pilotos: ${challengeProgress.wins.filter(pilot=>pilot<6).length}/6 para Ouro solar`;
+}
+function applyPaints(){
+ const paint=unlockedPaints(challengeProgress).find(p=>p.id===paintId);
  karts.forEach((kart,i)=>kart.traverse(part=>{if(part.isMesh&&part.material?.name?.startsWith('Paint_')){if(!originalPaints.has(part.material))originalPaints.set(part.material,part.material.color.clone());part.material.color.copy(originalPaints.get(part.material));if(i===settings.pilot&&paint?.color)part.material.color.set(paint.color);}}));
 }
 $('paintSelect').onchange=()=>{paintId=$('paintSelect').value;applyPaints();};updateChallenges();
