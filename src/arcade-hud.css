@@ -33,3 +33,5 @@ body.reduce-motion #speedVeil,body.reduce-motion #driftAura{display:none}
 #hud #powerIcon{width:78px;height:78px;filter:drop-shadow(0 4px 2px #07132288)}
 #hud #itemStatus[data-power=mushroom]{border-color:#ffcb56}#hud #itemStatus[data-power=shell]{border-color:#ff829e}
 @media(max-width:650px){#hud #coinCounter,#hud #lap{left:12px;min-width:96px;gap:8px;font-size:25px;padding:6px 10px}#hud #coinCounter{bottom:172px}#hud #lap{bottom:119px;font-size:21px;max-width:190px}#hud #coinCounter::before{width:23px;height:27px;font-size:16px}#hud #lap::before{width:25px;height:25px;background-size:12px 12px}#hud #place{font-size:76px;right:16px;bottom:70px;-webkit-text-stroke-width:2px}#hud #powerIcon{width:54px;height:54px}#hud #itemStatus{max-width:130px}}
+
+#hud #coinCounter{transition:border-color .15s,box-shadow .15s}#hud #coinCounter[data-collect=true]{border-color:#fff4b1;box-shadow:0 0 18px #ffd45c88,inset 0 0 12px #ffe39b44}#hud #coinCounter[data-full=true]::after{content:'MÁX.';font-size:10px;font-style:normal;letter-spacing:1px;color:#fff4b0}
