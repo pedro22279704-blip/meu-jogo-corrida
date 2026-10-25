@@ -7,7 +7,7 @@ import {driftLevel,DRIFT_LEVELS,driftChargeRate} from './drift.js';
 import {SHORTCUTS,shortcutState} from './shortcuts.js';
 import {normalizeSettings,DIFFICULTIES,PILOTS} from './settings.js';
 export const LAPS = 3;
-export const TRACK_LENGTH = 760;
+export const TRACK_LENGTH = trackLength('valley');
 export const ROAD_LIMIT = 9.4;
 export const NAMES = PILOTS.map((name,i)=>(i===0?'Você · ':'')+name);
 export const clamp = (v,a,b) => Math.max(a,Math.min(b,v));

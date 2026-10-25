@@ -57,15 +57,15 @@ test('onda atinge somente rivais à frente; bolha protege e pausa congela',()=>{
  const life=world.storm.life;stepItems(racers,world,{},0,1);assert.equal(world.storm.life,life);stepItems(racers,world,{},1,2);assert.equal(world.storm,null);
 });
 test('trecho subaquático entra e sai sem degraus e muda física só na água',()=>{
- const r=createRace({track:'harbor'})[0];for(const d of [0,420,610,760]){r.distance=d;assert.equal(environmentAt(r).state,'ground');}
- r.distance=510;assert.equal(environmentAt(r).state,'water');assert.ok(surfaceProfile(510,'harbor').height<0);assert.ok(environmentAt(r).speed<1&&environmentAt(r).acceleration<1);
+ const r=createRace({track:'harbor'})[0];for(const d of [0,840,1220,1520]){r.distance=d;assert.equal(environmentAt(r).state,'ground');}
+ r.distance=1020;assert.equal(environmentAt(r).state,'water');assert.ok(surfaceProfile(1020,'harbor').height<0);assert.ok(environmentAt(r).speed<1&&environmentAt(r).acceleration<1);
  r.shortcut=true;assert.equal(environmentAt(r).state,'ground');
- for(const d of [430,470,560,600])assert.ok(Math.abs(harborDive(d-.001).depth-harborDive(d+.001).depth)<.002);
- for(const d of [445,460,575,590]){const numerical=(surfaceProfile(d+.001,'harbor').height-surfaceProfile(d-.001,'harbor').height)/.002;assert.ok(Math.abs(numerical-surfaceProfile(d,'harbor').grade)<1e-5);}
+ for(const d of [860,940,1120,1200])assert.ok(Math.abs(harborDive(d-.001).depth-harborDive(d+.001).depth)<.002);
+ for(const d of [890,920,1150,1180]){const numerical=(surfaceProfile(d+.001,'harbor').height-surfaceProfile(d-.001,'harbor').height)/.002;assert.ok(Math.abs(numerical-surfaceProfile(d,'harbor').grade)<1e-5);}
 });
 test('arrasto subaquático reduz velocidade sem lançar o kart',()=>{
  const wet=createRace({track:'harbor'})[0],dry=createRace({track:'valley'})[0];
- for(const r of [wet,dry]){Object.assign(r,{distance:510,offset:0,speed:32});stepRace([r],{up:true},.05,0);assert.equal(r.airTime,0);}
+ for(const r of [wet,dry]){Object.assign(r,{distance:1020,offset:0,speed:32});stepRace([r],{up:true},.05,0);assert.equal(r.airTime,0);}
  assert.equal(wet.environment,'water');assert.ok(wet.speed<dry.speed);
 });
 test('mini-turbo azul dura 0,5 s e vermelho 1,5 s, sem terceiro nível nem salto',()=>{

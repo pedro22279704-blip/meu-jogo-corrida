@@ -14,7 +14,7 @@ for(let i=0;i<6;i++)test(`modelo Blender ${i}: articulações e animação`,asyn
  animateKart(rig,racer,.1,1);assert.ok(rig.rolls[0].quaternion.angleTo(rig.rolls[0].userData.rest)>.1);assert.ok(rig.front[0].quaternion.angleTo(rig.front[0].userData.rest)>.1);assert.ok(rig.driver.quaternion.angleTo(rig.driver.userData.rest)>.01);
  racer.finished=true;animateKart(rig,racer,.1,2);assert.ok(rig.arms.every(arm=>arm.quaternion.angleTo(arm.userData.rest)>1));
 });
-test('relevo e inclinação contínuos na linha de chegada',()=>{const a=surfaceProfile(0),b=surfaceProfile(TRACK_LENGTH);for(const key of ['height','grade','bank'])assert.ok(Math.abs(a[key]-b[key])<1e-10);for(let i=0;i<TRACK_LENGTH;i++){const p=surfaceProfile(i);assert.ok(p.height>=2&&p.height<=10);assert.ok(Math.abs(p.bank)<=.09);}});
+test('relevo e inclinação contínuos na linha de chegada',()=>{const a=surfaceProfile(0),b=surfaceProfile(TRACK_LENGTH);for(const key of ['height','grade','bank'])assert.ok(Math.abs(a[key]-b[key])<1e-10);for(let i=0;i<TRACK_LENGTH;i++){const p=surfaceProfile(i);assert.ok(p.height>=4&&p.height<=16);assert.ok(Math.abs(p.bank)<=.400001);}});
 test('subida reduz e descida aumenta velocidade, e corrida completa continua possível',()=>{
  const uphill=[createRace()[0]],downhill=[createRace()[0]];for(const r of [uphill,downhill]){r[0].speed=20;r[0].offset=0;}
  stepRace(uphill,{up:true},.05,0,()=>({grade:.04}));stepRace(downhill,{up:true},.05,0,()=>({grade:-.04}));assert.ok(uphill[0].speed<downhill[0].speed);

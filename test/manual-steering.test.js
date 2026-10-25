@@ -30,5 +30,5 @@ test('barreira não alinha o kart nem concede avanço, mas direção permite sai
  for(let i=0;i<70;i++)stepRace([r],{up:true,right:true},.05,i*.05);assert.ok(r.offset<ROAD_LIMIT-1);assert.ok(r.distance>d);
 });
 test('adversários não carregam o jogador até a chegada sem direção',()=>{
- for(const track of ['valley','harbor','fair','sawmill','night']){const racers=createRace({track}),course=createArcadeCourse(track);for(let i=0;i<7000;i++){stepRace(racers,{up:true,boost:true},.05,i*.05,d=>surfaceProfile(d,track));stepArcade(racers,course,{up:true},.05);}assert.equal(racers[0].finished,false,track);assert.ok(racers.slice(1).every(r=>r.finished),track);}
+ for(const track of ['valley','harbor','fair','sawmill','night']){const racers=createRace({track}),course=createArcadeCourse(track);for(let i=0;i<11000;i++){stepRace(racers,{up:true,boost:true},.05,i*.05,d=>surfaceProfile(d,track));stepArcade(racers,course,{up:true},.05);}assert.equal(racers[0].finished,false,track);assert.ok(racers.slice(1).every(r=>r.finished),track);}
 });

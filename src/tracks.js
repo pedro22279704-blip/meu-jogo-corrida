@@ -1,27 +1,42 @@
 import * as THREE from 'three';
+export const PREVIOUS_LENGTHS={valley:760,harbor:760,fair:1440,sawmill:1680,night:1900};
 export const TRACKS={
- valley:{name:'Vale Neon',sky:'#8ccbd3',ground:'#78a879'},
- harbor:{name:'Porto Âmbar',sky:'#efad91',ground:'#407d89'},
- fair:{name:'Vila da Feira',sky:'#a3dce4',ground:'#91b56c',length:1440,revision:2,description:'Chicanes entre praças e duas galerias cobertas. 1,44 km por volta.'},
- sawmill:{name:'Serraria dos Barris',sky:'#d4bfa0',ground:'#8caa76',length:1680,revision:2,description:'Subida da serra, curvas em S, viaduto e dois túneis na pedreira. 1,68 km por volta.'},
- night:{name:'Avenida Neon',sky:'#151c40',ground:'#28314c',length:1900,revision:2,description:'Metrópole neon inspirada em Tóquio: painéis gigantes, avenidas e viaduto em oito com túneis. 1,90 km por volta.'},
+ valley:{name:'Vale Neon',sky:'#8ccbd3',ground:'#78a879',length:1520,revision:3,description:'1,52 km · retas planas, colinas e curvas largas inclinadas de alta velocidade.'},
+ harbor:{name:'Porto Âmbar',sky:'#efad91',ground:'#407d89',length:1520,revision:3,description:'1,52 km · arcos costeiros, cais elevado e descida contínua ao trecho subaquático.'},
+ fair:{name:'Vila da Feira',sky:'#a3dce4',ground:'#91b56c',length:2880,revision:3,description:'2,88 km · praças planas, curvas em S e duas galerias, com espaço para carregar o drift.'},
+ sawmill:{name:'Serraria dos Barris',sky:'#d4bfa0',ground:'#8caa76',length:3360,revision:3,description:'3,36 km · subida da serra, planaltos, descida, curvas inclinadas e túneis.'},
+ night:{name:'Avenida Neon',sky:'#151c40',ground:'#28314c',length:3800,revision:3,description:'3,80 km · grandes arcos em oito, avenidas planas e viaduto com passagem inferior.'},
 };
-export const trackLength=id=>TRACKS[id]?.length??760;
+export const trackLength=id=>TRACKS[id]?.length??1520;
 export const lapProgress=(distance,id)=>((distance%trackLength(id))+trackLength(id))%trackLength(id);
-export function lengthForScope(scope=''){const id=Object.keys(TRACKS).find(id=>scope.startsWith(`${id}-r2-`));return id?trackLength(id):760;}
+// Historical ghosts retain their original distance scale.
+export function lengthForScope(scope=''){
+ for(const id of Object.keys(TRACKS)){
+  if(scope.startsWith(id+'-r3-'))return trackLength(id);
+  if(scope.startsWith(id+'-r2-'))return PREVIOUS_LENGTHS[id];
+ }
+ return 760;
+}
 export const TUNNELS={
+ valley:[{start:.59,end:.66,name:'Túnel dos Cristais'}],harbor:[],
  fair:[{start:.045,end:.145,name:'Galeria dos Arcos'},{start:.53,end:.63,name:'Passagem da Praça'}],
  sawmill:[{start:.045,end:.20,name:'Túnel da Pedreira'},{start:.60,end:.72,name:'Mina dos Barris'}],
  night:[{start:.04,end:.17,name:'Metrô Neon'},{start:.60,end:.70,name:'Túnel do Viaduto'}],
 };
-export const BRIDGES={fair:[],sawmill:[{start:.36,end:.49}],night:[{start:.20,end:.30}]};
+export const BRIDGES={valley:[{start:.24,end:.30}],harbor:[],fair:[],sawmill:[{start:.36,end:.49}],night:[{start:.20,end:.30}]};
+const routes={
+ valley:[[0,160],[130,160],[210,110],[235,20],[210,-90],[130,-150],[0,-160],[-130,-160],[-220,-100],[-235,0],[-210,100],[-130,160]],
+ harbor:[[0,210],[160,210],[260,130],[280,10],[160,-80],[230,-220],[100,-300],[-80,-270],[-210,-170],[-250,-20],[-170,120],[-80,210]],
+ fair:[[0,220],[180,220],[280,150],[290,30],[160,-20],[100,-120],[220,-180],[160,-300],[-40,-310],[-160,-230],[-140,-100],[-270,-40],[-300,100],[-180,210]],
+ sawmill:[[0,260],[180,260],[300,180],[320,40],[210,-20],[120,40],[20,-20],[80,-120],[240,-140],[290,-260],[120,-340],[-80,-330],[-200,-230],[-320,-140],[-330,40],[-220,180],[-100,220]],
+};
+function rounded(points){
+ let p=points.map(([x,z])=>new THREE.Vector3(x,0,z));
+ for(let pass=0;pass<2;pass++)p=p.flatMap((a,i)=>{const b=p[(i+1)%p.length];return [a.clone().lerp(b,.25),a.clone().lerp(b,.75)];});
+ return p;
+}
 export function createCircuitCurve(id){
- const routes={
-  fair:[[0,180],[110,180],[170,130],[170,40],[90,30],[90,-45],[185,-65],[195,-150],[100,-200],[-30,-190],[-70,-120],[-170,-125],[-210,-40],[-150,25],[-200,105],[-100,180]],
-  sawmill:[[0,220],[140,210],[230,130],[140,70],[70,105],[20,45],[125,-10],[230,-100],[180,-200],[60,-240],[-80,-200],[-140,-100],[-230,-35],[-220,90],[-110,170]],
-  night:[[-180,0],[-130,100],[0,0],[130,-100],[180,0],[130,100],[0,0],[-130,-100]],
- };
- if(routes[id]){const curve=new THREE.CatmullRomCurve3(routes[id].map(([x,z])=>new THREE.Vector3(x,0,z)),true,'centripetal');curve.arcLengthDivisions=1600;const scale=trackLength(id)/curve.getLength();curve.points.forEach(p=>p.multiplyScalar(scale));curve.updateArcLengths();return curve;}
- if(id==='harbor')return new THREE.CatmullRomCurve3([[0,85],[70,85],[120,55],[112,0],[70,-20],[95,-75],[25,-100],[-60,-90],[-115,-40],[-100,30],[-45,35],[-40,85]].map(([x,z])=>new THREE.Vector3(x,0,z)),true,'centripetal');
- const points=[];for(let i=0;i<12;i++){const a=i/12*Math.PI*2,r=1+.14*Math.sin(a*3);points.push(new THREE.Vector3(Math.sin(a)*100*r,0,Math.cos(a)*74*r));}return new THREE.CatmullRomCurve3(points,true,'centripetal');
+ const points=id==='night'?Array.from({length:48},(_,i)=>{const t=-Math.PI/2+i/48*Math.PI*2;return new THREE.Vector3(280*Math.sin(t),0,-170*Math.sin(t*2));}):rounded(routes[id]??routes.valley);
+ const curve=new THREE.CatmullRomCurve3(points,true,'centripetal');curve.arcLengthDivisions=3200;
+ const scale=trackLength(id)/curve.getLength();curve.points.forEach(p=>p.multiplyScalar(scale));curve.updateArcLengths();return curve;
 }

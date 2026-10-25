@@ -7,7 +7,7 @@ import {citySites,addNeonCity} from '../src/neon-city.js';
 const curve=createCircuitCurve('night'),length=trackLength('night');
 function track(d,offset=0){const t=((d/length)%1+1)%1,p=curve.getPointAt(t),tangent=curve.getTangentAt(t),normal=new THREE.Vector3(tangent.z,0,-tangent.x).normalize();p.addScaledVector(normal,offset);return {p,tangent};}
 test('prédios preservam espaço livre em toda a pista, inclusive no cruzamento do oito',()=>{
- const sites=citySites(track);assert.ok(sites.length>25);assert.ok(sites.some(s=>s.height>=90));for(const site of sites)for(let i=0;i<1900;i++){const p=track(i).p;assert.ok(Math.hypot(site.x-p.x,site.z-p.z)>site.radius+10);}
+ const sites=citySites(track);assert.ok(sites.length>25);assert.ok(sites.some(s=>s.height>=90));for(const site of sites)for(let i=0;i<length;i++){const p=track(i).p;assert.ok(Math.hypot(site.x-p.x,site.z-p.z)>site.radius+10);}
  assert.deepEqual(citySites(track),sites);
 });
 test('modo leve reduz edifícios; janelas são agrupadas e a cidade fica apoiada no chão',()=>{
