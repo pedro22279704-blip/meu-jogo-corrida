@@ -1,5 +1,11 @@
 # Kart Speed Racers
 
+## Direção manual
+
+O kart do jogador mantém o próprio rumo no mundo: acelerar não acompanha automaticamente as curvas e soltar a direção não realinha o carro com a pista. Use **A/D ou ←/→** (analógico no controle) para virar, **W/↑** para acelerar e **S/↓** para frear/dar ré. Na barreira, apontar para fora interrompe o avanço; vire para a pista ou recue para sair.
+
+O drift conserva inércia e contravolante, mas a trajetória depende da direção do jogador. A câmera acompanha o rumo do kart e as rodas acompanham o comando de direção. Nitro, moedas, rampas, planagem e manobras continuam disponíveis; os rivais continuam controlados pela IA. Fantasmas anteriores continuam aceitos e os novos também registram orientações completas, inclusive ao voltar ou girar.
+
 ## Corrida arcade: moedas, rampas e planagem
 
 Esta atualização aproxima a apresentação e a dinâmica de uma corrida de kart como a referência enviada, com arte e modelos próprios. As cinco pistas têm asfalto texturizado, marcações, faixas de impulso e duas rampas: um salto curto e uma planagem com asa retrátil. O Porto Âmbar tem uma rampa de planagem logo no primeiro trecho, ideal para experimentar no Treino.

@@ -1,3 +1,4 @@
+import {driveInput} from './drive-helper.js';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {createCar10} from '../src/car-10.js';
@@ -20,10 +21,10 @@ test('modelo 10 tem rig completo, placa, aerofólio e animação de drift',()=>{
  assert.ok(rig.rolls.every(w=>w.quaternion.angleTo(w.userData.rest)>0));assert.ok(rig.front.every(w=>w.quaternion.angleTo(w.userData.rest)>0));
 });
 test('carro 10 acelera, consome nitro e libera impulso de drift',()=>{
- const racers=[createRace({pilot:6})[0]];for(let i=0;i<180;i++)stepRace(racers,{up:true},1/60,i/60);
- const r=racers[0],speed=r.speed;for(let i=0;i<30;i++)stepRace(racers,{up:true,boost:true},1/60,3+i/60);assert.ok(r.speed>speed&&r.nitro<100);
+ const racers=[createRace({pilot:6})[0]];for(let i=0;i<180;i++)stepRace(racers,driveInput(racers[0]),1/60,i/60);
+ const r=racers[0],speed=r.speed;for(let i=0;i<30;i++)stepRace(racers,driveInput(racers[0],{boost:true}),1/60,3+i/60);assert.ok(r.speed>speed&&r.nitro<100);
  r.offset=0;r.speed=28;for(let i=0;i<40;i++)stepRace(racers,{up:true,steer:.1,drift:true},1/60,4+i/60);assert.ok(r.drifting&&r.driftCharge>=.35);
- stepRace(racers,{up:true},1/60,5);assert.ok(r.miniTurbo>0&&r.boosting);
+ stepRace(racers,driveInput(racers[0]),1/60,5);assert.ok(r.miniTurbo>0&&r.boosting);
 });
 test('vitória com carro 10 persiste sem retirar Ouro solar anterior',()=>{
  const s=storage();s.setItem('vale-neon-challenges-v1',JSON.stringify({clean:true,drift:true,wins:[0,1,2,3,4,5]}));
