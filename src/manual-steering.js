@@ -9,12 +9,22 @@ export function courseHeading(id,distance,shortcut=false){
 }
 export function steerManually(r,steer,dt){
  r.heading??=r.angle;r.driftSlip??=0;r.yawRate??=0;
- // Heading is the direction of travel; driftSlip turns the body inward so the rear swings out.
+ // Integrate angular velocity and grip in continuous time. The body turns into
+ // the corner while the velocity keeps its momentum, rather than adding a
+ // sideways force based on the road edge or snapping the kart to a new lane.
  const softened=Math.sign(steer)*Math.abs(steer)**1.15;r.steerVisual=softened;
  const direction=r.speed<-.5?-1:1,speedFactor=Math.max(.4,Math.min(1,Math.abs(r.speed)/16));
  const highSpeed=1-Math.max(0,Math.min(1,(Math.abs(r.speed)-32)/17))*.08;
  const alignment=softened*r.driftDirection;
  const rate=(r.drifting?r.driftDirection*Math.max(.18,.85+.95*alignment):softened*1.65)*r.settings.sensitivity*(r.stats?.handling??1)*(r.environment==='water'?.9:1)*speedFactor*highSpeed*direction;
- r.yawRate+=(rate-r.yawRate)*(1-Math.exp(-dt*(Math.abs(steer)>.01?10:14)));r.heading=wrapAngle(r.heading+r.yawRate*dt);
- const slip=r.drifting?r.driftDirection*(.42+.14*alignment):0;r.driftSlip+=(slip-r.driftSlip)*(1-Math.exp(-dt*(r.drifting?9:12)));r.angle=wrapAngle(r.heading+r.driftSlip);
+ const response=Math.abs(steer)>.01?10:14,decay=Math.exp(-dt*response),oldYaw=r.yawRate;
+ r.yawRate=rate+(oldYaw-rate)*decay;
+ const bodyTurn=rate*dt+(oldYaw-rate)*(1-decay)/response;
+ const slip=r.drifting?r.driftDirection*(.42+.14*alignment):0;
+ // Rear grip builds progressively on entry; countersteer reduces slip without
+ // reversing the chosen drift. Recovery aligns the body to the velocity.
+ const grip=r.drifting?5:12,oldSlip=r.driftSlip;
+ r.driftSlip=slip+(oldSlip-slip)*Math.exp(-dt*grip);
+ const velocityTurn=r.drifting?bodyTurn-(r.driftSlip-oldSlip)*.35:bodyTurn;
+ r.heading=wrapAngle(r.heading+velocityTurn);r.angle=wrapAngle(r.heading+r.driftSlip);
 }
