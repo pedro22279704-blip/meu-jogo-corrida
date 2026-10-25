@@ -1,3 +1,4 @@
+import {ROAD_SCALE} from './road-width.js';
 import {loseCoins} from './vehicle-stats.js';
 import {trackLength} from './tracks.js';
 import {coinTouchesRacer} from './coin-collection.js';
@@ -17,6 +18,6 @@ export function stepArcade(racers,course,input,dt){
   if(!wasShortcut)for(const [coinIndex,coin] of course.coins.entries())if(coin.cooldown===0&&Math.abs(r.speed)>3&&coinTouchesRacer(coin,r,course,before,previousOffset,dt)){
    coin.cooldown=7;r.coins=Math.min(10,(r.coins??0)+1);r.coinFlash=.35;r.coinsCollected=(r.coinsCollected??0)+1;course.coinEvents.push({racer:r.index,coinIndex,distance:coin.distance,offset:coin.offset});
   }
-  for(const pad of course.pads)if(crosses(before,r.distance,pad.distance,course.length)&&Math.abs(r.offset)<7.8){r.trackBoost=1.15;r.speed=Math.max(r.speed,41);}
+  for(const pad of course.pads)if(crosses(before,r.distance,pad.distance,course.length)&&Math.abs(r.offset)<7.8*ROAD_SCALE){r.trackBoost=Math.max(r.trackBoost,1.15);r.speed=Math.max(r.speed,41);}
  }
 }

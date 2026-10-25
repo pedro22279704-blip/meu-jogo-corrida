@@ -6,9 +6,9 @@ export function itemWeights(distance){
 }
 export function distanceItem(distance,roll){
  const {defense,attack}=itemWeights(distance),value=Number.isFinite(roll)?roll:0,x=((value%1)+1)%1;
- if(x<defense)return x<defense*.65?'shield':'gum';
- if(x<defense+attack)return (x-defense)/attack<.55?'mushroom':'shell';
- return (x-defense-attack)/(1-defense-attack)<.55?'pulse':'storm';
+ if(x<defense)return x<defense*.45?'shield':x<defense*.7?'gum':'banana';
+ if(x<defense+attack)return (x-defense)/attack<.35?'mushroom':(x-defense)/attack<.55?'triple':'shell';
+ return (x-defense-attack)/(1-defense-attack)<.15?'pulse':(x-defense-attack)/(1-defense-attack)<.55?'star':'storm';
 }
 // Race progress is unwrapped: a lap behind must not look like a nearby rival.
 export const leaderGap=(r,racers)=>Math.max(0,...racers.map(other=>other.distance-r.distance));

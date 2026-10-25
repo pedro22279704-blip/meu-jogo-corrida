@@ -1,3 +1,4 @@
+import {ROAD_SCALE} from './road-width.js';
 import * as THREE from 'three';
 import {createArcadeCourse} from './arcade-race.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
@@ -16,7 +17,7 @@ export class ArcadeVisuals{
   const emblem=new THREE.OctahedronGeometry(.18,0);emblem.scale(.75,1.25,.12);const face=emblem.clone().translate(0,0,.09),reverse=emblem.clone().translate(0,0,-.09),emblemGeo=mergeGeometries([face,reverse]);emblem.dispose();face.dispose();reverse.dispose();
   this.emblems=new THREE.InstancedMesh(emblemGeo,new THREE.MeshBasicMaterial({color:'#fff4bd'}),this.course.coins.length);this.root.add(this.emblems);this.effects=new CoinEffects(this.root);this.transform=new THREE.Object3D();this.spin=new THREE.Quaternion();this.upAxis=new THREE.Vector3(0,1,0);
   const padMaterial=new THREE.MeshBasicMaterial({color:'#f8b84c'});
-  for(const pad of this.course.pads){const f=frame(pad.distance);const g=new THREE.Group();g.position.copy(f.p);g.quaternion.copy(f.quaternion);this.root.add(g);const plate=new THREE.Mesh(new THREE.BoxGeometry(15,.06,5),padMaterial);plate.position.y=.12;g.add(plate);for(let i=0;i<4;i++)for(const side of [-1,1]){const arrow=new THREE.Mesh(new THREE.BoxGeometry(.24,.03,1.5),new THREE.MeshBasicMaterial({color:'#fff6b8'}));arrow.position.set(side*.45+(i-1.5)*3.1,.17,0);arrow.rotation.y=side*.7;g.add(arrow);}}
+  for(const pad of this.course.pads){const f=frame(pad.distance);const g=new THREE.Group();g.position.copy(f.p);g.quaternion.copy(f.quaternion);g.scale.x=ROAD_SCALE;this.root.add(g);const plate=new THREE.Mesh(new THREE.BoxGeometry(15,.06,5),padMaterial);plate.position.y=.12;g.add(plate);for(let i=0;i<4;i++)for(const side of [-1,1]){const arrow=new THREE.Mesh(new THREE.BoxGeometry(.24,.03,1.5),new THREE.MeshBasicMaterial({color:'#fff6b8'}));arrow.position.set(side*.45+(i-1.5)*3.1,.17,0);arrow.rotation.y=side*.7;g.add(arrow);}}
  }
  clear(){const geometries=new Set(),materials=new Set();this.root.traverse(o=>{if(o.geometry)geometries.add(o.geometry);if(o.material)for(const m of Array.isArray(o.material)?o.material:[o.material])materials.add(m);if(o.isInstancedMesh)o.dispose();});geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());this.root.clear();this.coins=null;this.rims=null;this.emblems=null;this.effects=null;this.frames=[];this.course=null;}
  update(time,reduced,dt=0,{light=false}={}){

@@ -1,3 +1,4 @@
+import {OFFROAD_LIMIT} from './road-width.js';
 import * as THREE from 'three';
 export class DrivingEffects{
  constructor(scene){this.clock=0;this.cursor=0;this.root=new THREE.Group();scene.add(this.root);const geo=new THREE.PlaneGeometry(.18,1);this.marks=Array.from({length:160},()=>{const mesh=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:'#33404b',transparent:true,opacity:0,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-3}));this.root.add(mesh);return {mesh,life:0};});const dustGeo=new THREE.SphereGeometry(.16,5,4);this.dust=Array.from({length:24},()=>{const mesh=new THREE.Mesh(dustGeo,new THREE.MeshBasicMaterial({color:'#d9bc8d',transparent:true,depthWrite:false}));this.root.add(mesh);return {mesh,life:0};});this.clear();}
@@ -11,7 +12,7 @@ export class DrivingEffects{
  const f=frame(r.distance-.8,r.offset+side*.88);
  if(r.drifting){const p=this.marks[this.cursor++%(light?64:160)];p.life=5;p.mesh.visible=true;p.mesh.position.copy(f.p).addScaledVector(f.up,.055);p.mesh.quaternion.copy(f.quaternion).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),-Math.PI/2));p.mesh.scale.y=Math.max(.7,r.speed*(light||reduced?.18:.085));}
  // A faixa de terra é a margem externa, além do asfalto.
- if(Math.abs(r.offset)>8.4&&!reduced){const p=this.dust.find(p=>p.life<=0);if(p){p.life=.6;p.mesh.visible=true;p.mesh.position.copy(f.p).addScaledVector(f.up,.25);}}
+ if(Math.abs(r.offset)>OFFROAD_LIMIT&&!reduced){const p=this.dust.find(p=>p.life<=0);if(p){p.life=.6;p.mesh.visible=true;p.mesh.position.copy(f.p).addScaledVector(f.up,.25);}}
  }
  }
 }

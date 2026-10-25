@@ -33,7 +33,7 @@ test('fantasma interpola sem alterar o piloto, persiste por pista e rejeita dado
  assert.equal(readGhost(null,'x'),null);assert.equal(saveGhost(null,'x',80,0,samples),false);
 });
 test('marcas e poeira têm limite fixo e congelam na pausa',()=>{
- const effects=new DrivingEffects(new THREE.Scene()),r={distance:30,offset:9,speed:30,drifting:true};
+ const effects=new DrivingEffects(new THREE.Scene()),r={distance:30,offset:11.25,speed:30,drifting:true};
  const frame=(d,o)=>({p:new THREE.Vector3(o,0,d),up:new THREE.Vector3(0,1,0),quaternion:new THREE.Quaternion()});
  for(let i=0;i<500;i++)effects.update(r,frame,.05,{active:true});assert.equal(effects.root.children.length,184);assert.ok(effects.marks.some(p=>p.life>0));assert.ok(effects.dust.some(p=>p.life>0));
  const lives=effects.marks.map(p=>p.life);effects.update(r,frame,0,{active:true});assert.deepEqual(effects.marks.map(p=>p.life),lives);effects.clear();assert.ok(effects.marks.every(p=>!p.mesh.visible));

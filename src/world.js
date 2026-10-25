@@ -1,3 +1,4 @@
+import {ROAD_SCALE,wideFrame} from './road-width.js';
 import {createEmbankment} from './track-landscape.js';
 import {createTrackSampler} from './track-frame.js';
 import {asphaltTexture,addCourseFinish} from './course-finish.js';
@@ -22,14 +23,14 @@ export function createWorld(scene,id,{quality='pretty'}={}){
  if(harbor){ground.material.transparent=true;ground.material.opacity=.32;ground.material.depthWrite=false;ground.material.side=THREE.DoubleSide;const seabed=mesh(new THREE.PlaneGeometry(4000,4000),'#255066');seabed.rotation.x=-Math.PI/2;seabed.position.y=-18;}
  const curve=createCircuitCurve(id),physicalLength=curve.getLength();
  const shortcut=SHORTCUTS[id];
-const track=createTrackSampler(curve,TRACK_LENGTH,distance=>surfaceProfile(distance,id));
+const physicalTrack=createTrackSampler(curve,TRACK_LENGTH,distance=>surfaceProfile(distance,id)),track=wideFrame(physicalTrack);
 function shortcutFrame(distance,offset=0){
  const u=Math.max(0,Math.min(1,(((distance%TRACK_LENGTH)+TRACK_LENGTH)%TRACK_LENGTH-shortcut.start)/(shortcut.end-shortcut.start)));
- const a=track(shortcut.start,offset),b=track(shortcut.end,offset),p=a.p.clone().lerp(b.p,u);
+ const a=physicalTrack(shortcut.start,offset),b=physicalTrack(shortcut.end,offset),p=a.p.clone().lerp(b.p,u);
  p.y+=1.7*Math.sin(Math.PI*u)**2;const tangent=b.p.clone().sub(a.p);tangent.y+=1.7*Math.PI*Math.sin(2*Math.PI*u);tangent.normalize();const normal=new THREE.Vector3(tangent.z,0,-tangent.x).normalize(),up=new THREE.Vector3().crossVectors(tangent,normal).normalize();
  return {p,tangent,normal,up,metersPerUnit:a.p.distanceTo(b.p)/(shortcut.end-shortcut.start),quaternion:new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(normal,up,tangent))};
 }
-if(harbor){for(const d of [1290,1800]){const f=track(d);for(const side of [-1,1]){const post=mesh(new THREE.CylinderGeometry(.18,.18,6,8),'#82f7ef');post.position.copy(track(d,side*10).p).addScaledVector(f.up,3);}const arch=mesh(new THREE.BoxGeometry(21,.6,.6),'#82f7ef');arch.position.copy(f.p).addScaledVector(f.up,6);arch.quaternion.copy(f.quaternion);}for(let i=0;i<22;i++){const f=track(1404+i*12.6,i%2?13:-13),coral=mesh(new THREE.ConeGeometry(.8,3,5),i%2?'#ff99b5':'#7bf0dc');coral.position.copy(f.p).addScaledVector(f.up,1.5);}}
+if(harbor){for(const d of [1290,1800]){const f=track(d);for(const side of [-1,1]){const post=mesh(new THREE.CylinderGeometry(.18,.18,6,8),'#82f7ef');post.position.copy(track(d,side*10).p).addScaledVector(f.up,3);}const arch=mesh(new THREE.BoxGeometry(21*ROAD_SCALE,.6,.6),'#82f7ef');arch.position.copy(f.p).addScaledVector(f.up,6);arch.quaternion.copy(f.quaternion);}for(let i=0;i<22;i++){const f=track(1404+i*12.6,i%2?13:-13),coral=mesh(new THREE.ConeGeometry(.8,3,5),i%2?'#ff99b5':'#7bf0dc');coral.position.copy(f.p).addScaledVector(f.up,1.5);}}
  const roadSteps=rebuilt?Math.ceil(physicalLength/2.5):500;
 function ribbon(width,color,y,innerWidth=0,layer=0){const object=mesh(createRoadRibbon(track,TRACK_LENGTH,roadSteps,width,{innerWidth,height:y,skip:d=>width>=100&&d>=shortcut.start&&d<=shortcut.end}),color);if(width===18)object.material.map=asphaltTexture();object.material.polygonOffset=true;object.material.polygonOffsetFactor=layer;object.material.polygonOffsetUnits=layer;return object;}
 ribbon(rebuilt?27:harbor?29:100,harbor?'#e0bb86':id==='night'?'#303950':'#89c57a',-.25,22,3);ribbon(22,id==='night'?'#6a71ab':'#ebd7ac',.01,18,2);const asphalt=ribbon(18,id==='night'?'#53677b':'#597886',.04,0,-1);obstacles.push(asphalt);
@@ -48,14 +49,14 @@ for(let i=0;i<(id==='valley'?18:0);i++){
  const crystal=mesh(new THREE.OctahedronGeometry(1.4+i%3),'#77d7d3');crystal.position.copy(p);crystal.position.y+=2;crystal.scale.y=2;
  if(i%3===0){const base=p.clone().add(new THREE.Vector3(6,0,4));const tower=mesh(new THREE.CylinderGeometry(.5,1.2,9,6),'#e8d3a6');tower.position.copy(base);tower.position.y+=4.5;const rotor=new THREE.Group();rotor.position.copy(base);rotor.position.y+=8;root.add(rotor);for(let j=0;j<3;j++){const arm=new THREE.Group();arm.rotation.z=j*Math.PI*2/3;rotor.add(arm);const blade=mesh(new THREE.BoxGeometry(.7,4,.18),'#f5b86d',arm);blade.position.y=2;}windmills.push(rotor);}
 }
-for(let i=0;i<18;i++){for(let j=0;j<2;j++){const {p,tangent}=track(j*1.5,i-8.5);const tile=mesh(new THREE.BoxGeometry(1,.045,physicalLength/TRACK_LENGTH*1.5),(i+j)%2?'#172b37':'#ffffff');tile.position.copy(p);tile.position.y+=.075;tile.rotation.y=Math.atan2(tangent.x,tangent.z);}}
-const start=track(0);for(const side of [-1,1]){const pillar=mesh(new THREE.CylinderGeometry(.25,.25,7), '#ffe5a3');pillar.position.copy(start.p).addScaledVector(start.normal,side*11);pillar.position.y+=3.5;}
-const banner=mesh(new THREE.BoxGeometry(22,1.1,.5),'#a9fb59');banner.position.copy(start.p);banner.position.y+=7;banner.rotation.y=Math.atan2(start.tangent.x,start.tangent.z);
+for(let i=0;i<18;i++){for(let j=0;j<2;j++){const {p,tangent}=track(j*1.5,(i-8.5));const tile=mesh(new THREE.BoxGeometry(ROAD_SCALE,.045,physicalLength/TRACK_LENGTH*1.5),(i+j)%2?'#172b37':'#ffffff');tile.position.copy(p);tile.position.y+=.075;tile.rotation.y=Math.atan2(tangent.x,tangent.z);}}
+const start=track(0);for(const side of [-1,1]){const pillar=mesh(new THREE.CylinderGeometry(.25,.25,7), '#ffe5a3');pillar.position.copy(start.p).addScaledVector(start.normal,side*11*ROAD_SCALE);pillar.position.y+=3.5;}
+const banner=mesh(new THREE.BoxGeometry(22*ROAD_SCALE,1.1,.5),'#a9fb59');banner.position.copy(start.p);banner.position.y+=7;banner.rotation.y=Math.atan2(start.tangent.x,start.tangent.z);
 // Árvores e cristais usam posições determinísticas para manter o vale original.
 const treeCount=harbor||id==='night'?0:light?24:id==='fair'?28:80;
 for(let i=0;i<treeCount;i++){const d=i/treeCount*TRACK_LENGTH;const side=i%2?1:-1;const {p}=track(d,side*(24+(i*17%31)));const tree=new THREE.Group();root.add(tree);tree.position.copy(p);const trunk=mesh(new THREE.CylinderGeometry(.35,.5,3,6),'#76634b',tree);trunk.position.y=1.5;const crown=mesh(new THREE.ConeGeometry(2.4+(i%3)*.4,7,6),i%3?'#366c62':'#4b8571',tree);crown.position.y=5;}
 function loadProp(name,placements){loader.load(`${import.meta.env.BASE_URL}models/prop-${name}.glb`,gltf=>{if(!alive)return;cartoonize(gltf.scene);placements.forEach(({distance,offset=0,scale=1})=>{
- const frame=track(distance,offset),object=gltf.scene.clone(true);object.position.copy(frame.p);object.quaternion.copy(frame.quaternion);object.scale.setScalar(scale);if(['portal','bridge','tunnel'].includes(name))object.scale.x*=1.5;root.add(object);if(name==='portal'||name==='tunnel')obstacles.push(object);if(name==='grandstand'){let count=0;object.traverse(part=>{if(/^Spectator/.test(part.name)&&count++<(light?6:21)){const base=part.position.clone(),phase=count;ambient.push(t=>{part.position.y=base.y+Math.max(0,Math.sin(t*4+phase))*.16;});}});}
+ const frame=track(distance,offset),object=gltf.scene.clone(true);object.position.copy(frame.p);object.quaternion.copy(frame.quaternion);object.scale.setScalar(scale);if(['portal','bridge','tunnel'].includes(name))object.scale.x*=1.5*ROAD_SCALE;root.add(object);if(name==='portal'||name==='tunnel')obstacles.push(object);if(name==='grandstand'){let count=0;object.traverse(part=>{if(/^Spectator/.test(part.name)&&count++<(light?6:21)){const base=part.position.clone(),phase=count;ambient.push(t=>{part.position.y=base.y+Math.max(0,Math.sin(t*4+phase))*.16;});}});}
 });},undefined,error=>console.warn('Objeto decorativo indisponível.',error));}
 if(!harbor&&id!=='night')loadProp('tree',Array.from({length:light?16:32},(_,i)=>({distance:i/32*TRACK_LENGTH,offset:(i%2?1:-1)*(26+i%4*3),scale:.8+i%3*.15})));
 loadProp('portal',[{distance:0}]);root.remove(banner);banner.geometry.dispose();banner.material.dispose();
@@ -88,5 +89,5 @@ if(!harbor&&!rebuilt)loadProp('tunnel',[{distance:TRACK_LENGTH*.63}]);
  if(rebuilt)addTrackStructures(root,track,id,obstacles,light);
  const updateDetails=addTrackDetails(root,track,id,light);
  addCourseFinish(root,track,id,light);
- return {root,track,shortcutFrame,curve,windmills,obstacles,update(time,reduced){const t=reduced?0:time;for(const rotor of windmills)rotor.rotation.z=t*.7;for(const animate of ambient)animate(t);updateDetails(t);},profile:distance=>surfaceProfile(distance,id),dispose(){alive=false;root.removeFromParent();const geometries=new Set(),materials=new Set(),textures=new Set();root.traverse(o=>{if(o.geometry)geometries.add(o.geometry);if(o.material)for(const m of Array.isArray(o.material)?o.material:[o.material]){materials.add(m);if(m.map)textures.add(m.map);}});geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());}};
+ return {root,track:physicalTrack,shortcutFrame,curve,windmills,obstacles,update(time,reduced){const t=reduced?0:time;for(const rotor of windmills)rotor.rotation.z=t*.7;for(const animate of ambient)animate(t);updateDetails(t);},profile:distance=>surfaceProfile(distance,id),dispose(){alive=false;root.removeFromParent();const geometries=new Set(),materials=new Set(),textures=new Set();root.traverse(o=>{if(o.geometry)geometries.add(o.geometry);if(o.material)for(const m of Array.isArray(o.material)?o.material:[o.material]){materials.add(m);if(m.map)textures.add(m.map);}});geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());}};
 }

@@ -28,7 +28,7 @@ test('atributos alteram aceleração e direção de verdade',()=>{
 });
 test('pneus todo-terreno preservam mais velocidade no acostamento',()=>{
  const a=createRace({tires:'street'})[0],b=createRace({tires:'trail'})[0];
- for(const r of [a,b]){Object.assign(r,{distance:10,offset:8.7,speed:32});for(let i=0;i<12;i++){r.heading=0;r.offset=8.7;stepRace([r],{up:true},.05,i*.05);}}
+ for(const r of [a,b]){Object.assign(r,{distance:10,offset:10.875,speed:32});for(let i=0;i<12;i++){r.heading=0;r.offset=10.875;stepRace([r],{up:true},.05,i*.05);}}
  assert.ok(b.speed>a.speed);assert.ok(a.offroad&&b.offroad);
 });
 test('peso maior sofre menos deslocamento numa colisão lateral',()=>{

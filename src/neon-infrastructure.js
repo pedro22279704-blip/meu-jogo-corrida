@@ -1,3 +1,4 @@
+import {ROAD_SCALE} from './road-width.js';
 import * as THREE from 'three';
 import {trackLength,TUNNELS} from './tracks.js';
 import {toonMaterial} from './cartoon.js';
@@ -32,12 +33,12 @@ export function addNeonInfrastructure(root,track,light,obstacles){
  for(let d=32;d<length;d+=190){const f=track(d);for(let offset=-15;offset<=15;offset+=3.3){const p=track(d,offset).p,m=mesh(crossGeometry,paint);m.position.set(p.x,.09,p.z);m.rotation.y=Math.atan2(f.tangent.x,f.tangent.z);}}
  // Continuous slab: road surface, deep side fascia and visible underside.
  const positions=[],indices=[],steps=Math.ceil(length/5);
- for(let i=0;i<=steps;i++){const f=track(i/steps*length);for(const [offset,drop] of [[-12.25,.15],[12.25,.15],[-12.25,1.35],[12.25,1.35]]){const p=f.p.clone().addScaledVector(f.normal,offset).addScaledVector(f.up,-drop);positions.push(...p.toArray());}
+ for(let i=0;i<=steps;i++){const f=track(i/steps*length);for(const [offset,drop] of [[-12.25,.15],[12.25,.15],[-12.25,1.35],[12.25,1.35]]){const p=f.p.clone().addScaledVector(f.normal,offset*ROAD_SCALE).addScaledVector(f.up,-drop);positions.push(...p.toArray());}
   if(i<steps){const a=i*4,b=a+4;indices.push(a,b,a+1,a+1,b,b+1,a+2,a+3,b+2,a+3,b+3,b+2,a,a+2,b,a+2,b+2,b,a+1,b+1,a+3,a+3,b+1,b+3);}}
  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geo.setIndex(indices);geo.computeVertexNormals();const deck=mesh(geo,concrete);deck.name='Continuous viaduct deck';deck.material.side=THREE.DoubleSide;obstacles.push(deck);
  const beamGeometry=new THREE.BoxGeometry(.65,1,5.3);
- for(let d=0;d<length;d+=5){const f=track(d);for(const side of [-1,1]){const beam=mesh(beamGeometry,dark);beam.position.copy(f.p).addScaledVector(f.normal,side*10.5).addScaledVector(f.up,-1.55);beam.quaternion.copy(f.quaternion);}}
- const headGeo=new THREE.BoxGeometry(28,1.4,3.6),shaftGeo=new THREE.CylinderGeometry(1.05,1.4,1,8),baseGeo=new THREE.BoxGeometry(4.8,.7,4.2),bearingGeo=new THREE.BoxGeometry(2.5,.45,3);
+ for(let d=0;d<length;d+=5){const f=track(d);for(const side of [-1,1]){const beam=mesh(beamGeometry,dark);beam.position.copy(f.p).addScaledVector(f.normal,side*10.5*ROAD_SCALE).addScaledVector(f.up,-1.55);beam.quaternion.copy(f.quaternion);}}
+ const headGeo=new THREE.BoxGeometry(28*ROAD_SCALE,1.4,3.6),shaftGeo=new THREE.CylinderGeometry(1.05,1.4,1,8),baseGeo=new THREE.BoxGeometry(4.8,.7,4.2),bearingGeo=new THREE.BoxGeometry(2.5,.45,3);
  for(const {frame:f,feet,height} of viaductPiers(track,light)){
   const head=mesh(headGeo,concrete);head.name='Viaduct crosshead';head.position.copy(f.p).addScaledVector(f.up,-2);head.quaternion.copy(f.quaternion);
   for(const foot of feet){
