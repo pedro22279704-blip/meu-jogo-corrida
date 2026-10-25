@@ -6,19 +6,18 @@ A direção usa resposta progressiva no analógico e curvas mais largas, com red
 
 O kart do jogador mantém o próprio rumo no mundo: acelerar não acompanha automaticamente as curvas e soltar a direção não realinha o carro com a pista. Use **A/D ou ←/→** (analógico no controle) para virar, **W/↑** para acelerar e **S/↓** para frear/dar ré. Na barreira, apontar para fora interrompe o avanço; vire para a pista ou recue para sair.
 
-O drift conserva inércia e contravolante, mas a trajetória depende da direção do jogador. A câmera acompanha o rumo do kart e as rodas acompanham o comando de direção. Nitro, moedas, rampas, planagem e manobras continuam disponíveis; os rivais continuam controlados pela IA. Fantasmas anteriores continuam aceitos e os novos também registram orientações completas, inclusive ao voltar ou girar.
+O drift conserva inércia e contravolante, mas a trajetória depende da direção do jogador. A câmera acompanha o rumo do kart e as rodas acompanham o comando de direção. Nitro, moedas e faixas de impulso continuam disponíveis; os rivais continuam controlados pela IA. Fantasmas anteriores continuam aceitos e os novos também registram orientações completas, inclusive ao voltar ou girar.
 
-## Corrida arcade: moedas, rampas e planagem
+## Corrida no chão: moedas e impulso
 
-Esta atualização aproxima a apresentação e a dinâmica de uma corrida de kart como a referência enviada, com arte e modelos próprios. As cinco pistas têm asfalto texturizado, marcações, faixas de impulso e duas rampas: um salto curto e uma planagem com asa retrátil. O Porto Âmbar tem uma rampa de planagem logo no primeiro trecho, ideal para experimentar no Treino.
+Os saltos automáticos, as rampas de lançamento, o salto de entrada do drift e o planador foram removidos para jogador e rivais. Os karts acompanham a superfície das pistas, incluindo elevações, túneis e viadutos, sem manobras aéreas ou turbo de pouso. Fantasmas e backups antigos continuam aceitos; sua reprodução acompanha o chão e não abre asas.
 
-- **Moedas:** até 10 aumentam gradualmente a velocidade normal; bater ou sofrer um ataque sem Bolha faz perder até 3. Moedas reaparecem depois de alguns segundos e os rivais também podem coletar.
+- **Moedas:** até 10 aumentam gradualmente a velocidade normal; bater ou sofrer ataque sem Bolha faz perder até 3. Elas reaparecem e os rivais também podem coletar.
 - **Faixas douradas:** dão impulso temporário sem consumir o nitro do jogador.
-- **Rampas turquesa:** abrem a asa nos trechos de planagem. **Espaço/A no ar**, depois de soltar o botão, faz uma manobra; pousar após a manobra concede turbo. O drift continua carregando apenas no chão.
-- **Câmera e painéis:** câmera mais baixa, posição em destaque, moedas e item nos cantos, faíscas/halo do drift e efeito periférico de velocidade. Movimento reduzido desativa giros e efeitos decorativos, preservando o voo e os controles.
-- **Apresentação:** Corrida Rápida ganha uma prévia da pista com três vistas, com pausa, pular e voltar. Treino continua começando diretamente. A garagem destaca o carro em uma prévia maior ao lado das escolhas nas telas largas.
+- **Drift:** Espaço/A com direção carrega o impulso, sem levantar o kart do chão.
+- **Apresentação:** Corrida Rápida tem prévia com pausa/pular/voltar. Treino continua direto. A garagem destaca o carro em telas largas.
 
-Os oito carros, todos os pilotos, Gugar e seu osso, drift, nitro, atalhos e campeonatos continuam disponíveis. Os fantasmas novos registram a altura e a asa; fantasmas antigos e backups anteriores continuam aceitos. O resultado informa moedas recolhidas e manobras com pouso turbo.
+Os oito carros, todos os pilotos, Gugar e seu osso, direção manual, drift aberto, nitro, atalhos e campeonatos continuam disponíveis. O resultado informa as moedas recolhidas.
 
 ## Gugar e Osso Perseguidor
 
@@ -42,7 +41,7 @@ A etapa Pista tem cartões com os cinco traçados, mapa ampliado da seleção e 
 
 O asfalto passou de 12 para 18 unidades de largura; barreiras, largada, túneis e estruturas dos viadutos acompanham a ampliação. Os percursos, carros, nitro, campeonatos e progresso existente continuam disponíveis. Os fantasmas e backups também aceitam as novas faixas externas.
 
-Para derrapar, acelere, vire e segure Espaço (A/LB no controle). Um salto curto inicia o drift e mantém o lado escolhido. Faça contravolante para abrir a curva ou vire para o mesmo lado para fechá-la. As faíscas evoluem de azul para laranja e roxo; solte o drift para liberar o impulso. Movimento reduzido desativa o salto visual. Interface, efeitos e arte são originais.
+Para derrapar, acelere, vire e segure Espaço (A/LB no controle). O drift começa sem salto e mantém o lado escolhido. Faça contravolante para abrir a curva ou vire para o mesmo lado para fechá-la. As faíscas evoluem de azul para laranja e roxo; solte o drift para liberar o impulso.  Interface, efeitos e arte são originais.
 
 ## Garagem, pistas e progresso
 

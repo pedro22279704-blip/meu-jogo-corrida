@@ -1,4 +1,3 @@
-import {flightHeight} from './arcade-race.js';
 import {trackLength} from './tracks.js';
 import {launchBone,advanceBones,boneTarget} from './bone-power.js';
 import {TRACK_LENGTH,ROAD_LIMIT,clamp,resolveCollisions,orderRacers} from './race.js';
@@ -35,7 +34,7 @@ export function stepItems(racers,world,input,dt,time){
    if(item==='pulse'){r.miniTurbo=Math.max(r.miniTurbo,.8);r.turboLevel=2;world.pulse={distance:r.distance,offset:r.offset,life:.5};for(const other of racers)if(other!==r&&!other.finished&&Math.abs(gap(other.distance,r.distance,trackLength(r.settings?.track)))<22&&hit(other,1.3,r.name,'pulse',time)){const side=Math.sign(other.offset-r.offset)||(other.index%2?1:-1);other.offset=clamp(other.offset+side*1.3,-ROAD_LIMIT,ROAD_LIMIT);other.slide=side*5;}}
   }
   r.itemPressed=pressed;
-  for(const p of world.puddles)if(flightHeight(r)<1&&p.owner!==r.index&&Math.abs(gap(r.distance,p.distance,trackLength(r.settings?.track)))<2.5&&Math.abs(r.offset-p.offset)<1.7){hit(r,1.5,p.ownerName??racers.find(o=>o.index===p.owner)?.name??'Rival','gum',time);p.life=0;}
+  for(const p of world.puddles)if(p.owner!==r.index&&Math.abs(gap(r.distance,p.distance,trackLength(r.settings?.track)))<2.5&&Math.abs(r.offset-p.offset)<1.7){hit(r,1.5,p.ownerName??racers.find(o=>o.index===p.owner)?.name??'Rival','gum',time);p.life=0;}
  }
  advanceBones(racers,world,dt,time,hit,ROAD_LIMIT);
  resolveCollisions(racers);
