@@ -2,8 +2,8 @@ import {lapProgress} from './tracks.js';
 const smooth=x=>{x=Math.max(0,Math.min(1,x));return x*x*(3-2*x);};
 const derivative=x=>x>0&&x<1?6*x*(1-x):0;
 export function harborDive(distance){
- const d=lapProgress(distance,'harbor'),a=(d-430)/40,b=(600-d)/40;
- return {depth:12*smooth(a)*smooth(b),grade:12*(derivative(a)*smooth(b)-smooth(a)*derivative(b))/40};
+ const d=lapProgress(distance,'harbor'),a=(d-860)/80,b=(1200-d)/80;
+ return {depth:12*smooth(a)*smooth(b),grade:12*(derivative(a)*smooth(b)-smooth(a)*derivative(b))/80};
 }
 export function environmentAt(r){
  const underwater=r.settings.track==='harbor'&&!r.shortcut&&harborDive(r.distance).depth>6;

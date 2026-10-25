@@ -34,6 +34,6 @@ Defesa oferece bolha/goma; ataque oferece cogumelo/casco; recuperação oferece 
 
 ## Água
 
-O Porto Âmbar tem uma descida suave entre 430 e 600 m, com uma seção submersa, portais, corais, hélice e bolhas. Dentro da água, a velocidade recebe fator 0,86, a aceleração 0,78 e a dirigibilidade 0,9. A transição de altura tem derivada contínua e não lança o kart.
+O Porto Âmbar tem uma descida suave entre 860 e 1200 m, com uma seção submersa, portais, corais, hélice e bolhas. Dentro da água, a velocidade recebe fator 0,86, a aceleração 0,78 e a dirigibilidade 0,9. A transição de altura tem derivada contínua e não lança o kart.
 
 Como o kart permanece apoiado na pista, não há física de voo nem saltos de gravidade reduzida. O comportamento subaquático é representado por arrasto, resposta da direção e apresentação visual. A hélice e as bolhas não alteram a trajetória por conta própria.

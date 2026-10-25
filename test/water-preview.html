@@ -1,6 +1,6 @@
 <!doctype html><meta charset="utf-8"><title>Teste visual · Porto Âmbar</title>
 <style>body{margin:0;background:#163b52;color:white;font:15px system-ui}canvas{display:block;width:100%;height:100vh}nav{position:fixed;top:18px;left:18px;padding:15px;background:#10354be6;border:1px solid #8ceff0;border-radius:14px}button{padding:9px;margin:6px;background:#c3ff70;border:0;border-radius:8px;color:#153345;font-weight:bold}</style>
-<nav>Prévia de teste · Porto Âmbar<br><button data-distance="410">Entrada</button><button data-distance="510">Submerso</button><button data-distance="620">Saída</button></nav>
+<nav>Prévia de teste · Porto Âmbar<br><button data-distance="820">Entrada</button><button data-distance="1020">Submerso</button><button data-distance="1240">Saída</button></nav>
 <script type="module">
 import * as THREE from 'three';
 import {createWorld} from '../src/world.js';
@@ -12,5 +12,5 @@ const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerW
 const scene=new THREE.Scene();scene.add(new THREE.HemisphereLight('#f1fcff','#6d8b83',1.7));const sun=new THREE.DirectionalLight('#ffe9ca',2.2);sun.position.set(20,50,10);scene.add(sun);
 const world=createWorld(scene,'harbor',{quality:'light'}),r=createRace({track:'harbor',pilot:6})[0],kart=new THREE.Group();kart.userData.model=createCar10();kart.add(kart.userData.model);scene.add(kart);const karts=Array.from({length:8},()=>new THREE.Group());karts[6]=kart;const water=new WaterVisuals(karts,scene),camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,1200);r.speed=28;r.offset=0;
 function view(distance){r.distance=distance;r.environment=environmentAt(r).state;const f=world.track(distance);kart.position.copy(f.p);kart.quaternion.copy(f.quaternion);camera.position.copy(f.p).addScaledVector(f.tangent,-10).addScaledVector(f.up,4);camera.lookAt(f.p.clone().addScaledVector(f.tangent,12));water.update([r],p=>world.track(p.distance,p.offset),3,{active:true});renderer.render(scene,camera);}
-for(const button of document.querySelectorAll('button'))button.onclick=()=>view(Number(button.dataset.distance));view(510);
+for(const button of document.querySelectorAll('button'))button.onclick=()=>view(Number(button.dataset.distance));view(1020);
 </script>

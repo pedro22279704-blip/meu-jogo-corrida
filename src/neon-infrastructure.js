@@ -19,7 +19,8 @@ export function addNeonInfrastructure(root,track,light,obstacles){
  function mesh(geometry,material){const m=new THREE.Mesh(geometry,material);root.add(m);return m;}
  const sites=citySites(track,light),streetTile=new THREE.BoxGeometry(18,.025,14),cityPaint=new THREE.BoxGeometry(.22,.02,6);
  // Cross streets occupy the gaps between city blocks, never the building footprints.
- for(let axis=0;axis<2;axis++)for(let across=-420;across<=420;across+=84)for(let along=-420;along<=420;along+=14){const x=axis?along:across,z=axis?across:along;if(sites.some(s=>Math.abs(x-s.x)<(axis?7:9)+Math.abs(Math.cos(s.angle))*s.width/2+Math.abs(Math.sin(s.angle))*s.depth/2+1&&Math.abs(z-s.z)<(axis?9:7)+Math.abs(Math.sin(s.angle))*s.width/2+Math.abs(Math.cos(s.angle))*s.depth/2+1))continue;
+ const streetExtent=Math.ceil(Math.max(...sites.map(s=>Math.max(Math.abs(s.x),Math.abs(s.z))))/84)*84+84;
+ for(let axis=0;axis<2;axis++)for(let across=-streetExtent;across<=streetExtent;across+=84)for(let along=-streetExtent;along<=streetExtent;along+=14){const x=axis?along:across,z=axis?across:along;if(sites.some(s=>Math.abs(x-s.x)<(axis?7:9)+Math.abs(Math.cos(s.angle))*s.width/2+Math.abs(Math.sin(s.angle))*s.depth/2+1&&Math.abs(z-s.z)<(axis?9:7)+Math.abs(Math.sin(s.angle))*s.width/2+Math.abs(Math.cos(s.angle))*s.depth/2+1))continue;
   const tile=mesh(streetTile,road);tile.name='Ground city street';tile.position.set(x,.005,z);tile.rotation.y=axis*Math.PI/2;
   for(const offset of [-.7,.7]){const line=mesh(cityPaint,paint);line.position.set(x+(axis?0:offset),.035,z+(axis?offset:0));line.rotation.y=axis*Math.PI/2;}
  }
@@ -36,12 +37,13 @@ export function addNeonInfrastructure(root,track,light,obstacles){
  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geo.setIndex(indices);geo.computeVertexNormals();const deck=mesh(geo,concrete);deck.name='Continuous viaduct deck';deck.material.side=THREE.DoubleSide;obstacles.push(deck);
  const beamGeometry=new THREE.BoxGeometry(.65,1,5.3);
  for(let d=0;d<length;d+=5){const f=track(d);for(const side of [-1,1]){const beam=mesh(beamGeometry,dark);beam.position.copy(f.p).addScaledVector(f.normal,side*10.5).addScaledVector(f.up,-1.55);beam.quaternion.copy(f.quaternion);}}
+ const headGeo=new THREE.BoxGeometry(28,1.4,3.6),shaftGeo=new THREE.CylinderGeometry(1.05,1.4,1,8),baseGeo=new THREE.BoxGeometry(4.8,.7,4.2),bearingGeo=new THREE.BoxGeometry(2.5,.45,3);
  for(const {frame:f,feet,height} of viaductPiers(track,light)){
-  const head=mesh(new THREE.BoxGeometry(28,1.4,3.6),concrete);head.name='Viaduct crosshead';head.position.copy(f.p).addScaledVector(f.up,-2);head.quaternion.copy(f.quaternion);
+  const head=mesh(headGeo,concrete);head.name='Viaduct crosshead';head.position.copy(f.p).addScaledVector(f.up,-2);head.quaternion.copy(f.quaternion);
   for(const foot of feet){
-   const shaft=mesh(new THREE.CylinderGeometry(1.05,1.4,height,8),concrete);shaft.name='Grounded viaduct column';shaft.position.set(foot.x,height/2,foot.z);
-   const base=mesh(new THREE.BoxGeometry(4.8,.7,4.2),concrete);base.position.set(foot.x,.35,foot.z);
-   const bearing=mesh(new THREE.BoxGeometry(2.5,.45,3),dark);bearing.position.set(foot.x,height-.1,foot.z);
+   const shaft=mesh(shaftGeo,concrete);shaft.scale.y=height;shaft.name='Grounded viaduct column';shaft.position.set(foot.x,height/2,foot.z);
+   const base=mesh(baseGeo,concrete);base.position.set(foot.x,.35,foot.z);
+   const bearing=mesh(bearingGeo,dark);bearing.position.set(foot.x,height-.1,foot.z);
   }
  }
  // Lamps stay outside the driving lane and do not intrude into tunnel roofs.
@@ -49,5 +51,5 @@ export function addNeonInfrastructure(root,track,light,obstacles){
  for(let d=15;d<length;d+=light?72:36){if(TUNNELS.night.some(t=>d>t.start*length-12&&d<t.end*length+12))continue;for(const side of [-1,1]){const f=track(d,side*11.7),pole=mesh(poleGeometry,dark);pole.position.copy(f.p).add(new THREE.Vector3(0,2.5,0));const lamp=mesh(lampGeometry,glow);lamp.position.copy(f.p).add(new THREE.Vector3(0,5,0));}}
  // Batch the repeated beams, lane markings and lamps into a handful of draw calls.
  const batches=new Map();for(const object of root.children.slice(firstChild)){if(!object.isMesh||object===deck)continue;const key=object.geometry.uuid+object.material.uuid;if(!batches.has(key))batches.set(key,[]);batches.get(key).push(object);}
- for(const objects of batches.values()){if(objects.length<4)continue;const batch=new THREE.InstancedMesh(objects[0].geometry,objects[0].material,objects.length);objects.forEach((object,i)=>{object.updateMatrix();batch.setMatrixAt(i,object.matrix);root.remove(object);});root.add(batch);}
+ for(const objects of batches.values()){if(objects.length<4)continue;const batch=new THREE.InstancedMesh(objects[0].geometry,objects[0].material,objects.length);batch.name=objects[0].name;objects.forEach((object,i)=>{object.updateMatrix();batch.setMatrixAt(i,object.matrix);root.remove(object);});root.add(batch);}
 }

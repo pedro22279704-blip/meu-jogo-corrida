@@ -5,7 +5,7 @@ import {trackLength} from './tracks.js';
 
 // Conservative planar clearance also keeps towers out of both levels of the eight.
 export function citySites(track,light=false){
- const length=trackLength('night'),road=Array.from({length:256},(_,i)=>track(i/256*length).p),sites=[];
+ const length=trackLength('night'),road=Array.from({length:Math.ceil(length/6)},(_,i)=>track(i/Math.ceil(length/6)*length).p),sites=[];
  for(const distant of [false,true]){
   const count=distant?(light?12:24):(light?24:48),candidates=count/2;
   for(let i=0;i<candidates*2;i++){
@@ -17,9 +17,10 @@ export function citySites(track,light=false){
   }
  }
  // Fill the city blocks around the circuit so sweeping bends retain a dense skyline.
- const infill=[];for(let x=-357;x<=357;x+=42)for(let z=-315;z<=315;z+=42){const distance=Math.min(...road.map(p=>Math.hypot(p.x-x,p.z-z)));if(distance>25&&distance<125)infill.push({x,z,distance});}
+ const boundX=Math.ceil((Math.max(...road.map(p=>Math.abs(p.x)))+84)/42)*42,boundZ=Math.ceil((Math.max(...road.map(p=>Math.abs(p.z)))+84)/42)*42;
+ const infill=[];for(let x=-boundX+21;x<=boundX;x+=42)for(let z=-boundZ+21;z<=boundZ;z+=42){const distance=Math.min(...road.map(p=>Math.hypot(p.x-x,p.z-z)));if(distance>25&&distance<125)infill.push({x,z,distance});}
  infill.sort((a,b)=>a.distance-b.distance);
- for(const [index,candidate] of infill.entries()){if(sites.length>=(light?44:96))break;const radius=Math.hypot(12,12)/2;if(candidate.distance<radius+15||sites.some(s=>Math.hypot(s.x-candidate.x,s.z-candidate.z)<s.radius+radius+3))continue;
+ for(const [index,candidate] of infill.entries()){if(sites.length>=(light?64:128))break;const radius=Math.hypot(12,12)/2;if(candidate.distance<radius+15||sites.some(s=>Math.hypot(s.x-candidate.x,s.z-candidate.z)<s.radius+radius+3))continue;
   sites.push({x:candidate.x,z:candidate.z,angle:Math.PI/2*(index%4),width:12,depth:12,radius,height:32+index%7*9,distant:candidate.distance>65,index:200+index});
  }
  return sites;
