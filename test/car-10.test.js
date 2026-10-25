@@ -20,9 +20,9 @@ test('modelo 10 tem rig completo, placa, aerofólio e animação de drift',()=>{
  const racer=createRace({pilot:6})[0];Object.assign(racer,{speed:28,angle:.4,drifting:true});animateKart(rig,racer,.1,1);
  assert.ok(rig.rolls.every(w=>w.quaternion.angleTo(w.userData.rest)>0));assert.ok(rig.front.every(w=>w.quaternion.angleTo(w.userData.rest)>0));
 });
-test('carro 10 acelera, consome nitro e libera impulso de drift',()=>{
+test('carro 10 acelera e libera impulso de drift',()=>{
  const racers=[createRace({pilot:6})[0]];for(let i=0;i<180;i++)stepRace(racers,driveInput(racers[0]),1/60,i/60);
- const r=racers[0],speed=r.speed;for(let i=0;i<30;i++)stepRace(racers,driveInput(racers[0],{boost:true}),1/60,3+i/60);assert.ok(r.speed>speed&&r.nitro<100);
+ const r=racers[0],speed=r.speed;for(let i=0;i<30;i++)stepRace(racers,driveInput(racers[0],{boost:true}),1/60,3+i/60);assert.ok(speed>10&&r.speed>10);assert.equal('nitro' in r,false);
  r.offset=0;r.speed=28;r.driftCharge=.4;for(let i=0;i<40;i++)stepRace(racers,{up:true,steer:.1,drift:true},1/60,4+i/60);assert.ok(r.drifting&&r.driftCharge>=1.5/3.5);
  stepRace(racers,driveInput(racers[0]),1/60,5);assert.ok(r.miniTurbo>0&&r.boosting);
 });

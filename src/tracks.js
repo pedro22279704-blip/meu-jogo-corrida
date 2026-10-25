@@ -1,18 +1,20 @@
 import * as THREE from 'three';
 export const PREVIOUS_LENGTHS={valley:760,harbor:760,fair:1440,sawmill:1680,night:1900};
+export const REVISION3_LENGTHS={valley:1520,harbor:1520,fair:2880,sawmill:3360,night:3800};
 export const TRACKS={
- valley:{name:'Vale Neon',sky:'#8ccbd3',ground:'#78a879',length:1520,revision:3,description:'1,52 km · retas planas, colinas e curvas largas inclinadas de alta velocidade.'},
- harbor:{name:'Porto Âmbar',sky:'#efad91',ground:'#407d89',length:1520,revision:3,description:'1,52 km · arcos costeiros, cais elevado e descida contínua ao trecho subaquático.'},
- fair:{name:'Vila da Feira',sky:'#a3dce4',ground:'#91b56c',length:2880,revision:3,description:'2,88 km · praças planas, curvas em S e duas galerias, com espaço para carregar o drift.'},
- sawmill:{name:'Serraria dos Barris',sky:'#d4bfa0',ground:'#8caa76',length:3360,revision:3,description:'3,36 km · subida da serra, planaltos, descida, curvas inclinadas e túneis.'},
- night:{name:'Avenida Neon',sky:'#151c40',ground:'#28314c',length:3800,revision:3,description:'3,80 km · grandes arcos em oito, avenidas planas e viaduto com passagem inferior.'},
+ valley:{name:'Vale Neon',sky:'#8ccbd3',ground:'#78a879',length:2280,revision:4,description:'2,28 km · retas planas, colinas e curvas largas inclinadas de alta velocidade.'},
+ harbor:{name:'Porto Âmbar',sky:'#efad91',ground:'#407d89',length:2280,revision:4,description:'2,28 km · arcos costeiros, cais elevado e descida contínua ao trecho subaquático.'},
+ fair:{name:'Vila da Feira',sky:'#a3dce4',ground:'#91b56c',length:4320,revision:4,description:'4,32 km · praças planas, curvas em S e duas galerias, com espaço para carregar o drift.'},
+ sawmill:{name:'Serraria dos Barris',sky:'#d4bfa0',ground:'#8caa76',length:5040,revision:4,description:'5,04 km · subida da serra, planaltos, descida, curvas inclinadas e túneis.'},
+ night:{name:'Avenida Neon',sky:'#151c40',ground:'#28314c',length:5700,revision:4,description:'5,70 km · grandes arcos em oito, avenidas planas e viaduto com passagem inferior.'},
 };
-export const trackLength=id=>TRACKS[id]?.length??1520;
+export const trackLength=id=>TRACKS[id]?.length??2280;
 export const lapProgress=(distance,id)=>((distance%trackLength(id))+trackLength(id))%trackLength(id);
 // Historical ghosts retain their original distance scale.
 export function lengthForScope(scope=''){
  for(const id of Object.keys(TRACKS)){
-  if(scope.startsWith(id+'-r3-'))return trackLength(id);
+  if(scope.startsWith(id+'-r4-'))return trackLength(id);
+  if(scope.startsWith(id+'-r3-'))return REVISION3_LENGTHS[id];
   if(scope.startsWith(id+'-r2-'))return PREVIOUS_LENGTHS[id];
  }
  return 760;

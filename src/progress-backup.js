@@ -4,7 +4,7 @@ import {readGhost} from './ghost.js';
 import {readChallenges} from './challenges.js';
 
 const CHALLENGES='vale-neon-challenges-v1';
-const scopes=Object.keys(TRACKS).flatMap(track=>Object.keys(DIFFICULTIES).flatMap(d=>[`${track}-${d}`,...(['fair','sawmill','night'].includes(track)?[`${track}-r2-${d}`]:[]),...(TRACKS[track].revision?[`${track}-r${TRACKS[track].revision}-${d}`]:[])]));
+const scopes=Object.keys(TRACKS).flatMap(track=>Object.keys(DIFFICULTIES).flatMap(d=>[`${track}-${d}`,`${track}-r3-${d}`,...(['fair','sawmill','night'].includes(track)?[`${track}-r2-${d}`]:[]),...(TRACKS[track].revision?[`${track}-r${TRACKS[track].revision}-${d}`]:[])]));
 const bestKey=scope=>`vale-neon-best-v7-${scope}`,ghostKey=scope=>`vale-neon-ghost-v7-${scope}`;
 export const MAX_BACKUP_BYTES=8_000_000;
 function challenges(value){

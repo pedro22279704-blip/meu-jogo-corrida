@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import {createCircuitCurve,trackLength,TUNNELS,PREVIOUS_LENGTHS} from '../src/tracks.js';
+import {createCircuitCurve,trackLength,TUNNELS,PREVIOUS_LENGTHS,REVISION3_LENGTHS} from '../src/tracks.js';
 import {surfaceProfile} from '../src/surface.js';
 import {createRace,stepRace,lapOf,resolveCollisions} from '../src/race.js';
 import {createItems,stepItems} from '../src/items.js';
@@ -13,13 +13,13 @@ import {exportProgress,importProgress} from '../src/progress-backup.js';
 import {addTrackStructures} from '../src/track-structures.js';
 import {safeCameraPosition} from '../src/camera-comfort.js';
 
-test('as cinco pistas dobram a extensão e têm recordes próprios da revisão 3',()=>{
- for(const [id,previous] of Object.entries(PREVIOUS_LENGTHS)){const c=createCircuitCurve(id);assert.equal(trackLength(id),previous*2);assert.ok(Math.abs(c.getLength()-previous*2)<.01);assert.equal(recordScope({track:id,difficulty:'medium'}),id+'-r3-medium');assert.ok(c.getPointAt(0).distanceTo(c.getPointAt(1))<1e-8);}
+test('as cinco pistas crescem mais 50% e têm recordes próprios da revisão 4',()=>{
+ for(const [id,previous] of Object.entries(REVISION3_LENGTHS)){const c=createCircuitCurve(id);assert.equal(trackLength(id),previous*1.5);assert.ok(Math.abs(c.getLength()-previous*1.5)<.01);assert.equal(recordScope({track:id,difficulty:'medium'}),id+'-r4-medium');assert.ok(c.getPointAt(0).distanceTo(c.getPointAt(1))<1e-8);}
 });
 
 test('novos traçados são maiores, com curvas distintas e cruzamento do oito separado em altura',()=>{
- for(const [id,length] of Object.entries({fair:2880,sawmill:3360,night:3800})){const curve=createCircuitCurve(id);assert.equal(trackLength(id),length);assert.ok(Math.abs(curve.getLength()-length)<.01);assert.equal(TUNNELS[id].length,2);assert.ok(TUNNELS[id].every(t=>(t.end-t.start)*length>100));}
- const curve=createCircuitCurve('night');assert.ok(curve.getPointAt(.25).distanceTo(curve.getPointAt(.75))<.01);assert.equal(surfaceProfile(.25*3800,'night').height-surfaceProfile(.75*3800,'night').height,28);
+ for(const [id,length] of Object.entries({fair:4320,sawmill:5040,night:5700})){const curve=createCircuitCurve(id);assert.equal(trackLength(id),length);assert.ok(Math.abs(curve.getLength()-length)<.01);assert.equal(TUNNELS[id].length,2);assert.ok(TUNNELS[id].every(t=>(t.end-t.start)*length>100));}
+ const curve=createCircuitCurve('night');assert.ok(curve.getPointAt(.25).distanceTo(curve.getPointAt(.75))<.01);assert.equal(surfaceProfile(.25*5700,'night').height-surfaceProfile(.75*5700,'night').height,28);
  // Non-neighbouring parts of the two ground-level layouts must not cross.
  for(const id of ['fair','sawmill']){const curve=createCircuitCurve(id),samples=curve.getSpacedPoints(400);for(let i=0;i<400;i++)for(let j=i+1;j<400;j++){const gap=Math.min(j-i,400-(j-i))*trackLength(id)/400;if(gap>45)assert.ok(samples[i].distanceTo(samples[j])>19,`${id}: ${i}/${j}`);}}
 });
@@ -29,7 +29,7 @@ test('voltas e chegada usam a extensão de cada pista, sem terminar no antigo li
 });
 
 test('itens, vácuo e colisões reconhecem a linha de chegada das pistas maiores',()=>{
- for(const track of ['fair','sawmill','night']){const length=trackLength(track),[a,b]=createRace({track}),items=createItems({track});assert.ok(items.boxes.length<=66&&items.boxes.length>12);assert.ok(items.boxes.some(b=>b.distance>760));a.distance=length-6;b.distance=5;a.offset=b.offset=0;a.speed=b.speed=30;assert.equal(draftingTarget(a,[a,b]),b);a.distance=length-.5;b.distance=.5;resolveCollisions([a,b]);assert.ok(Math.abs(a.distance-(length-.5))>.01||Math.abs(a.offset)>0);a.distance=length+items.boxes.at(-1).distance;a.offset=items.boxes.at(-1).offset;stepItems([a],items,{},.01,1);assert.ok(a.item);}
+ for(const track of ['fair','sawmill','night']){const length=trackLength(track),[a,b]=createRace({track}),items=createItems({track});assert.ok(items.boxes.length<=96&&items.boxes.length>12);assert.ok(items.boxes.some(b=>b.distance>760));a.distance=length-6;b.distance=5;a.offset=b.offset=0;a.speed=b.speed=30;assert.equal(draftingTarget(a,[a,b]),b);a.distance=length-.5;b.distance=.5;resolveCollisions([a,b]);assert.ok(Math.abs(a.distance-(length-.5))>.01||Math.abs(a.offset)>0);a.distance=length+items.boxes.at(-1).distance;a.offset=items.boxes.at(-1).offset;stepItems([a],items,{},.01,1);assert.ok(a.item);}
 });
 
 test('backup mantém recordes e fantasmas antigos e novos sem misturá-los',()=>{

@@ -6,7 +6,7 @@ O jogo continua com direção manual, sem saltos automáticos e sem planador. O 
 
 Cada um dos oito chassis tem velocidade (m/s), aceleração (m/s²), peso relativo, dirigibilidade e desempenho fora do asfalto. Os pneus Rua, Aderência e Todo-terreno somam seus modificadores a esses valores. A garagem mostra os resultados e salva a escolha no navegador. Não há uma peça superior em todos os atributos.
 
-A dirigibilidade multiplica a resposta da direção. O peso determina a divisão dos deslocamentos e da velocidade nas colisões entre karts. A velocidade máxima fora do asfalto é a velocidade normal multiplicada pelo atributo fora de estrada; pneus Todo-terreno reduzem essa perda. Nitro e poderes continuam disponíveis.
+A dirigibilidade multiplica a resposta da direção. O peso determina a divisão dos deslocamentos e da velocidade nas colisões entre karts. A velocidade máxima fora do asfalto é a velocidade normal multiplicada pelo atributo fora de estrada; pneus Todo-terreno reduzem essa perda. Os impulsos do drift, cogumelos e faixas de turbo continuam disponíveis; não há nitro manual.
 
 ## Moedas
 
@@ -34,6 +34,6 @@ Defesa oferece bolha/goma; ataque oferece cogumelo/casco; recuperação oferece 
 
 ## Água
 
-O Porto Âmbar tem uma descida suave entre 860 e 1200 m, com uma seção submersa, portais, corais, hélice e bolhas. Dentro da água, a velocidade recebe fator 0,86, a aceleração 0,78 e a dirigibilidade 0,9. A transição de altura tem derivada contínua e não lança o kart.
+O Porto Âmbar tem uma descida suave entre 1290 e 1800 m, com uma seção submersa, portais, corais, hélice e bolhas. Dentro da água, a velocidade recebe fator 0,86, a aceleração 0,78 e a dirigibilidade 0,9. A transição de altura tem derivada contínua e não lança o kart.
 
 Como o kart permanece apoiado na pista, não há física de voo nem saltos de gravidade reduzida. O comportamento subaquático é representado por arrasto, resposta da direção e apresentação visual. A hélice e as bolhas não alteram a trajetória por conta própria.

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import {TRACKS,PREVIOUS_LENGTHS,createCircuitCurve,trackLength,lengthForScope} from '../src/tracks.js';
+import {TRACKS,PREVIOUS_LENGTHS,REVISION3_LENGTHS,createCircuitCurve,trackLength,lengthForScope} from '../src/tracks.js';
 import {surfaceProfile} from '../src/surface.js';
 import {createEmbankment} from '../src/track-landscape.js';
 import {createItems} from '../src/items.js';
@@ -10,16 +10,16 @@ import {saveGhost,readGhost} from '../src/ghost.js';
 import {exportProgress,importProgress} from '../src/progress-backup.js';
 
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
-test('comprimento geométrico e anunciado dobram nas cinco pistas',()=>{
- for(const id of Object.keys(TRACKS)){const curve=createCircuitCurve(id);assert.equal(trackLength(id),PREVIOUS_LENGTHS[id]*2);assert.ok(Math.abs(curve.getLength()-trackLength(id))<.001);assert.ok(curve.getPointAt(0).distanceTo(curve.getPointAt(1))<1e-8);}
+test('comprimento geométrico e anunciado crescem mais 50% nas cinco pistas',()=>{
+ for(const id of Object.keys(TRACKS)){const curve=createCircuitCurve(id);assert.equal(trackLength(id),REVISION3_LENGTHS[id]*1.5);assert.ok(Math.abs(curve.getLength()-trackLength(id))<.001);assert.ok(curve.getPointAt(0).distanceTo(curve.getPointAt(1))<1e-8);}
 });
 
 test('curvas têm raio suficiente para o drift atual, sem cotovelos apertados',()=>{
  for(const id of Object.keys(TRACKS)){const curve=createCircuitCurve(id),length=trackLength(id);let minimum=Infinity;
   for(let i=0;i<2400;i++){const t=i/2400,a=curve.getTangentAt((t-.00025+1)%1),b=curve.getTangentAt((t+.00025)%1),turn=Math.abs(wrap(Math.atan2(b.x,b.z)-Math.atan2(a.x,a.z))),radius=.0005*length/Math.max(1e-9,turn);minimum=Math.min(minimum,radius);}
   assert.ok(minimum>30,`${id}: raio ${minimum}`);
-  // Even at nitro speed, the tightest bend fits the available full-drift yaw.
-  assert.ok(49/minimum<1.8*.89*.92,`${id}: drift exigiria giro excessivo`);
+  // Even at the maximum power-up speed, the tightest bend fits the available full-drift yaw.
+  assert.ok(46/minimum<1.8*.89*.92,`${id}: drift exigiria giro excessivo`);
  }
 });
 
@@ -43,11 +43,11 @@ test('aterros fazem transição do piso elevado para o chão e deixam intervalos
  g.dispose();full.dispose();
 });
 
-test('backup mantém as três gerações de recordes e fantasmas em suas distâncias originais',()=>{
+test('backup mantém as quatro gerações de recordes e fantasmas em suas distâncias originais',()=>{
  const storage=()=>{const map=new Map();return {getItem:k=>map.get(k)??null,setItem:(k,v)=>map.set(k,v),removeItem:k=>map.delete(k)};},a=storage(),b=storage(),cases=[];
- for(const id of Object.keys(TRACKS))for(const version of [1,2,3]){
+ for(const id of Object.keys(TRACKS))for(const version of [1,2,3,4]){
   if(version===2&&!['fair','sawmill','night'].includes(id))continue;
-  const scope=id+(version===1?'':'-r'+version)+'-medium',length=version===1?760:version===2?PREVIOUS_LENGTHS[id]:trackLength(id),time=length*3/25;
+  const scope=id+(version===1?'':'-r'+version)+'-medium',length=version===1?760:version===2?PREVIOUS_LENGTHS[id]:version===3?REVISION3_LENGTHS[id]:trackLength(id),time=length*3/25;
   assert.equal(lengthForScope(scope),length);saveBest(a,time,scope);assert.ok(saveGhost(a,scope,time,0,[[0,0,0,0,0,0],[time,length*3,0,0,0,25]]));cases.push({scope,time,length});
  }
  importProgress(b,exportProgress(a));for(const {scope,time,length} of cases){assert.equal(readBest(b,scope),time);assert.equal(readGhost(b,scope).samples.at(-1)[1],length*3);}

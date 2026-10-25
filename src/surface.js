@@ -12,7 +12,7 @@ export function curveBank(distance,id){
  let curve=curves.get(id);if(!curve){curve=createCircuitCurve(id);curves.set(id,curve);}
  const length=trackLength(id),at=d=>curve.getTangentAt(lapProgress(d,id)/length),a=at(distance-8),b=at(distance+8);
  const curvature=wrap(Math.atan2(b.x,b.z)-Math.atan2(a.x,a.z))/16;
- return -Math.max(-.4,Math.min(.4,curvature*(id==='valley'?40:22)));
+ return -Math.max(-.4,Math.min(.4,curvature*(id==='valley'?60:33)));
 }
 export function surfaceProfile(distance,trackId='valley'){
  const length=trackLength(trackId),t=lapProgress(distance,trackId)/length,knots=elevation[trackId]??elevation.valley;

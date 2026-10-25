@@ -13,10 +13,10 @@ test('vácuo exige perseguição alinhada, carrega, perde efeito fora da rota e 
  b.shortcut=true;updateDrafting([a,b],.05);assert.equal(a.draftActive,false);b.shortcut=false;b.offset=3;assert.equal(draftingTarget(a,[a,b]),null);
  b.offset=0;b.finished=true;assert.equal(draftingTarget(a,[a,b]),null);b.finished=false;a.drifting=true;assert.equal(draftingTarget(a,[a,b]),null);
 });
-test('vácuo aumenta velocidade normal e não permite ultrapassar o limite do nitro',()=>{
+test('vácuo aumenta velocidade normal e não permite ultrapassar o limite dos impulsos',()=>{
  const [a,b]=createRace();Object.assign(a,{distance:100,offset:0,speed:32,draft:1});Object.assign(b,{distance:115,offset:0,speed:36});
  stepRace([a,b],{up:true},.05,1);assert.ok(a.speed>32&&a.speed<=36);
- a.speed=49;a.nitro=100;stepRace([a,b],{up:true,boost:true},.05,2);assert.ok(a.speed<=49);
+ a.speed=49;stepRace([a,b],{up:true,boost:true},.05,2);assert.ok(a.speed<=49);
 });
 test('campeonato soma as duas pistas uma única vez, espera rivais e desempata pela última etapa',()=>{
  const c=createCup(),racers=createRace();racers.forEach((r,i)=>{r.finished=true;r.finishTime=i+1;});

@@ -19,8 +19,8 @@ export function addNeonInfrastructure(root,track,light,obstacles){
  function mesh(geometry,material){const m=new THREE.Mesh(geometry,material);root.add(m);return m;}
  const sites=citySites(track,light),streetTile=new THREE.BoxGeometry(18,.025,14),cityPaint=new THREE.BoxGeometry(.22,.02,6);
  // Cross streets occupy the gaps between city blocks, never the building footprints.
- const streetExtent=Math.ceil(Math.max(...sites.map(s=>Math.max(Math.abs(s.x),Math.abs(s.z))))/84)*84+84;
- for(let axis=0;axis<2;axis++)for(let across=-streetExtent;across<=streetExtent;across+=84)for(let along=-streetExtent;along<=streetExtent;along+=14){const x=axis?along:across,z=axis?across:along;if(sites.some(s=>Math.abs(x-s.x)<(axis?7:9)+Math.abs(Math.cos(s.angle))*s.width/2+Math.abs(Math.sin(s.angle))*s.depth/2+1&&Math.abs(z-s.z)<(axis?9:7)+Math.abs(Math.sin(s.angle))*s.width/2+Math.abs(Math.cos(s.angle))*s.depth/2+1))continue;
+ const streetExtent=Math.ceil(Math.max(...sites.map(s=>Math.max(Math.abs(s.x),Math.abs(s.z))))/126)*126+126;
+ for(let axis=0;axis<2;axis++)for(let across=-streetExtent;across<=streetExtent;across+=126)for(let along=-streetExtent;along<=streetExtent;along+=14){const x=axis?along:across,z=axis?across:along;if(sites.some(s=>Math.abs(x-s.x)<(axis?7:9)+Math.abs(Math.cos(s.angle))*s.width/2+Math.abs(Math.sin(s.angle))*s.depth/2+1&&Math.abs(z-s.z)<(axis?9:7)+Math.abs(Math.sin(s.angle))*s.width/2+Math.abs(Math.cos(s.angle))*s.depth/2+1))continue;
   const tile=mesh(streetTile,road);tile.name='Ground city street';tile.position.set(x,.005,z);tile.rotation.y=axis*Math.PI/2;
   for(const offset of [-.7,.7]){const line=mesh(cityPaint,paint);line.position.set(x+(axis?0:offset),.035,z+(axis?offset:0));line.rotation.y=axis*Math.PI/2;}
  }

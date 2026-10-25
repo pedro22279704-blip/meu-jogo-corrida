@@ -30,9 +30,9 @@ test('barril tem aduelas, duas cintas, quatro rodas de raios e rig animado',()=>
  setCharacter(car,'original');assert.equal(bindKart(car).driver,rig.driver);
 });
 
-test('Barril e Carro 10 preservam drift/nitro com atributos próprios',()=>{
+test('Barril e Carro 10 preservam drift e impulsos com atributos próprios',()=>{
  for(const pilot of [6,7]){const r=createRace({pilot})[0];for(let i=0;i<40;i++)stepRace([r],{up:true},1/60,i/60);assert.ok(r.speed>0);r.speed=28;r.heading=0;r.angle=0;r.offset=0;r.driftCharge=.4;
-  stepRace([r],{up:true,boost:true},.05,1);assert.ok(r.boosting&&r.nitro<100);
+  stepRace([r],{up:true,boost:true},.05,1);assert.equal(r.boosting,false);assert.equal('nitro' in r,false);
   for(let i=0;i<40;i++)stepRace([r],{up:true,drift:true,steer:.1},1/60,2+i/60);
   stepRace([r],{up:true},1/60,3);assert.ok(r.miniTurbo>0);assert.equal(r.goodDrifts,1);
  }
