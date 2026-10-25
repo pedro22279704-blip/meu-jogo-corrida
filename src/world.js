@@ -1,3 +1,4 @@
+import {asphaltTexture,addCourseFinish} from './course-finish.js';
 import {createRoadRibbon} from './road-surface.js';
 import * as THREE from 'three';
 import {addTrackStructures} from './track-structures.js';
@@ -35,7 +36,7 @@ function shortcutFrame(distance,offset=0){
  return {p,tangent,normal,up,quaternion:new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(normal,up,tangent))};
 }
 const roadSteps=rebuilt?Math.ceil(physicalLength/2.5):500;
-function ribbon(width,color,y,innerWidth=0,layer=0){const object=mesh(createRoadRibbon(track,TRACK_LENGTH,roadSteps,width,{innerWidth,height:y,skip:d=>width>=100&&d>=shortcut.start&&d<=shortcut.end}),color);object.material.polygonOffset=true;object.material.polygonOffsetFactor=layer;object.material.polygonOffsetUnits=layer;return object;}
+function ribbon(width,color,y,innerWidth=0,layer=0){const object=mesh(createRoadRibbon(track,TRACK_LENGTH,roadSteps,width,{innerWidth,height:y,skip:d=>width>=100&&d>=shortcut.start&&d<=shortcut.end}),color);if(width===18)object.material.map=asphaltTexture();object.material.polygonOffset=true;object.material.polygonOffsetFactor=layer;object.material.polygonOffsetUnits=layer;return object;}
 ribbon(rebuilt?27:harbor?29:100,harbor?'#e0bb86':id==='night'?'#303950':'#89c57a',-.25,22,3);ribbon(22,id==='night'?'#6a71ab':'#ebd7ac',.01,18,2);ribbon(18,id==='night'?'#53677b':'#597886',.04,0,-1);
 const curbCount=rebuilt?Math.ceil(physicalLength/4):130;
 for(let i=0;i<curbCount;i++){for(const side of [-1,1]){if(side===1&&i/curbCount*TRACK_LENGTH>=shortcut.start&&i/curbCount*TRACK_LENGTH<=shortcut.end)continue;const {p,tangent}=track(i/curbCount*TRACK_LENGTH,side*9.5);const curb=mesh(new THREE.BoxGeometry(.65,.16,physicalLength/curbCount*.8),i%2?'#f4edcf':'#ef806b');curb.position.copy(p);curb.position.y+=.1;curb.rotation.y=Math.atan2(tangent.x,tangent.z);}}
@@ -90,5 +91,6 @@ if(!harbor&&!rebuilt)loadProp('tunnel',[{distance:TRACK_LENGTH*.63}]);
  for(const d of [shortcut.start-7,shortcut.end])for(const offset of [1.4,4.6]){const f=track(d,offset),gate=mesh(new THREE.ConeGeometry(.7,2,4),'#db9bff');gate.position.copy(f.p).addScaledVector(f.up,1);}
  if(rebuilt)addTrackStructures(root,track,id,obstacles,light);
  const updateDetails=addTrackDetails(root,track,id,light);
+ addCourseFinish(root,track,id,light);
  return {root,track,shortcutFrame,curve,windmills,obstacles,update(time,reduced){const t=reduced?0:time;for(const rotor of windmills)rotor.rotation.z=t*.7;for(const animate of ambient)animate(t);updateDetails(t);},profile:distance=>surfaceProfile(distance,id),dispose(){alive=false;root.removeFromParent();const geometries=new Set(),materials=new Set(),textures=new Set();root.traverse(o=>{if(o.geometry)geometries.add(o.geometry);if(o.material)for(const m of Array.isArray(o.material)?o.material:[o.material]){materials.add(m);if(m.map)textures.add(m.map);}});geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());}};
 }

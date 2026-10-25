@@ -1,5 +1,17 @@
 # Kart Speed Racers
 
+## Corrida arcade: moedas, rampas e planagem
+
+Esta atualização aproxima a apresentação e a dinâmica de uma corrida de kart como a referência enviada, com arte e modelos próprios. As cinco pistas têm asfalto texturizado, marcações, faixas de impulso e duas rampas: um salto curto e uma planagem com asa retrátil. O Porto Âmbar tem uma rampa de planagem logo no primeiro trecho, ideal para experimentar no Treino.
+
+- **Moedas:** até 10 aumentam gradualmente a velocidade normal; bater ou sofrer um ataque sem Bolha faz perder até 3. Moedas reaparecem depois de alguns segundos e os rivais também podem coletar.
+- **Faixas douradas:** dão impulso temporário sem consumir o nitro do jogador.
+- **Rampas turquesa:** abrem a asa nos trechos de planagem. **Espaço/A no ar**, depois de soltar o botão, faz uma manobra; pousar após a manobra concede turbo. O drift continua carregando apenas no chão.
+- **Câmera e painéis:** câmera mais baixa, posição em destaque, moedas e item nos cantos, faíscas/halo do drift e efeito periférico de velocidade. Movimento reduzido desativa giros e efeitos decorativos, preservando o voo e os controles.
+- **Apresentação:** Corrida Rápida ganha uma prévia da pista com três vistas, com pausa, pular e voltar. Treino continua começando diretamente. A garagem destaca o carro em uma prévia maior ao lado das escolhas nas telas largas.
+
+Os oito carros, todos os pilotos, Gugar e seu osso, drift, nitro, atalhos e campeonatos continuam disponíveis. Os fantasmas novos registram a altura e a asa; fantasmas antigos e backups anteriores continuam aceitos. O resultado informa moedas recolhidas e manobras com pouso turbo.
+
 ## Gugar e Osso Perseguidor
 
 Na etapa Piloto, Gugar aparece com cabelo escuro volumoso, barba, túnica com manchas, shorts azul e pés descalços, inspirado no desenho enviado. O modelo cartoon é original e pode dirigir qualquer um dos oito carros, incluindo Carro 10 e Carro Barril.
