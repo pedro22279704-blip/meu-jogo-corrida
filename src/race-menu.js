@@ -10,7 +10,7 @@ export function circuitArt(id){
 export function createRaceMenu({onStart,onCarStage,onPilotStage}){
  const $=id=>document.getElementById(id),select=$('trackSelect');
  let stage='home',selectedMode='quick';
- const headings={cars:'01 / Escolha seu carro',characters:'02 / Escolha seu piloto',tracks:'03 / Escolha a pista'};
+ const headings={cars:'01 / Escolha seu carro',parts:'02 / Monte seu kart',characters:'03 / Escolha seu piloto',tracks:'04 / Escolha a pista'};
  const grid=document.createElement('div');grid.className='circuit-grid';grid.setAttribute('role','group');grid.setAttribute('aria-label','Pistas para iniciar');
  for(const [id,track] of Object.entries(TRACKS)){
   const button=document.createElement('button');button.type='button';button.className='circuit-card';button.dataset.track=id;
@@ -23,14 +23,14 @@ export function createRaceMenu({onStart,onCarStage,onPilotStage}){
   const button=$(id);button.innerHTML=`<span class="mode-icon" aria-hidden="true">${icon}</span><strong>${title}</strong><span aria-hidden="true">→</span>`;
   button.onclick=()=>{selectedMode=mode;show('cars');};
  }
- for(const button of document.querySelectorAll('.pilot-choice'))button.addEventListener('click',()=>show('characters'));
+ for(const button of document.querySelectorAll('.pilot-choice'))button.addEventListener('click',()=>show('parts'));
  function allowed(id){return modeTracks(selectedMode).includes(id);}
  function sync(){for(const button of grid.children){button.setAttribute('aria-pressed',String(button.dataset.track===select.value));button.hidden=!allowed(button.dataset.track);}note.textContent=selectedMode==='horizon'?'A pista escolhida abre a Copa Horizonte. As outras três vêm em seguida.':selectedMode==='classic'?'Escolha a primeira pista do duelo. A outra vem na segunda etapa.':'';}
  function show(next){
   stage=next;const page=next==='cars'?'pilots':next==='tracks'?'race':next;
-  for(const id of ['home','pilots','characters','race','options','challenges'])$('page-'+id).hidden=id!==page;
+  for(const id of ['home','pilots','parts','characters','race','options','challenges'])$('page-'+id).hidden=id!==page;
   $('menu').dataset.stage=next;$('menu').scrollTop=0;
-  $('pilotsBack').hidden=next==='home';$('pilotsBack').textContent=['characters','tracks'].includes(next)?'← Voltar':'← Menu';
+  $('pilotsBack').hidden=next==='home';$('pilotsBack').textContent=['parts','characters','tracks'].includes(next)?'← Voltar':'← Menu';
   $('flowProgress').hidden=!headings[next];$('flowProgress').textContent=headings[next]??'';
   for(const tab of document.querySelectorAll('[data-page]')){const active=tab.dataset.page===(next==='home'?'race':next);tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;}
   if(next==='cars')onCarStage();if(next==='characters')onPilotStage();sync();

@@ -17,6 +17,7 @@ export function createWorld(scene,id,{quality='pretty'}={}){
  const mat=toonMaterial;
  function mesh(geometry,color,parent=root){const object=new THREE.Mesh(geometry,mat(color));parent.add(object);return object;}
  const ground=mesh(new THREE.PlaneGeometry(2000,2000),theme.ground);ground.rotation.x=-Math.PI/2;ground.position.y=-.15;if(id==='night'){ground.material.dispose();ground.material=new THREE.MeshBasicMaterial({color:'#283c4b'});}
+ if(harbor){ground.material.transparent=true;ground.material.opacity=.32;ground.material.depthWrite=false;ground.material.side=THREE.DoubleSide;const seabed=mesh(new THREE.PlaneGeometry(2000,2000),'#255066');seabed.rotation.x=-Math.PI/2;seabed.position.y=-18;}
  const curve=createCircuitCurve(id),physicalLength=curve.getLength();
  const shortcut=SHORTCUTS[id];
 function track(distance,offset=0){
@@ -35,7 +36,8 @@ function shortcutFrame(distance,offset=0){
  p.y+=1.7*Math.sin(Math.PI*u)**2;const tangent=b.p.clone().sub(a.p);tangent.y+=1.7*Math.PI*Math.sin(2*Math.PI*u);tangent.normalize();const normal=new THREE.Vector3(tangent.z,0,-tangent.x).normalize(),up=new THREE.Vector3().crossVectors(tangent,normal).normalize();
  return {p,tangent,normal,up,quaternion:new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(normal,up,tangent))};
 }
-const roadSteps=rebuilt?Math.ceil(physicalLength/2.5):500;
+if(harbor){for(const d of [430,600]){const f=track(d);for(const side of [-1,1]){const post=mesh(new THREE.CylinderGeometry(.18,.18,6,8),'#82f7ef');post.position.copy(track(d,side*10).p).addScaledVector(f.up,3);}const arch=mesh(new THREE.BoxGeometry(21,.6,.6),'#82f7ef');arch.position.copy(f.p).addScaledVector(f.up,6);arch.quaternion.copy(f.quaternion);}for(let i=0;i<22;i++){const f=track(468+i*4.2,i%2?13:-13),coral=mesh(new THREE.ConeGeometry(.8,3,5),i%2?'#ff99b5':'#7bf0dc');coral.position.copy(f.p).addScaledVector(f.up,1.5);}}
+ const roadSteps=rebuilt?Math.ceil(physicalLength/2.5):500;
 function ribbon(width,color,y,innerWidth=0,layer=0){const object=mesh(createRoadRibbon(track,TRACK_LENGTH,roadSteps,width,{innerWidth,height:y,skip:d=>width>=100&&d>=shortcut.start&&d<=shortcut.end}),color);if(width===18)object.material.map=asphaltTexture();object.material.polygonOffset=true;object.material.polygonOffsetFactor=layer;object.material.polygonOffsetUnits=layer;return object;}
 ribbon(rebuilt?27:harbor?29:100,harbor?'#e0bb86':id==='night'?'#303950':'#89c57a',-.25,22,3);ribbon(22,id==='night'?'#6a71ab':'#ebd7ac',.01,18,2);ribbon(18,id==='night'?'#53677b':'#597886',.04,0,-1);
 const curbCount=rebuilt?Math.ceil(physicalLength/4):130;

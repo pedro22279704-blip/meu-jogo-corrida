@@ -1,2 +1,4 @@
-export const DRIFT_LEVELS=[{threshold:.35,name:'Azul',color:'#70edff',duration:.65,speed:38},{threshold:.65,name:'Laranja',color:'#ffad43',duration:1.05,speed:43},{threshold:.95,name:'Roxo',color:'#d397ff',duration:1.55,speed:49}];
-export function driftLevel(charge){return DRIFT_LEVELS.reduce((level,spec,i)=>charge>=spec.threshold?i+1:level,0);}
+export const DRIFT_SECONDS=3.5;
+export const DRIFT_LEVELS=[{threshold:1.5/DRIFT_SECONDS,name:'Mini-turbo azul',color:'#70edff',duration:.5,speed:38},{threshold:1,name:'Super mini-turbo vermelho',color:'#ff6475',duration:1.5,speed:46}];
+export const driftChargeRate=alignment=>(alignment>.05?1:alignment<-.05?.2:.3)/DRIFT_SECONDS;
+export function driftLevel(charge){return DRIFT_LEVELS.reduce((level,spec,i)=>charge>=spec.threshold-1e-9?i+1:level,0);}

@@ -14,7 +14,7 @@ export function steerManually(r,steer,dt){
  const direction=r.speed<-.5?-1:1,speedFactor=Math.max(.4,Math.min(1,Math.abs(r.speed)/16));
  const highSpeed=1-Math.max(0,Math.min(1,(Math.abs(r.speed)-32)/17))*.08;
  const alignment=softened*r.driftDirection;
- const rate=(r.drifting?r.driftDirection*Math.max(.18,.85+.95*alignment):softened*1.65)*r.settings.sensitivity*speedFactor*highSpeed*direction;
+ const rate=(r.drifting?r.driftDirection*Math.max(.18,.85+.95*alignment):softened*1.65)*r.settings.sensitivity*(r.stats?.handling??1)*(r.environment==='water'?.9:1)*speedFactor*highSpeed*direction;
  r.yawRate+=(rate-r.yawRate)*(1-Math.exp(-dt*(Math.abs(steer)>.01?10:14)));r.heading=wrapAngle(r.heading+r.yawRate*dt);
  const slip=r.drifting?r.driftDirection*(.42+.14*alignment):0;r.driftSlip+=(slip-r.driftSlip)*(1-Math.exp(-dt*(r.drifting?9:12)));r.angle=wrapAngle(r.heading+r.driftSlip);
 }

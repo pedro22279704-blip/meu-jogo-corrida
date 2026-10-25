@@ -1,7 +1,9 @@
+import {vehicleStats,normalTopSpeed} from './vehicle-stats.js';
+import {environmentAt} from './race-environment.js';
 import {courseHeading,steerManually,wrapAngle} from './manual-steering.js';
 import {trackLength} from './tracks.js';
 import {updateDrafting} from './drafting.js';
-import {driftLevel,DRIFT_LEVELS} from './drift.js';
+import {driftLevel,DRIFT_LEVELS,driftChargeRate} from './drift.js';
 import {SHORTCUTS,shortcutState} from './shortcuts.js';
 import {normalizeSettings,DIFFICULTIES,PILOTS} from './settings.js';
 export const LAPS = 3;
@@ -11,7 +13,7 @@ export const NAMES = PILOTS.map((name,i)=>(i===0?'Você · ':'')+name);
 export const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
 export function createRace(options={}){
  const settings=normalizeSettings(options),ids=[settings.pilot,...PILOTS.map((_,i)=>i).filter(i=>i!==settings.pilot)];
- return ids.map((pilot,i)=>({name:(i===0?'Você · ':'')+PILOTS[pilot],pilot,settings,style:['defender','attacker','explorer','attacker','explorer','defender','attacker','explorer'][pilot],draft:0,draftActive:false,collisions:0,goodDrifts:0,shortcut:false,shortcutLap:-1,shortcutFailed:false,turboLevel:0,lastAttack:null,shield:0,slow:0,boneSpin:0,item:i===0&&settings.character==='gugar'?'bone':null,itemPressed:false,index:i,distance:-Math.floor(i/2)*4-9,speed:0,offset:i%2?2.4:-2.4,nitro:100,coins:0,coinsCollected:0,trackBoost:0,airTime:0,airDuration:1,airKind:null,trickTimer:0,trick:false,angle:0,slide:0,finished:false,finishTime:null,drifting:false,driftDirection:0,driftHop:0,driftCharge:0,miniTurbo:0,boosting:false,hit:0,aiLane:i%2?2.4:-2.4}));
+ return ids.map((pilot,i)=>({name:(i===0?'Você · ':'')+PILOTS[pilot],pilot,settings,stats:vehicleStats({...settings,pilot}),environment:'ground',style:['defender','attacker','explorer','attacker','explorer','defender','attacker','explorer'][pilot],draft:0,draftActive:false,collisions:0,goodDrifts:0,shortcut:false,shortcutLap:-1,shortcutFailed:false,turboLevel:0,lastAttack:null,shield:0,slow:0,boneSpin:0,item:i===0&&settings.character==='gugar'?'bone':null,itemPressed:false,index:i,distance:-Math.floor(i/2)*4-9,speed:0,offset:i%2?2.4:-2.4,nitro:100,coins:0,coinsCollected:0,trackBoost:0,airTime:0,airDuration:1,airKind:null,trickTimer:0,trick:false,angle:0,slide:0,finished:false,finishTime:null,drifting:false,driftDirection:0,driftHop:0,driftCharge:0,miniTurbo:0,boosting:false,hit:0,aiLane:i%2?2.4:-2.4}));
 }
 export function orderRacers(racers){return [...racers].sort((a,b)=>a.finished&&b.finished?a.finishTime-b.finishTime:a.finished?-1:b.finished?1:b.distance-a.distance);}
 export function lapOf(r){return clamp(Math.floor(Math.max(0,r.distance)/trackLength(r.settings?.track))+1,1,LAPS);}
@@ -32,13 +34,13 @@ export function resolveCollisions(racers){
   const overlapZ=3.5-Math.abs(dz),overlapX=2.2-Math.abs(dx);
   if(overlapZ<=0||overlapX<=0)continue;
   if(overlapX<overlapZ&&Math.abs(a.offset)<ROAD_LIMIT-.2&&Math.abs(b.offset)<ROAD_LIMIT-.2){
-   const push=(overlapX+.001)/2*(dx>=0?1:-1);
-   a.offset+=push;b.offset-=push;
+   const ma=a.stats?.weight??1,mb=b.stats?.weight??1,push=(overlapX+.001)*(dx>=0?1:-1);
+   a.offset+=push*mb/(ma+mb);b.offset-=push*ma/(ma+mb);
    a.slide*=.6;b.slide*=.6;
   }else{
-   const push=(overlapZ+.001)/2*(dz>=0?1:-1);
-   a.distance+=push;b.distance-=push;
-   const shared=(a.speed+b.speed)/2;a.speed=shared;b.speed=shared;
+   const ma=a.stats?.weight??1,mb=b.stats?.weight??1,push=(overlapZ+.001)*(dz>=0?1:-1);
+   a.distance+=push*mb/(ma+mb);b.distance-=push*ma/(ma+mb);
+   const shared=(a.speed*ma+b.speed*mb)/(ma+mb);a.speed=shared;b.speed=shared;
   }
   if(a.hit<=0)a.collisions++;if(b.hit<=0)b.collisions++;
   a.hit=b.hit=.2;barrier(a);barrier(b);
@@ -53,7 +55,7 @@ function driveAI(r,racers,dt,time){
  // Recuperação moderada por velocidade, sem alterar posições artificialmente.
  const gapToPlayer=player&&!player.finished?player.distance-r.distance:0;
  const packAdjustment=clamp(gapToPlayer/12,-4,4);
- let targetSpeed=31.8+difficulty.pace+r.index*.12+Math.sin(time*.8+r.index)*.6+packAdjustment+(r.coins??0)*.25;
+ let targetSpeed=normalTopSpeed(r)-.2+difficulty.pace+r.index*.12+Math.sin(time*.8+r.index)*.6+packAdjustment;
  r.miniTurbo=Math.max(0,r.miniTurbo-dt);
  const turboWindow=(time+r.index*1.7)%9<difficulty.turbo;
  r.boosting=(turboWindow&&r.nitro>8||r.miniTurbo>0)&&r.speed>18;
@@ -75,7 +77,7 @@ function driveAI(r,racers,dt,time){
  const oldOffset=r.offset;
  r.offset+=clamp(r.aiLane-r.offset,-3.5*dt,3.5*dt);
  r.slide=(r.offset-oldOffset)/dt;r.angle=Math.atan2(r.slide,Math.max(1,r.speed))*.6;
- r.speed+=clamp(targetSpeed-r.speed,-14*dt,(r.boosting?24:difficulty.accel)*dt);
+ r.speed+=clamp(targetSpeed-r.speed,-14*dt,(r.boosting?24:difficulty.accel*r.stats.acceleration/14)*dt);
 }
 export function stepRace(racers,input,dt,time,surface=null){
  dt=clamp(dt,0,.05);if(!dt)return;
@@ -83,6 +85,7 @@ export function stepRace(racers,input,dt,time,surface=null){
  for(const r of racers){
   r.boneSpin=Math.max(0,(r.boneSpin??0)-dt);r.hit=Math.max(0,r.hit-dt);r.powerGesture=Math.max(0,(r.powerGesture??0)-dt);
   if(r.finished){r.speed=Math.max(0,r.speed-dt*15);r.boosting=false;r.drifting=false;r.airTime=0;r.trickTimer=0;continue;}
+  const environment=environmentAt(r);r.environment=environment.state;
   if(r.index===0){
    const steer=Number.isFinite(input.steer)?clamp(input.steer,-1,1):Number(!!input.left)-Number(!!input.right);
    const wasDrifting=r.drifting;
@@ -91,7 +94,7 @@ export function stepRace(racers,input,dt,time,surface=null){
    if(r.drifting&&!wasDrifting){r.driftDirection=Math.sign(steer);r.driftHop=0;}
    if(r.drifting&&!r.driftDirection)r.driftDirection=Math.sign(steer)||1;
    r.miniTurbo=Math.max(0,r.miniTurbo-dt);
-   if(r.drifting)r.driftCharge=clamp(r.driftCharge+dt*.65,0,1);
+   if(r.drifting)r.driftCharge=clamp(r.driftCharge+dt*driftChargeRate(steer*r.driftDirection),0,1);
    else if(wasDrifting){
     const level=driftLevel(r.driftCharge);if(!input.drift&&level>0){r.turboLevel=level;r.miniTurbo=DRIFT_LEVELS[level-1].duration;r.goodDrifts++;}
     r.driftCharge=0;
@@ -100,18 +103,24 @@ export function stepRace(racers,input,dt,time,surface=null){
    const boost=input.boost&&input.up&&r.nitro>1&&r.speed>0;
    r.boosting=!!boost||r.miniTurbo>0||r.trackBoost>0;
    r.nitro=clamp(r.nitro+dt*(boost?-27:r.drifting?20:7),0,100);
-   r.speed+=dt*(input.up?(boost?24:r.trackBoost>0?23:r.miniTurbo>0?22:r.draftActive?18:14):input.down?-26:r.miniTurbo>0?12:-6);
-   r.speed=clamp(r.speed,input.down?-7:0,boost?49:r.trackBoost>0?44:r.miniTurbo>0?DRIFT_LEVELS[Math.max(0,r.turboLevel-1)].speed:r.draftActive?36:32+(r.coins??0)*.25);
+   r.speed+=dt*(input.up?(boost?24:r.trackBoost>0?23:r.miniTurbo>0?22:r.draftActive?r.stats.acceleration+4:r.stats.acceleration):input.down?-26:r.miniTurbo>0?12:-6)*environment.acceleration;
+   const maximum=boost?49:r.trackBoost>0?44:r.miniTurbo>0?DRIFT_LEVELS[Math.min(DRIFT_LEVELS.length-1,Math.max(0,r.turboLevel-1))].speed:r.draftActive?normalTopSpeed(r)+4:normalTopSpeed(r);
+   const traction=(r.shortcutFailed||!r.shortcut&&Math.abs(r.offset)>8.4)?r.stats.offroad:1;
+   r.speed=clamp(r.speed,input.down?-7:0,maximum*environment.speed*traction);
    // Project travel into the current track frame each step. Retaining an old
    // lateral velocity while the frame turns used to push drifting karts into the edge.
    r.slide=Math.sin(r.heading)*r.speed;
    r.offset+=r.slide*dt;
   }else driveAI(r,racers,dt,time);
+  const shoulder=!r.shortcut&&Math.abs(r.offset)>8.4,offroad=r.shortcutFailed||shoulder;
+  r.offroad=!!offroad;
+  const speedLimit=(r.boosting?49:normalTopSpeed(r))*environment.speed*(offroad?r.stats.offroad:1);
+  if((offroad||environment.state==='water')&&Math.abs(r.speed)>speedLimit)r.speed=Math.sign(r.speed)*Math.max(speedLimit,Math.abs(r.speed)-dt*(environment.state==='water'?18:28));
   if(surface){const {grade}=surface(r.distance);r.speed-=grade*28*dt;r.speed=clamp(r.speed,-7,r.boosting?49:43);}
   if(r.slow>0)r.speed=Math.min(r.speed,21);
   r.wallContact=false;barrier(r);
   const previousHeading=r.index===0?courseHeading(r.settings.track,r.distance,r.shortcut):0;
-  const route=shortcutState(r);if(r.shortcutFailed)r.speed=Math.min(r.speed,18);
+  const route=shortcutState(r);if(r.shortcutFailed)r.speed=Math.min(r.speed,normalTopSpeed(r)*r.stats.offroad);
   if(r.index===0){
    const heading=r.heading??r.angle,outward=r.offset*Math.sin(heading)*Math.sign(r.speed)>0;
    // A barrier stops forward progress until the player steers away or reverses.

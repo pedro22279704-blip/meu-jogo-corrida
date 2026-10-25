@@ -14,7 +14,7 @@ test('comandos opostos giram o kart em direções simétricas sem autocentrar',(
 test('drift mantém inércia lateral e recupera aderência suavemente',()=>{const r=createRace();r[0].speed=30;r[0].offset=0;for(let i=0;i<20;i++)stepRace(r,{up:true,left:true,drift:true},1/60,i/60);assert.ok(r[0].drifting);assert.ok(r[0].slide>0);assert.ok(r[0].slide<Math.sin(r[0].angle)*r[0].speed);const before=r[0].offset;stepRace(r,driveInput(r[0]),1/60,1);assert.equal(r[0].drifting,false);assert.ok(r[0].offset>before);assert.ok(Number.isFinite(r[0].slide));});
 
 test('drift carregado libera impulso sem consumir nitro e expira',()=>{
- const r=[createRace()[0]];r[0].speed=28;r[0].offset=0;
+ const r=[createRace()[0]];r[0].speed=28;r[0].offset=0;r[0].driftCharge=.4;
  for(let i=0;i<40;i++)stepRace(r,{up:true,left:true,drift:true},1/60,i/60);
  assert.ok(r[0].driftCharge>=.35);const nitro=r[0].nitro;
  stepRace(r,driveInput(r[0]),1/60,1);assert.ok(r[0].miniTurbo>0);assert.equal(r[0].driftCharge,0);assert.ok(r[0].nitro>=nitro);assert.ok(r[0].boosting);

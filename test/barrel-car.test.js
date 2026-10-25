@@ -30,10 +30,13 @@ test('barril tem aduelas, duas cintas, quatro rodas de raios e rig animado',()=>
  setCharacter(car,'original');assert.equal(bindKart(car).driver,rig.driver);
 });
 
-test('Carro Barril usa as mesmas regras de aceleração, drift e nitro do Carro 10',()=>{
- const a=[createRace({pilot:7})[0]],b=[createRace({pilot:6})[0]];
- for(let i=0;i<300;i++){const input=driveInput(a[0],{boost:i>=180&&i<210});if(i>=220&&i<260){input.drift=true;input.steer=.1;}for(const r of [a,b])stepRace(r,input,1/60,i/60);if(i===209)assert.ok(a[0].boosting&&a[0].nitro<100);if(i===260)assert.ok(a[0].miniTurbo>0);}
- for(const key of ['speed','nitro','distance','miniTurbo','driftCharge'])assert.equal(a[0][key],b[0][key]);assert.ok(a[0].goodDrifts>0);
+test('Barril e Carro 10 preservam drift/nitro com atributos próprios',()=>{
+ for(const pilot of [6,7]){const r=createRace({pilot})[0];for(let i=0;i<40;i++)stepRace([r],{up:true},1/60,i/60);assert.ok(r.speed>0);r.speed=28;r.heading=0;r.angle=0;r.offset=0;r.driftCharge=.4;
+  stepRace([r],{up:true,boost:true},.05,1);assert.ok(r.boosting&&r.nitro<100);
+  for(let i=0;i<40;i++)stepRace([r],{up:true,drift:true,steer:.1},1/60,2+i/60);
+  stepRace([r],{up:true},1/60,3);assert.ok(r.miniTurbo>0);assert.equal(r.goodDrifts,1);
+ }
+ assert.notEqual(createRace({pilot:6})[0].stats.speed,createRace({pilot:7})[0].stats.speed);
 });
 
 test('oito carros terminam campeonato sem pontuação inválida e vitória preserva conquistas',()=>{

@@ -12,7 +12,7 @@ test('cápsulas incluem os dois novos poderes e preservam os anteriores e o espe
 });
 test('cogumelo dá impulso temporário sem gastar nitro, sem voo e sem repetir ao segurar E',()=>{
  const {racers,world}=setup(),r=racers[0];r.item='mushroom';stepItems(racers,world,{item:true},.01,0);
- assert.equal(r.item,null);assert.equal(r.miniTurbo,2.3);assert.equal(r.turboLevel,3);assert.equal(r.nitro,100);
+ assert.equal(r.item,null);assert.equal(r.miniTurbo,2.3);assert.equal(r.turboLevel,2);assert.equal(r.nitro,100);
  stepRace(racers,{up:true},.05,0);assert.ok(r.speed>30);assert.equal(r.nitro,100);assert.equal(r.airTime,0);
  r.item='mushroom';stepItems(racers,world,{item:true},.01,.1);assert.equal(r.item,'mushroom');r.item=null;
  for(let i=0;i<150;i++)stepRace(racers,{},.02,i*.02);
