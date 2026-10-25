@@ -102,8 +102,9 @@ export function stepRace(racers,input,dt,time,surface=null){
    r.nitro=clamp(r.nitro+dt*(boost?-27:r.drifting?20:7),0,100);
    r.speed+=dt*(input.up?(boost?24:r.trackBoost>0?23:r.miniTurbo>0?22:r.draftActive?18:14):input.down?-26:r.miniTurbo>0?12:-6);
    r.speed=clamp(r.speed,input.down?-7:0,boost?49:r.trackBoost>0?44:r.miniTurbo>0?DRIFT_LEVELS[Math.max(0,r.turboLevel-1)].speed:r.draftActive?36:32+(r.coins??0)*.25);
-   const targetSlide=Math.sin(r.heading)*r.speed;
-   r.slide+=(targetSlide-r.slide)*(1-Math.exp(-dt*(r.drifting?2.2:9)));
+   // Project travel into the current track frame each step. Retaining an old
+   // lateral velocity while the frame turns used to push drifting karts into the edge.
+   r.slide=Math.sin(r.heading)*r.speed;
    r.offset+=r.slide*dt;
   }else driveAI(r,racers,dt,time);
   if(surface){const {grade}=surface(r.distance);r.speed-=grade*28*dt;r.speed=clamp(r.speed,-7,r.boosting?49:43);}
