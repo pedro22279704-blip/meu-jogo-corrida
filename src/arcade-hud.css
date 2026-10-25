@@ -21,3 +21,15 @@ body.reduce-motion #speedVeil,body.reduce-motion #driftAura{display:none}
 @media(prefers-reduced-motion:reduce){#hud #speedVeil,#hud #driftAura{display:none}}
 #hud .top{border:0;border-radius:0}#hud[data-training=true] #place{display:none}#hud[data-training=true] #trackBoostStatus{bottom:225px}
 @media(max-width:650px){#hud[data-training=true] #trackBoostStatus{bottom:330px}}
+
+/* Chunky race counters and original vector power icons. */
+#hud #coinCounter,#hud #lap{position:fixed;left:24px;right:auto;display:flex;align-items:center;gap:12px;min-width:122px;box-sizing:border-box;border:2px solid #a9e2ed;border-radius:15px;padding:8px 14px;background:linear-gradient(135deg,#274b69e8,#10233ce8);box-shadow:0 4px 0 #071322a8;font-size:32px;line-height:1.1;font-weight:1000;font-style:italic;color:white;font-variant-numeric:tabular-nums;text-shadow:0 3px 1px #071322}
+#hud #coinCounter{bottom:185px;border-color:#ffc74e}
+#hud #coinCounter::before{content:'◆';display:grid;place-items:center;width:30px;height:34px;border-radius:50%;border:3px solid #ffec7e;color:#fff49a;font-size:20px;background:linear-gradient(100deg,#ce7511,#ffe94b,#e8a31b);box-shadow:inset 3px 0 0 #ab6a12,2px 3px 0 #071322;transform:rotate(-10deg);text-shadow:none}
+#hud #lap{bottom:122px;max-width:260px;font-size:28px}
+#hud #lap::before{content:'';width:32px;height:32px;flex:none;background:repeating-conic-gradient(#fff 0% 25%,#17273c 0% 50%) 0 0/16px 16px;clip-path:polygon(0 0,100% 10%,90% 85%,0 75%);transform:rotate(10deg)}
+#hud #place{font-size:108px;bottom:50px;right:32px;color:#ffe254;-webkit-text-stroke:3px #6b3825;text-shadow:4px 7px 0 #081b2e,0 -3px 0 #fff5b1;filter:drop-shadow(0 0 9px #07132255)}
+#hud #itemStatus{border:3px solid #ccecf7;border-radius:24px;background:linear-gradient(140deg,#516886eb,#15263bed);box-shadow:0 5px 0 #08172699,inset 0 0 12px #b6b4ff55}
+#hud #powerIcon{width:78px;height:78px;filter:drop-shadow(0 4px 2px #07132288)}
+#hud #itemStatus[data-power=mushroom]{border-color:#ffcb56}#hud #itemStatus[data-power=shell]{border-color:#ff829e}
+@media(max-width:650px){#hud #coinCounter,#hud #lap{left:12px;min-width:96px;gap:8px;font-size:25px;padding:6px 10px}#hud #coinCounter{bottom:172px}#hud #lap{bottom:119px;font-size:21px;max-width:190px}#hud #coinCounter::before{width:23px;height:27px;font-size:16px}#hud #lap::before{width:25px;height:25px;background-size:12px 12px}#hud #place{font-size:76px;right:16px;bottom:70px;-webkit-text-stroke-width:2px}#hud #powerIcon{width:54px;height:54px}#hud #itemStatus{max-width:130px}}
