@@ -9,11 +9,12 @@ export function courseHeading(id,distance,shortcut=false){
 }
 export function steerManually(r,steer,dt){
  r.heading??=r.angle;r.driftSlip??=0;r.yawRate??=0;
- // Menos ganho perto do centro do analógico e curvas mais largas em velocidade.
- const softened=Math.sign(steer)*Math.abs(steer)**1.3;r.steerVisual=softened;
+ // Heading is the direction of travel; driftSlip turns the body inward so the rear swings out.
+ const softened=Math.sign(steer)*Math.abs(steer)**1.15;r.steerVisual=softened;
  const direction=r.speed<-.5?-1:1,speedFactor=Math.max(.4,Math.min(1,Math.abs(r.speed)/16));
- const highSpeed=1-Math.max(0,Math.min(1,(Math.abs(r.speed)-32)/17))*.12;
- const rate=(r.drifting?r.driftDirection*(.22+.60*softened*r.driftDirection):softened*1.15)*r.settings.sensitivity*speedFactor*highSpeed*direction;
- r.yawRate+=(rate-r.yawRate)*(1-Math.exp(-dt*(Math.abs(steer)>.01?7:12)));r.heading=wrapAngle(r.heading+r.yawRate*dt);
- const slip=r.drifting?r.driftDirection*(.20+.09*softened*r.driftDirection):0;r.driftSlip+=(slip-r.driftSlip)*(1-Math.exp(-dt*7));r.angle=wrapAngle(r.heading+r.driftSlip);
+ const highSpeed=1-Math.max(0,Math.min(1,(Math.abs(r.speed)-32)/17))*.08;
+ const alignment=softened*r.driftDirection;
+ const rate=(r.drifting?r.driftDirection*Math.max(.18,.85+.95*alignment):softened*1.65)*r.settings.sensitivity*speedFactor*highSpeed*direction;
+ r.yawRate+=(rate-r.yawRate)*(1-Math.exp(-dt*(Math.abs(steer)>.01?10:14)));r.heading=wrapAngle(r.heading+r.yawRate*dt);
+ const slip=r.drifting?r.driftDirection*(.42+.14*alignment):0;r.driftSlip+=(slip-r.driftSlip)*(1-Math.exp(-dt*(r.drifting?9:12)));r.angle=wrapAngle(r.heading+r.driftSlip);
 }
