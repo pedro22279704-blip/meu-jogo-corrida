@@ -5,7 +5,7 @@ import {PILOTS} from '../src/settings.js';
 import {surfaceProfile} from '../src/surface.js';
 import assert from 'node:assert/strict';
 import {createRace,stepRace,orderRacers,lapOf,TRACK_LENGTH,ROAD_LIMIT,resolveCollisions} from '../src/race.js';
-test('oito pilotos aceleram e fazem drift sem nitro manual',()=>{const r=createRace();assert.equal(r.length,PILOTS.length);for(let i=0;i<180;i++)stepRace(r,driveInput(r[0]),1/60,i/60);assert.ok(r[0].speed>10);assert.equal('nitro' in r[0],false);stepRace(r,{up:true,right:true,drift:true},.05,5);assert.ok(r[0].drifting);assert.equal(r[0].steerVisual,-1);});
+test('oito pilotos aceleram e fazem drift sem nitro manual',()=>{assert.equal(createRace().length,PILOTS.length);for(let pilot=0;pilot<PILOTS.length;pilot++){const r=[createRace({pilot})[0]];for(let i=0;i<180;i++)stepRace(r,driveInput(r[0]),1/60,i/60);assert.ok(r[0].speed>12);assert.equal('nitro' in r[0],false);stepRace(r,{up:true,right:true,drift:true},.05,5);assert.ok(r[0].drifting);assert.equal(r[0].steerVisual,-1);}});
 test('voltas, classificação e corrida completa da IA',()=>{const r=createRace();r[0].distance=TRACK_LENGTH+1;assert.equal(lapOf(r[0]),2);assert.equal(orderRacers(r)[0].index,0);for(let i=0;i<20000;i++)stepRace(r,{},1/60,i/60);assert.ok(r.slice(1).every(p=>p.finished));assert.ok(orderRacers(r)[0].finished);assert.equal(r[0].finished,false);});
 test('jogador termina após três voltas, sem acumular voltas após chegada',()=>{const r=createRace();for(let i=0;i<20000;i++)stepRace(r,driveInput(r[0]),1/60,i/60);assert.ok(r[0].finished);assert.equal(r[0].distance,3*TRACK_LENGTH);const time=r[0].finishTime;stepRace(r,driveInput(r[0]),1,200);assert.equal(r[0].finishTime,time);assert.equal(lapOf(r[0]),3);});
 

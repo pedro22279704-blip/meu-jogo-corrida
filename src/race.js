@@ -88,13 +88,13 @@ export function stepRace(racers,input,dt,time,surface=null){
    const steer=Number.isFinite(input.steer)?clamp(input.steer,-1,1):Number(!!input.left)-Number(!!input.right);
    const wasDrifting=r.drifting;
    r.driftHop=Math.max(0,(r.driftHop??0)-dt);
-   r.drifting=!!input.drift&&r.speed>12&&(wasDrifting||Math.abs(steer)>.05);
+   r.drifting=!!input.drift&&r.speed>12&&r.hit<=0&&r.slow<=0&&(wasDrifting||Math.abs(steer)>.05);
    if(r.drifting&&!wasDrifting){r.driftDirection=Math.sign(steer);r.driftHop=0;}
    if(r.drifting&&!r.driftDirection)r.driftDirection=Math.sign(steer)||1;
    r.miniTurbo=Math.max(0,r.miniTurbo-dt);
    if(r.drifting)r.driftCharge=clamp(r.driftCharge+dt*driftChargeRate(steer*r.driftDirection),0,1);
    else if(wasDrifting){
-    const level=driftLevel(r.driftCharge);if(!input.drift&&level>0){r.turboLevel=level;r.miniTurbo=DRIFT_LEVELS[level-1].duration;r.goodDrifts++;}
+    const level=driftLevel(r.driftCharge);if(!input.drift&&level>0&&r.speed>12&&r.hit<=0&&r.slow<=0){r.turboLevel=level;r.miniTurbo=DRIFT_LEVELS[level-1].duration;r.goodDrifts++;}
     r.driftCharge=0;
    }
    steerManually(r,steer,dt);
@@ -103,8 +103,8 @@ export function stepRace(racers,input,dt,time,surface=null){
    const maximum=r.trackBoost>0?44:r.miniTurbo>0?DRIFT_LEVELS[Math.min(DRIFT_LEVELS.length-1,Math.max(0,r.turboLevel-1))].speed:r.draftActive?normalTopSpeed(r)+4:normalTopSpeed(r);
    const traction=(r.shortcutFailed||!r.shortcut&&Math.abs(r.offset)>8.4)?r.stats.offroad:1;
    r.speed=clamp(r.speed,input.down?-7:0,maximum*environment.speed*traction);
-   // Project travel into the current track frame each step. Retaining an old
-   // lateral velocity while the frame turns used to push drifting karts into the edge.
+   // The vector of travel differs from the body by driftSlip. Project it into
+   // the current road frame, so banking/curvature cannot accumulate a lane push.
    r.slide=Math.sin(r.heading)*r.speed;
    r.offset+=r.slide*dt;
   }else driveAI(r,racers,dt,time);
