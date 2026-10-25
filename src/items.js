@@ -5,7 +5,8 @@ import {launchBone,advanceBones,boneTarget} from './bone-power.js';
 import {launchShell,advanceShells} from './shell-power.js';
 import {TRACK_LENGTH,ROAD_LIMIT,clamp,resolveCollisions,orderRacers} from './race.js';
 export const ITEM_LABELS={shield:'Bolha protetora',gum:'Goma de cais',pulse:'Pulso de vento',bone:'Osso Perseguidor',mushroom:'Cogumelo Relâmpago',shell:'Casco Estelar',storm:'Onda Iônica',banana:'Casca Escorregadia',star:'Estrela Neon',triple:'Cogumelos Triplos'};
-export function createItems(settings={}){const length=trackLength(settings.track),stations=length===760?[80,250,430,610]:Array.from({length:Math.round(length/190)},(_,i)=>(i+.5)*length/Math.round(length/190));return {boxes:stations.flatMap(distance=>[-3,0,3].map(offset=>({distance,offset,cooldown:0,picks:0}))),puddles:[],bones:[],shells:[],pulse:null};}
+export const CAPSULE_LANES=Object.freeze([-8.75,-5.25,-1.75,1.75,5.25,8.75]);
+export function createItems(settings={}){const length=trackLength(settings.track),stations=length===760?[80,250,430,610]:Array.from({length:Math.round(length/190)},(_,i)=>(i+.5)*length/Math.round(length/190));return {boxes:stations.flatMap(distance=>CAPSULE_LANES.map(offset=>({distance,offset,cooldown:0,picks:0}))),puddles:[],bones:[],shells:[],pulse:null};}
 const gap=(a,b,length=TRACK_LENGTH)=>((a-b+length/2)%length+length)%length-length/2;
 export function chooseItem(position,total,roll){const x=((roll%1)+1)%1;const weights=position<=2?[.6,.3,.1]:position>=total-1?[.2,.15,.65]:[.35,.25,.4];return x<weights[0]?'shield':x<weights[0]+weights[1]?'gum':'pulse';}
 export function racerItem(r,position,total,roll,distance=null){if(r.index===0&&r.settings?.character==='gugar'&&roll<.45)return 'bone';if(distance!==null)return distanceItem(distance,roll);return roll>=.7?(roll<.85?'mushroom':'shell'):chooseItem(position,total,roll/.7);}

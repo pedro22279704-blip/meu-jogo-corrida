@@ -29,7 +29,7 @@ test('voltas e chegada usam a extensão de cada pista, sem terminar no antigo li
 });
 
 test('itens, vácuo e colisões reconhecem a linha de chegada das pistas maiores',()=>{
- for(const track of ['fair','sawmill','night']){const length=trackLength(track),[a,b]=createRace({track}),items=createItems({track});assert.ok(items.boxes.length<=96&&items.boxes.length>12);assert.ok(items.boxes.some(b=>b.distance>760));a.distance=length-6;b.distance=5;a.offset=b.offset=0;a.speed=b.speed=30;assert.equal(draftingTarget(a,[a,b]),b);a.distance=length-.5;b.distance=.5;resolveCollisions([a,b]);assert.ok(Math.abs(a.distance-(length-.5))>.01||Math.abs(a.offset)>0);a.distance=length+items.boxes.at(-1).distance;a.offset=items.boxes.at(-1).offset;stepItems([a],items,{},.01,1);assert.ok(a.item);}
+ for(const track of ['fair','sawmill','night']){const length=trackLength(track),[a,b]=createRace({track}),items=createItems({track});assert.ok(items.boxes.length<=180&&items.boxes.length>24);assert.ok(items.boxes.some(b=>b.distance>760));a.distance=length-6;b.distance=5;a.offset=b.offset=0;a.speed=b.speed=30;assert.equal(draftingTarget(a,[a,b]),b);a.distance=length-.5;b.distance=.5;resolveCollisions([a,b]);assert.ok(Math.abs(a.distance-(length-.5))>.01||Math.abs(a.offset)>0);a.distance=length+items.boxes.at(-1).distance;a.offset=items.boxes.at(-1).offset;stepItems([a],items,{},.01,1);assert.ok(a.item);}
 });
 
 test('backup mantém recordes e fantasmas antigos e novos sem misturá-los',()=>{

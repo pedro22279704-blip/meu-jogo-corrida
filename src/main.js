@@ -254,7 +254,7 @@ $('backupFile').onchange=async()=>{
 showSettings();
 const itemVisualRoot=new THREE.Group();scene.add(itemVisualRoot);
 const capsuleGeometry=new THREE.OctahedronGeometry(.65),capsuleMaterial=mat('#b4fffd');
-const capsules=Array.from({length:30},()=>{const o=new THREE.Mesh(capsuleGeometry,capsuleMaterial);itemVisualRoot.add(o);const icon=new THREE.Sprite(new THREE.SpriteMaterial({transparent:true,opacity:0}));icon.position.y=1;icon.scale.set(1.3,1.3,1);o.add(icon);o.userData.icon=icon;return o;});
+const capsules=Array.from({length:Math.max(...Object.keys(TRACKS).map(track=>createItems({track}).boxes.length))},()=>{const o=new THREE.Mesh(capsuleGeometry,capsuleMaterial);itemVisualRoot.add(o);const icon=new THREE.Sprite(new THREE.SpriteMaterial({transparent:true,opacity:0}));icon.position.y=1;icon.scale.set(1.3,1.3,1);o.add(icon);o.userData.icon=icon;return o;});
 const bubbles=karts.map(kart=>{const bubble=new THREE.Mesh(new THREE.SphereGeometry(1.6,16,12),new THREE.MeshStandardMaterial({color:'#76dcff',transparent:true,opacity:.24,depthWrite:false}));bubble.position.y=.9;kart.add(bubble);kart.userData.bubble=bubble;return bubble;});
 const shellVisuals=Array.from({length:20},()=>{const mesh=createShellModel();mesh.visible=false;itemVisualRoot.add(mesh);return mesh;});
 const boneVisuals=Array.from({length:20},()=>{const bone=createBoneModel();bone.visible=false;itemVisualRoot.add(bone);return bone;});
