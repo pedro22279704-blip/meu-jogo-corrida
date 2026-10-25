@@ -1,0 +1,23 @@
+#hud .top{background:none;box-shadow:none;padding:0;top:20px;left:22px;right:24px;align-items:start;gap:12px;pointer-events:none}
+#hud .top>strong{display:none}#hud #timer{padding:8px 12px;background:#0c2634b8;border-radius:10px;font-size:13px;font-variant-numeric:tabular-nums;margin-left:auto;order:1}
+#hud #lap{order:2;padding:8px 12px;background:#0c2634c9;border-radius:10px;font-size:14px;font-weight:900}
+#hud #place{position:fixed;right:28px;bottom:100px;font-size:68px;font-weight:1000;font-style:italic;color:#ffe879;-webkit-text-stroke:2px #35465b;text-shadow:0 5px 0 #071724;letter-spacing:-3px}
+#hud #itemStatus{top:20px;bottom:auto;left:24px;transform:none;min-width:110px;max-width:200px;background:linear-gradient(130deg,#203b5bdd,#0c2638e8);border:2px solid #9bdaec;border-radius:18px;padding:9px}
+#hud #powerIcon{width:62px;height:62px}#hud #powerLabel{font-size:11px}#hud #powerKey{font-size:10px}
+#hud .bottom{left:22px;right:22px;bottom:20px;pointer-events:none}#hud .bottom>div{background:#102b40cf;border:1px solid #81b6c174;border-radius:14px;padding:10px 14px}#hud #speed{font-size:30px}
+#hud .bottom>div:nth-child(2){position:absolute;left:135px;bottom:0;font-size:10px;padding:9px 12px}#hud progress{height:6px;margin:5px 0;width:130px}#hud #drift{max-width:210px;font-size:9px}
+#hud #hudDetails{top:122px;left:24px;padding:7px 10px;font-size:10px;background:#13384bd9}
+#hud #coinCounter{position:absolute;left:24px;bottom:122px;background:#183349cc;border:2px solid #ffd964;border-radius:22px;padding:8px 14px;font-weight:900;font-size:18px;color:#ffe486}
+#hud #flightStatus{position:absolute;left:50%;bottom:155px;transform:translateX(-50%);font-weight:1000;font-style:italic;letter-spacing:2px;font-size:20px;color:#eafff8;text-align:center;text-shadow:0 3px 0 #14364e}
+#hud #speedVeil{position:absolute;inset:0;pointer-events:none;background:repeating-conic-gradient(from 0deg at 50% 55%,#9cffff00 0deg 11deg,#b8ffff55 11.1deg 11.35deg,#9cffff00 11.5deg 27deg);mask-image:radial-gradient(ellipse,transparent 40%,#000 100%);opacity:0;transition:opacity .2s}
+#hud #speedVeil[data-active=true]{opacity:.55}
+#hud #driftAura{position:absolute;width:200px;height:12px;left:calc(50% - 100px);bottom:25%;background:var(--drift-color,#70edff);filter:blur(16px);opacity:0;pointer-events:none}
+#hud #driftAura[data-active=true]{opacity:.6}
+body.reduce-motion #speedVeil,body.reduce-motion #driftAura{display:none}
+#pause{top:80px!important;right:24px!important;font-size:11px!important;padding:8px 12px!important}#sound{top:119px!important;right:24px!important;font-size:10px!important;padding:7px 10px!important}
+#hud .map-panel{top:175px;right:24px;background:#102a3dbb;border:1px solid #94c8d177}
+#hud #raceEvent{top:94px;font-size:12px}#hud #draftStatus{top:130px;font-size:11px}
+@media(max-width:650px){#hud .top{top:12px;right:12px;left:12px;gap:6px}#hud #timer{font-size:10px;padding:7px}#hud #lap{font-size:10px;padding:7px;max-width:150px}#hud #place{font-size:49px;bottom:90px;right:14px}#hud #itemStatus{top:12px;left:12px;max-width:120px;min-width:95px;padding:6px}#hud #powerIcon{width:44px;height:44px}#hud #powerLabel{font-size:9px}#hud #powerKey{font-size:9px}#hud #coinCounter{left:12px;bottom:112px;font-size:14px;padding:6px 12px}#hud .bottom{left:12px;right:12px;bottom:12px}#hud .bottom>div:nth-child(2){left:110px;max-width:160px}#hud #speed{font-size:26px}#hud progress{width:115px}#hud #hudDetails{left:12px;top:115px;font-size:9px;max-width:130px}#hud #flightStatus{bottom:210px;font-size:15px;width:80%}#pause{right:12px!important;top:65px!important}#sound{right:12px!important;top:104px!important}#hud #leaveTutorial{top:145px;left:50%;font-size:9px}#hud #tutorialCoach{bottom:250px;font-size:10px}#hud .map-panel{right:12px;top:180px}#hud .map-panel canvas{width:130px;height:105px}#hud #raceEvent{top:162px;max-width:90%;font-size:10px}#hud #draftStatus{top:195px}}
+@media(prefers-reduced-motion:reduce){#hud #speedVeil,#hud #driftAura{display:none}}
+#hud .top{border:0;border-radius:0}#hud[data-training=true] #place{display:none}#hud[data-training=true] #flightStatus{bottom:225px}
+@media(max-width:650px){#hud[data-training=true] #flightStatus{bottom:330px}}

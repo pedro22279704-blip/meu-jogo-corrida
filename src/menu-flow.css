@@ -32,3 +32,5 @@
 #menu.menu-fullscreen:not([data-stage=home]) .menu-header{background:#102b46}
 #menu .character-card small{font-size:11px;line-height:1.5;color:#ffe1a0;max-width:180px}
 @media(min-width:1000px){.character-grid{grid-template-columns:repeat(5,minmax(0,1fr))}#menu .character-card{padding:16px 8px}}
+@media(min-width:1050px){#menu.menu-fullscreen[data-stage=cars] #page-pilots{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:20px;align-items:start}#menu[data-stage=cars] #page-pilots>p:first-child{grid-column:1/-1;grid-row:1}#menu[data-stage=cars] .kart-showcase{grid-column:1;grid-row:2;position:sticky;top:200px;background:radial-gradient(ellipse at 50% 70%,#58b6ad66,transparent 65%),#1b4058}#menu[data-stage=cars] #page-pilots>fieldset{grid-column:2;grid-row:2}#menu[data-stage=cars] #kartPreview{height:360px}#menu[data-stage=cars] .pilot-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#menu[data-stage=cars] #page-pilots>label{grid-column:1/-1;grid-row:3}}
+#menu.menu-fullscreen .menu-tabs button[aria-selected=false]{background:#365569;color:#e9f4f6;box-shadow:none}
